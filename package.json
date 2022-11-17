@@ -1,7 +1,7 @@
 {
   "name": "@gfusee/elrond-wasm-as",
-  "version": "0.0.4",
-  "description": "Elrond Smart Contract framework for AssemblyScript",
+  "version": "0.0.5",
+  "description": "AssemblyScript smart contract library designed for Elrond's VM.",
   "types": "index.ts",
   "type": "module",
   "scripts": {
@@ -31,6 +31,6 @@
     "bindgen"
   ],
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   }
 }
