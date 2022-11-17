@@ -10,6 +10,10 @@ The aim of this repo is to make a proof of concept and ONLY a proof of concept. 
 
 ## Getting started
 
+### AssemblyScript
+
+AssemblyScript is nearly the same as Typescript, but there is still some difference, please check https://www.assemblyscript.org/ to have more informations.
+
 ### Contract development
 
 #### Build the empty contract
