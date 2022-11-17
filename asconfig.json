@@ -1,0 +1,17 @@
+{
+  "targets": {
+    "release": {
+      "optimizeLevel": 3,
+      "shrinkLevel": 2,
+      "converge": true,
+      "noAssert": false
+    }
+  },
+  "options": {
+    "runtime": "stub",
+    "enable": ["gc", "reference-types"],
+    "disable": ["bulk-memory"],
+    "use": "abort=wasiabort",
+    "transform": ["./bindgen/dist/transformer.js"]
+  }
+}

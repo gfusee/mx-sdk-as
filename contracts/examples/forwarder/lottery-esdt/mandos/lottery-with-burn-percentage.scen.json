@@ -1,0 +1,118 @@
+{
+    "name": "start with no options",
+    "gasSchedule": "dummy",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "init.scen.json"
+        },
+        {
+            "step": "scCall",
+            "txId": "start limited tickets, fixed deadline - invalid",
+            "comment": "try starting lottery without setting local burn role",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:caller",
+                "function": "forwardStart",
+                "arguments": [
+                    "str:lottery_name",
+                    "str:LOTTERY-123456",
+                    "100",
+                    "0x01|u32:2",
+                    "0x01|u64:123,456",
+                    "0x",
+                    "0x",
+                    "0x",
+                    "50"
+                ],
+                "gasLimit": "100,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "10",
+                "message": "str:error signalled by smartcontract",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "comment": "simulate a local roles set for the token that will be used",
+            "accounts": {
+                "sc:lottery": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "esdt": {
+                        "str:LOTTERY-123456": {
+                            "roles": [
+                                "ESDTRoleLocalBurn"
+                            ]
+                        }
+                    },
+                    "code": "file:../../../lottery-esdt/build/release.wasm"
+                }
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "start limited tickets, fixed deadline, 50% burn rate",
+            "comment": "start lottery after setting local burn role",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:caller",
+                "function": "forwardStart",
+                "arguments": [
+                    "str:lottery_name",
+                    "str:LOTTERY-123456",
+                    "100",
+                    "0x01|u32:2",
+                    "0x01|u64:123,456",
+                    "0x",
+                    "0x",
+                    "0x",
+                    "50"
+                ],
+                "gasLimit": "100,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "sc:lottery": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "esdt": {
+                        "str:LOTTERY-123456": {
+                            "roles": [
+                                "ESDTRoleLocalBurn"
+                            ]
+                        }
+                    },
+                    "storage": {
+                        "str:lotteryInfo|nested:str:lottery_name": {
+                            "0-token_identifier": "nested:str:LOTTERY-123456",
+                            "1-ticket_price": "biguint:100",
+                            "2-tickets-left": "u32:2",
+                            "3-deadline": "u64:123,456",
+                            "4-max_entries_per_user": "u32:800",
+                            "5-prize_distribution": "nested:u8:100",
+                            "6-prize_pool": "biguint:0"
+                        },
+                        "str:burnPercentageForLottery|nested:str:lottery_name": "50"
+                    },
+                    "code": "*"
+                },
+                "+": "*"
+            }
+        }
+    ]
+}

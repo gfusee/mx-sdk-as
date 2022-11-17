@@ -1,0 +1,24 @@
+{
+  "extends": "assemblyscript/std/assembly.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "target": "esnext",
+    "module": "commonjs",
+    "downlevelIteration": true,
+    "preserveConstEnums": true,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noEmitOnError": true,
+    "allowJs": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "declaration": true
+  },
+  "include": [
+    "./**/*.ts"
+, "../build/bigInt.ts"  ]
+}

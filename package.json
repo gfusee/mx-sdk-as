@@ -1,0 +1,36 @@
+{
+  "name": "@gfusee/elrond-wasm-as",
+  "version": "0.0.4",
+  "description": "Elrond Smart Contract framework for AssemblyScript",
+  "types": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "npm run asbuild",
+    "prepare": "cd bindgen && tsc",
+    "asbuild:tsd": "asc assembly/index.ts -d build/index.d.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "visitor-as": "^0.10.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.14",
+    "assemblyscript": "0.21.2",
+    "typescript": "4.8.2"
+  },
+  "author": "gfusee",
+  "license": "GNU GENERAL PUBLIC LICENSE",
+  "main": "index.ts",
+  "ascMain": "index.ts",
+  "files": [
+    "bindgen/dist/**/*",
+    "core/**/*",
+    "asconfig.json"
+  ],
+  "workspaces": [
+    "bindgen"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  }
+}
