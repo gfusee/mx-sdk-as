@@ -55,6 +55,7 @@ export declare function storageLoad(keyOffset: i32, keyLength: i32, dataOffset: 
 
 export declare function getBlockTimestamp(): i64;
 export declare function getBlockRound(): i64;
+export declare function getBlockNonce(): i64;
 export declare function getBlockEpoch(): i64;
 export declare function managedGetBlockRandomSeed(resultHandle: i32): void;
 export declare function getOriginalTxHash(resultOffset: i32): void;

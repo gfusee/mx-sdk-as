@@ -3,6 +3,7 @@ import {
     bigIntGetExternalBalance,
     getBlockEpoch,
     getBlockRound,
+    getBlockNonce,
     getBlockTimestamp,
     getCaller,
     getESDTLocalRoles,
@@ -28,6 +29,11 @@ export class Blockchain {
     get currentBlockEpoch(): ElrondU64 {
         const blockEpochRaw = getBlockEpoch()
         return ElrondU64.fromValue(blockEpochRaw as u64)
+    }
+
+    get currentBlockNonce(): ElrondU64 {
+        const blockNonceRaw = getBlockNonce()
+        return ElrondU64.fromValue(blockNonceRaw as u64)
     }
 
     get currentBlockRandomSeed(): ElrondString {
@@ -74,7 +80,7 @@ export class Blockchain {
                 nonce
             )
         }
-        
+
     }
 
     getEGLDBalance(

@@ -1,6 +1,6 @@
 {
   "name": "@gfusee/elrond-wasm-as",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "AssemblyScript smart contract library designed for Elrond's VM.",
   "types": "index.ts",
   "type": "module",
