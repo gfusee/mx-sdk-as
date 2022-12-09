@@ -2,7 +2,7 @@
 
 import {
     BigUint,
-    ContractBase, ElrondArray, ElrondString, ElrondU32, ElrondU64
+    ContractBase
 } from "@gfusee/elrond-wasm-as";
 
 @contract
