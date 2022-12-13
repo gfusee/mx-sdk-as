@@ -10,7 +10,7 @@ import {
     getGasLeft,
     getOriginalTxHash,
     getOwnerAddress,
-    getSCAddress, managedGetBlockRandomSeed, Static
+    getSCAddress, managedGetBlockRandomSeed, Static, isSmartContract
 } from "../utils/env";
 import {BigUint, ElrondString, ElrondU64, ESDTLocalRole, ManagedAddress, TokenIdentifier} from "../types";
 
@@ -81,6 +81,16 @@ export class Blockchain {
             )
         }
 
+    }
+
+    isSmartContract(
+        address: ManagedAddress
+    ): boolean {
+        const addressBytes = address.utils.toBytes()
+
+        return isSmartContract(
+            changetype<i32>(addressBytes.buffer)
+        ) > 0
     }
 
     getEGLDBalance(
