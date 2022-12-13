@@ -63,6 +63,7 @@ export declare function getCaller(resultOffset: i32): void;
 export declare function getSCAddress(resultOffset: i32): void;
 export declare function getOwnerAddress(resultOffset: i32): void;
 export declare function getGasLeft(): i64;
+export declare function isSmartContract(address_ptr: i32): i32;
 export declare function bigIntGetExternalBalance(address_ptr: i32, dest: i32): void;
 export declare function bigIntGetESDTExternalBalance(
   address_ptr: i32,
