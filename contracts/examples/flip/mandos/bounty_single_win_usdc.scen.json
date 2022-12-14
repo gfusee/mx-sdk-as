@@ -1,0 +1,108 @@
+{
+    "name": "flip",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "flip_single_usdc.scen.json"
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty single flip too early",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "4",
+                "message": "str:no bounty",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "1"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty single flip",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "*",
+                    "esdt": "*",
+                    "storage": {
+                        "str:tokenReserve|nested:str:USDC-abcdef|u64:1": "99,906,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "address:owner": {
+                    "nonce": "*",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "5,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:player1": {
+                    "nonce": "*",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,088,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:bounty1": {
+                    "nonce": "*",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "1,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "+": ""
+            }
+        }
+    ]
+}

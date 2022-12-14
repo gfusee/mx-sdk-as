@@ -1,0 +1,319 @@
+{
+    "name": "flip",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "init.scen.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "setup_egld._scen.json"
+        },
+        {
+            "step": "scCall",
+            "txId": "player1 flip 100,000",
+            "tx": {
+                "from": "address:player1",
+                "to": "sc:flip",
+                "value": "100,000",
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "1"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty player1 flip",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "*",
+                    "storage": {
+                        "str:tokenReserve|nested:str:EGLD|u64:0": "99,906,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "address:owner": {
+                    "nonce": "*",
+                    "balance": "5,000"
+                },
+                "address:player1": {
+                    "nonce": "*",
+                    "balance": "100,088,000"
+                },
+                "address:bounty1": {
+                    "nonce": "*",
+                    "balance": "1,000"
+                },
+                "+": ""
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "player2 flip 100,000",
+            "tx": {
+                "from": "address:player2",
+                "to": "sc:flip",
+                "value": "100,000",
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "2"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "player3 flip 100,000",
+            "tx": {
+                "from": "address:player3",
+                "to": "sc:flip",
+                "value": "100,000",
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty player2 flip",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "*",
+                    "balance": "15,000"
+                },
+                "address:player1": {
+                    "nonce": "*",
+                    "balance": "100,088,000"
+                },
+                "address:player2": {
+                    "nonce": "*",
+                    "balance": "99,900,000"
+                },
+                "address:bounty1": {
+                    "nonce": "*",
+                    "balance": "2,000"
+                },
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "*",
+                    "storage": {
+                        "str:tokenReserve|nested:str:EGLD|u64:0": "99,906,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "+": ""
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "3"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "player4 flip 100,000",
+            "tx": {
+                "from": "address:player4",
+                "to": "sc:flip",
+                "value": "100,000",
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "4"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "player5 flip 100,000",
+            "tx": {
+                "from": "address:player5",
+                "to": "sc:flip",
+                "value": "100,000",
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "player6 flip 100,000",
+            "tx": {
+                "from": "address:player6",
+                "to": "sc:flip",
+                "value": "100,000",
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "5"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty player3 to player6 flip",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "*",
+                    "balance": "30,000"
+                },
+                "address:player1": {
+                    "nonce": "*",
+                    "balance": "100,088,000"
+                },
+                "address:player2": {
+                    "nonce": "*",
+                    "balance": "99,900,000"
+                },
+                "address:player3": {
+                    "nonce": "*",
+                    "balance": "100,088,000"
+                },
+                "address:player4": {
+                    "nonce": "*",
+                    "balance": "99,900,000"
+                },
+                "address:player5": {
+                    "nonce": "*",
+                    "balance": "99,900,000"
+                },
+                "address:player6": {
+                    "nonce": "*",
+                    "balance": "99,900,000"
+                },
+                "address:bounty1": {
+                    "nonce": "*",
+                    "balance": "6,000"
+                },
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "*",
+                    "storage": {
+                        "str:tokenReserve|nested:str:EGLD|u64:0": "100,188,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "+": ""
+            }
+        }
+    ]
+}

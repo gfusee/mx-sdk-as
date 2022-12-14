@@ -1,0 +1,67 @@
+{
+    "name": "flip",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "init.scen.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "setup_usdc._scen.json"
+        },
+        {
+            "step": "scCall",
+            "txId": "player1 flip 100,000",
+            "tx": {
+                "from": "address:player1",
+                "to": "sc:flip",
+                "esdtValue": [
+                    {
+                        "tokenIdentifier": "str:USDC-abcdef",
+                        "nonce": "1",
+                        "value": "100,000"
+                    }
+                ],
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "*",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "5,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "*",
+                    "esdt": "*",
+                    "storage": {
+                        "str:tokenReserve|nested:str:USDC-abcdef|u64:1": "99,906,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "+": ""
+            }
+        }
+    ]
+}

@@ -1,0 +1,116 @@
+{
+    "name": "flip",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "flip_single.scen.json"
+        },
+        {
+            "step": "setState",
+            "accounts": {
+                "sc:unknown_contract": {
+                    "nonce": "1",
+                    "balance": "0",
+                    "code": "file:../build/release.wasm"
+                }
+            },
+            "newAddresses": [
+                {
+                    "creatorAddress": "address:owner",
+                    "creatorNonce": "1",
+                    "newAddress": "sc:flip"
+                }
+            ]
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty single flip too early",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "4",
+                "message": "str:no bounty",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "1"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "smart contract try to bounty",
+            "tx": {
+                "from": "sc:unknown_contract",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "4",
+                "message": "str:caller is a smart contract",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty single flip",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "*",
+                    "storage": {
+                        "str:tokenReserve|nested:str:EGLD|u64:0": "99,906,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "address:owner": {
+                    "nonce": "*",
+                    "balance": "5,000"
+                },
+                "address:player1": {
+                    "nonce": "*",
+                    "balance": "100,088,000"
+                },
+                "address:bounty1": {
+                    "nonce": "*",
+                    "balance": "1,000"
+                },
+                "+": ""
+            }
+        }
+    ]
+}
