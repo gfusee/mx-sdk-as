@@ -1,0 +1,81 @@
+{
+    "name": "flip",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "flip_single.scen.json"
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty single flip too early",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "4",
+                "message": "str:no bounty",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "setState",
+            "currentBlockInfo": {
+                "blockNonce": "1",
+                "blockRandomSeed": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "bounty1 bounty single flip",
+            "tx": {
+                "from": "address:bounty1",
+                "to": "sc:flip",
+                "function": "bounty",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "100,094,000",
+                    "storage": {
+                        "str:tokenReserve|nested:str:EGLD|u64:0": "100,094,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "address:owner": {
+                    "nonce": "*",
+                    "balance": "5,000"
+                },
+                "address:player1": {
+                    "nonce": "*",
+                    "balance": "99,900,000"
+                },
+                "address:bounty1": {
+                    "nonce": "*",
+                    "balance": "1,000"
+                },
+                "+": ""
+            }
+        }
+    ]
+}

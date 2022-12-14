@@ -1,0 +1,47 @@
+{
+    "name": "flip",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "init.scen.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "setup_egld._scen.json"
+        },
+        {
+            "step": "scCall",
+            "txId": "player1 flip 100,000",
+            "tx": {
+                "from": "address:player1",
+                "to": "sc:flip",
+                "value": "100,000",
+                "function": "flip",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "sc:flip": {
+                    "nonce": "*",
+                    "balance": "*",
+                    "storage": {
+                        "str:tokenReserve|nested:str:EGLD|u64:0": "99,906,000",
+                        "+": "*"
+                    },
+                    "code": "*"
+                },
+                "+": ""
+            }
+        }
+    ]
+}

@@ -1,0 +1,218 @@
+{
+    "name": "flip",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "1",
+                    "balance": "0",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,000,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:player1": {
+                    "nonce": "1",
+                    "balance": "0",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,000,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:player2": {
+                    "nonce": "1",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,000,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:player3": {
+                    "nonce": "1",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,000,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:player4": {
+                    "nonce": "1",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,000,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:player5": {
+                    "nonce": "1",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,000,000"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "address:player6": {
+                    "nonce": "1",
+                    "esdt": {
+                        "str:USDC-abcdef": {
+                            "instances": [
+                                {
+                                    "nonce": "1",
+                                    "balance": "100,000,000"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "not owner set usdc maximum bet",
+            "tx": {
+                "from": "address:player1",
+                "to": "sc:flip",
+                "function": "setMaximumBet",
+                "arguments": [
+                    "str:USDC-abcdef",
+                    "1",
+                    "100,000,000,000"
+                ],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "4",
+                "message": "str:Endpoint can only be called by owner",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "not owner set usdc maximum bet percent",
+            "tx": {
+                "from": "address:player1",
+                "to": "sc:flip",
+                "function": "setMaximumBetPercent",
+                "arguments": [
+                    "str:USDC-abcdef",
+                    "1",
+                    "1,000,000"
+                ],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "4",
+                "message": "str:Endpoint can only be called by owner",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "set usdc maximum bet",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:flip",
+                "function": "setMaximumBet",
+                "arguments": [
+                    "str:USDC-abcdef",
+                    "1",
+                    "100,000,000,000"
+                ],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "set usdc maximum bet percent",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:flip",
+                "function": "setMaximumBetPercent",
+                "arguments": [
+                    "str:USDC-abcdef",
+                    "1",
+                    "10,000,000"
+                ],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "increase usdc reserve",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:flip",
+                "esdtValue": [
+                    {
+                        "tokenIdentifier": "str:USDC-abcdef",
+                        "nonce": "1",
+                        "value": "100,000,000"
+                    }
+                ],
+                "function": "increaseReserve",
+                "arguments": [],
+                "gasLimit": "1,000,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        }
+    ]
+}

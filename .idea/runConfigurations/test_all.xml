@@ -26,6 +26,7 @@
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="ping-pong-egld" run_configuration_type="ShConfigurationType" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="forwarder adder" run_configuration_type="ShConfigurationType" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="forwarder lottery-esdt" run_configuration_type="ShConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="flip" run_configuration_type="ShConfigurationType" />
     </method>
   </configuration>
 </component>
