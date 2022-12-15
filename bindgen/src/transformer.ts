@@ -6,16 +6,19 @@ import { ContractExporter } from "./contractDecorator.js";
 import { EnumExporter } from "./enumDecorator.js";
 import { StructExporter } from "./structDecorator.js";
 import {CallableExporter} from "./callableDecorator.js";
+import {AbiEnumType} from "./utils/abi/abiEnumType";
+import {ABIExporter} from "./abiGenerator.js";
+import {AbiConstructor} from "./utils/abi/abiConstructor.js";
 
 export default class Transformer extends Transform {
     parser: Parser;
-  
+
     afterParse(parser: Parser): void {
       this.parser = parser;
       const writeFile = this.writeFile;
       const baseDir = this.baseDir;
       let newParser = new Parser(parser.diagnostics);
-  
+
       // Filter for files
       let files = this.parser.sources.filter(s => {
         const isUserSource = (s.sourceKind == SourceKind.USER || s.sourceKind == SourceKind.USER_ENTRY)
@@ -24,6 +27,8 @@ export default class Transformer extends Transform {
       });
       // Visit each file
       const contractExporter = new ContractExporter()
+      const userEnums: { [key: string] : AbiEnumType }[] = []
+
       files.forEach((source) => {
         if (source.internalPath.includes("index-stub")) return;
 
@@ -44,11 +49,22 @@ export default class Transformer extends Transform {
         } else if (source.sourceKind === SourceKind.USER) {
           contractExporter.visitUserNonEntrySource(source)
         }
-        (new EnumExporter()).visitSource(source);
+        const enumExporter = new EnumExporter()
+        enumExporter.visitSource(source);
+        userEnums.push(...enumExporter.abiEnumTypes);
         (new StructExporter()).visitSource(source);
         (new CallableExporter()).visitSource(source);
       });
-
+      const abi = ABIExporter.generateABI(
+          [],
+          userEnums,
+          new AbiConstructor(
+              [],
+              []
+          ),
+          []
+      );
+      console.log(abi)
       contractExporter.commit()
 
       files.forEach((source) => {
