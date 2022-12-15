@@ -12,7 +12,7 @@ The aim of this repo is to make a proof of concept and ONLY a proof of concept. 
 
 ### Tutorials
 
-Two smart contracts tutorials are availables here : https://app.gitbook.com/o/jnnRK3CytWYnFiGfXyZe/s/cblkT4oSaucYyCSeq4Jm/.
+Two smart contracts tutorials are availables here : https://fusee.gitbook.io/elrond-wasm-as/.
 
 They will give a good idea about what you can build with this framework.
 
