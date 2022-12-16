@@ -9,6 +9,8 @@ import {
 } from "assemblyscript/dist/assemblyscript.js";
 import {SimpleParser, TransformVisitor} from "visitor-as";
 import {addElrondWasmASImportToSourceIfMissing} from "./utils/parseUtils.js";
+import {AbiStructType} from "./utils/abi/abiStructType.js";
+import {AbiStructTypeField} from "./utils/abi/abiStructTypeField.js";
 
 const heapIndexClassName = "_HeapIndex"
 
@@ -18,6 +20,7 @@ export class StructExporter extends TransformVisitor {
 
     newImports: string[] = []
     fields: FieldDeclaration[] = []
+    abiStructTypes: { [key: string]: AbiStructType }[] = []
 
     visitFieldDeclaration(node: FieldDeclaration): FieldDeclaration {
         this.fields.push(node)
@@ -387,6 +390,8 @@ export class StructExporter extends TransformVisitor {
                 shouldBeInstantiatedOnHeapGetter
             ]
 
+            const abiStructFields: AbiStructTypeField[] = [];
+
             this.fields.forEach(f => {
                 const name = ASTBuilder.build(f.name)
                 const type = ASTBuilder.build(f.type)
@@ -409,7 +414,22 @@ export class StructExporter extends TransformVisitor {
           this.__bufferCache = null;
         }
         `)
+
+                abiStructFields.push(
+                    new AbiStructTypeField(
+                        name,
+                        type
+                    )
+                )
             })
+
+            if (!node.range.source.internalPath.includes('elrond-wasm-as')) {
+                const abiStruct: { [key : string]: AbiStructType } = {};
+                abiStruct[className] = new AbiStructType(
+                    abiStructFields
+                )
+                this.abiStructTypes.push(abiStruct)
+            }
 
             for (const member of members) {
                 node.members.push(SimpleParser.parseClassMember(

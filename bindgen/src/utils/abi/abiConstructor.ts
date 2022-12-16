@@ -4,9 +4,8 @@ import {AbiEndpointOutput} from "./abiEndpointOutput";
 export class AbiConstructor {
 
     constructor(
-        inputs: AbiEndpointInput[],
-        outputs: AbiEndpointOutput[]
-    ) {
-    }
+        public inputs: AbiEndpointInput[],
+        public outputs: AbiEndpointOutput[]
+    ) {}
 
 }
