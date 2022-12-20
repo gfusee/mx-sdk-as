@@ -78,7 +78,13 @@ export class ContractExporter extends TransformVisitor {
     }
 
     visitMethodDeclaration(node: MethodDeclaration): MethodDeclaration {
+        const isView = ContractExporter.hasViewDecorator(node)
+
         if (node.is(CommonFlags.PRIVATE) || node.is(CommonFlags.PROTECTED)) {
+            if (isView) {
+                throw 'TODO : non public method cannot be annotated as view'
+            }
+
             return node
         }
 
@@ -96,6 +102,10 @@ export class ContractExporter extends TransformVisitor {
         const isConstructor = name == 'constructor'
 
         if (isConstructor) {
+            if (isView) {
+                throw 'TODO : constructor cannot be annotated as view'
+            }
+
             const initName = 'init'
             let nodeText = ASTBuilder.build(node)
             nodeText = nodeText.replace(/constructor\((.*)\)/, 'init($1): void')
@@ -194,8 +204,9 @@ export class ContractExporter extends TransformVisitor {
             this.abiEndpoints.push(
                 new AbiEndpoint(
                     name,
-                    AbiEndpointMutability.MUTABLE,
-                    ["*"],
+                    isOnlyOwner ? true : undefined,
+                    isView ? AbiEndpointMutability.READONLY : AbiEndpointMutability.MUTABLE,
+                    isView ? undefined : ["*"],
                     params.map(param => new AbiEndpointInput(
                         ASTBuilder.build(param.name),
                         ASTBuilder.build(param.type)
@@ -402,6 +413,12 @@ export class ContractExporter extends TransformVisitor {
         let decorators = node.decorators ?? []
 
         return decorators.map(d => ASTBuilder.build(d.name)).includes('onlyOwner')
+    }
+
+    static hasViewDecorator(node: MethodDeclaration): boolean {
+        let decorators = node.decorators ?? []
+
+        return decorators.map(d => ASTBuilder.build(d.name)).includes('view')
     }
 
 }

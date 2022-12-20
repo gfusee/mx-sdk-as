@@ -101,10 +101,12 @@ export default class Transformer extends Transform {
     }
 
     afterCompile(module: Module): void | Promise<void> {
+      const abiRelativePathEnvName = 'ELROND_WASM_ABI_FOLDER'
+      const abiRelativePath = process.env[abiRelativePathEnvName] ?? 'build'
       this.writeFile(
-          posixRelativePath("build", "release.abi.json"),
+          "release.abi.json",
           this.abi.intoJSON(),
-          process.cwd()
+          path.join(process.cwd(), abiRelativePath)
       );
     }
 }

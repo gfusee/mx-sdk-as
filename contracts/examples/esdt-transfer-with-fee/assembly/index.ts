@@ -10,7 +10,7 @@ import {
     ManagedAddress, ManagedType,
     MapMapping,
     Mapping,
-    MultiValue2, OptionalValue,
+    MultiValue2, MultiValueEncoded, OptionalValue,
     TokenIdentifier,
     TokenPayment
 } from "@gfusee/elrond-wasm-as"
@@ -57,6 +57,37 @@ abstract class EsdtTransferWithFee extends ContractBase {
                 fee
             )
         )
+    }
+
+    @onlyOwner
+    claimFees(): void {
+        const paidFees = this.paidFees();
+
+        this.require(
+            !paidFees.isEmpty(),
+            "There is nothing to claim"
+        )
+
+        const fees = new ElrondArray<TokenPayment>()
+        retainClosureValue(fees)
+        paidFees.forEach((key, item) => {
+            const feesRef = getRetainedClosureValue<ElrondArray<TokenPayment>>()
+            feesRef.push(
+                TokenPayment.new(
+                    key.a,
+                    key.b,
+                    item
+                )
+            )
+            retainClosureValue(feesRef)
+        })
+        releaseRetainedClosureValue()
+
+        this.paidFees().clear()
+
+        const caller = this.blockchain.caller
+
+        this.send.directMulti(caller, fees)
     }
 
     transfer(
@@ -110,35 +141,20 @@ abstract class EsdtTransferWithFee extends ContractBase {
         this.send.directMulti(address, newPayments)
     }
 
-    @onlyOwner
-    claimFees(): void {
-        const paidFees = this.paidFees();
+    @view
+    getPaidFees(): MultiValueEncoded<MultiValue2<MultiValue2<TokenIdentifier, ElrondU64>, BigUint>> {
+        const result = new MultiValueEncoded<MultiValue2<MultiValue2<TokenIdentifier, ElrondU64>, BigUint>>()
 
-        this.require(
-            !paidFees.isEmpty(),
-            "There is nothing to claim"
-        )
+        const paidFeeIterator = this.paidFees().getIterator()
 
-        const fees = new ElrondArray<TokenPayment>()
-        retainClosureValue(fees)
-        paidFees.forEach((key, item) => {
-            const feesRef = getRetainedClosureValue<ElrondArray<TokenPayment>>()
-            feesRef.push(
-                TokenPayment.new(
-                    key.a,
-                    key.b,
-                    item
-                )
-            )
-            retainClosureValue(feesRef)
-        })
-        releaseRetainedClosureValue()
+        let current = paidFeeIterator.next()
+        while (!current.isNull()) {
+            result.push(current.unwrap())
 
-        this.paidFees().clear()
+            current = paidFeeIterator.next()
+        }
 
-        const caller = this.blockchain.caller
-
-        this.send.directMulti(caller, fees)
+        return result
     }
 
     private getPaymentAfterFees(

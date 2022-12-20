@@ -1,0 +1,57 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "endpoints": [
+    {
+      "name": "isPaused",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "wrapEgld",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "unwrapEgld",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "getLockedEgldBalance",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {},
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  }
+}

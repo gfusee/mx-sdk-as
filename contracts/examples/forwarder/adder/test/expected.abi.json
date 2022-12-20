@@ -1,0 +1,45 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "endpoints": [
+    {
+      "name": "forwardAdd",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "value",
+          "type": "BigUint"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "forwardGetSum",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {},
+  "constructor": {
+    "inputs": [
+      {
+        "name": "address",
+        "type": "Address"
+      }
+    ],
+    "outputs": []
+  }
+}

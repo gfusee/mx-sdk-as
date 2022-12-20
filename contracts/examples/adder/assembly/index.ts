@@ -16,12 +16,13 @@ abstract class Adder extends ContractBase {
         this.sum = initialValue
     }
 
-    add(value: BigUint): void {
-        this.sum += value
-    }
-
+    @view
     getSum(): BigUint {
         return this.sum
+    }
+
+    add(value: BigUint): void {
+        this.sum += value
     }
 
 }

@@ -58,6 +58,24 @@ abstract class CounterContract extends ContractBase {
         this.deposit(caller).set(payment.amount)
     }
 
+    @view
+    status(): Status {
+        if (this.getCurrentTime() < this.deadline) {
+            return Status.FundingPeriod
+        } else if (this.getCurrentFunds() >= this.target) {
+            return Status.Successful
+        } else {
+            return Status.Failed
+        }
+    }
+
+    @view
+    getCurrentFunds(): BigUint {
+        const token = this.tokenIdentifier
+
+        return this.blockchain.getSCBalance(token, ElrondU64.fromValue(0))
+    }
+
     claim(): void {
         switch (this.status().value) {
             case Status.FundingPeriod.value: {
@@ -99,24 +117,28 @@ abstract class CounterContract extends ContractBase {
         }
     }
 
-    status(): Status {
-        if (this.getCurrentTime() < this.deadline) {
-            return Status.FundingPeriod
-        } else if (this.getCurrentFunds() >= this.target) {
-            return Status.Successful
-        } else {
-            return Status.Failed
-        }
+    @view
+    getTarget(): BigUint {
+        return this.target
+    }
+
+    @view
+    getDeadline(): ElrondU64 {
+        return this.deadline
+    }
+
+    @view
+    getDeposit(donor: ManagedAddress): BigUint {
+        return this.deposit(donor).get()
+    }
+
+    @view
+    getCrowdfundingTokenIdentifier(): TokenIdentifier {
+        return this.tokenIdentifier
     }
 
     private getCurrentTime(): ElrondU64 {
         return this.blockchain.currentBlockTimestamp
-    }
-
-    private getCurrentFunds(): BigUint {
-        const token = this.tokenIdentifier
-
-        return this.blockchain.getSCBalance(token, ElrondU64.fromValue(0))
     }
 
     abstract deposit(address: ManagedAddress): Mapping<BigUint>

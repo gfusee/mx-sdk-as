@@ -3,7 +3,7 @@ import {AbiStructType} from "./utils/abi/abiStructType.js";
 import {AbiEnumType} from "./utils/abi/abiEnumType.js";
 import {AbiEndpoint} from "./utils/abi/abiEndpoint.js";
 import {AbiConstructor} from "./utils/abi/abiConstructor.js";
-import {Abi} from "./utils/abi/abi.js";
+import {Abi, Types} from "./utils/abi/abi.js"
 import {AbiBuildInfo} from "./utils/abi/abiBuildInfo.js";
 
 export class ABIExporter {
@@ -15,8 +15,14 @@ export class ABIExporter {
         contractEndpoints: AbiEndpoint[]
     ): Abi {
 
-        const types = (userStructs as { [key: string] : AbiStructType})
+        const typesConcat = (userStructs as Types[])
             .concat(userEnums)
+
+        let types: Types = {}
+
+        for (const type of typesConcat) {
+            types = Object.assign(types, type)
+        }
 
         return new Abi(
             new AbiBuildInfo(),

@@ -10,11 +10,13 @@ export abstract class GlobalOperationModule extends ContractBase {
 
     globalOperationOngoing!: ElrondBoolean
 
+    @onlyOwner
     startGlobalOperation(): void {
         this.requireGlobalOpNotOngoing()
         this.globalOperationOngoing = ElrondBoolean.true()
     }
 
+    @onlyOwner
     stopGlobalOperation(): void {
         this.requireGlobalOpOngoing()
         this.globalOperationOngoing = ElrondBoolean.false()

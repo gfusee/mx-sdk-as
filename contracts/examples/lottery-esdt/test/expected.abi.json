@@ -1,0 +1,216 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "start",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "lotteryName",
+          "type": "bytes"
+        },
+        {
+          "name": "tokenIdentifier",
+          "type": "EgldOrEsdtTokenIdentifier"
+        },
+        {
+          "name": "ticketPrice",
+          "type": "BigUint"
+        },
+        {
+          "name": "optTotalTickets",
+          "type": "Option<u32>"
+        },
+        {
+          "name": "optDeadline",
+          "type": "Option<u64>"
+        },
+        {
+          "name": "optMaxEntriesPerUser",
+          "type": "Option<u32>"
+        },
+        {
+          "name": "optPrizeDistribution",
+          "type": "Option<List<u8>>"
+        },
+        {
+          "name": "optWhitelist",
+          "type": "Option<List<Address>>"
+        },
+        {
+          "name": "optBurnPercentage",
+          "type": "optional<BigUint>",
+          "multi_arg": true
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "createLotteryPool",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "lotteryName",
+          "type": "bytes"
+        },
+        {
+          "name": "tokenIdentifier",
+          "type": "EgldOrEsdtTokenIdentifier"
+        },
+        {
+          "name": "ticketPrice",
+          "type": "BigUint"
+        },
+        {
+          "name": "optTotalTickets",
+          "type": "Option<u32>"
+        },
+        {
+          "name": "optDeadline",
+          "type": "Option<u64>"
+        },
+        {
+          "name": "optMaxEntriesPerUser",
+          "type": "Option<u32>"
+        },
+        {
+          "name": "optPrizeDistribution",
+          "type": "Option<List<u8>>"
+        },
+        {
+          "name": "optWhitelist",
+          "type": "Option<List<Address>>"
+        },
+        {
+          "name": "optBurnPercentage",
+          "type": "optional<BigUint>",
+          "multi_arg": true
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "buyTicket",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "lotteryName",
+          "type": "bytes"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "determineWinner",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "lotteryName",
+          "type": "bytes"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "status",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "lotteryName",
+          "type": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "Status"
+        }
+      ]
+    },
+    {
+      "name": "getLotteryInfo",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "lotteryName",
+          "type": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "LotteryInfo"
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {
+    "LotteryInfo": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "tokenIdentifier",
+          "type": "EgldOrEsdtTokenIdentifier"
+        },
+        {
+          "name": "ticketPrice",
+          "type": "BigUint"
+        },
+        {
+          "name": "ticketsLeft",
+          "type": "u32"
+        },
+        {
+          "name": "deadline",
+          "type": "u64"
+        },
+        {
+          "name": "maxEntriesPerUser",
+          "type": "u32"
+        },
+        {
+          "name": "prizeDistribution",
+          "type": "List<u8>"
+        },
+        {
+          "name": "prizePool",
+          "type": "BigUint"
+        }
+      ]
+    },
+    "Status": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Inactive",
+          "discriminant": 0
+        },
+        {
+          "name": "Running",
+          "discriminant": 1
+        },
+        {
+          "name": "Ended",
+          "discriminant": 2
+        }
+      ]
+    }
+  }
+}

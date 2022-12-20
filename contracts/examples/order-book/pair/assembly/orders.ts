@@ -43,23 +43,26 @@ class MatchOrderEvent extends ElrondEvent<MultiValue5<ManagedAddress, ElrondU64,
 @module
 export abstract class OrdersModule extends ValidationModule {
 
-    getAndIncreaseOrderIdCounter(): ElrondU64 {
+    protected getAndIncreaseOrderIdCounter(): ElrondU64 {
         const id = this.orderIdCounter().get()
         this.orderIdCounter().set(id + ElrondU64.fromValue(1))
 
         return id
     }
 
+    @view
     getOrderIdCounter(): ElrondU64 {
         return this.orderIdCounter().get()
     }
 
+    @view
     getOrderById(
         id: ElrondU64
     ): Order {
         return this.orders(id).get()
     }
 
+    @view
     getAddressOrderIds(
         address: ManagedAddress
     ): MultiValueElrondArray<ElrondU64> {

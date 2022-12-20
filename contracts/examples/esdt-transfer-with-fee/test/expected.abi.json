@@ -1,0 +1,108 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "setExactValueFee",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "feeToken",
+          "type": "EgldOrEsdtTokenIdentifier"
+        },
+        {
+          "name": "feeAmount",
+          "type": "BigUint"
+        },
+        {
+          "name": "token",
+          "type": "EgldOrEsdtTokenIdentifier"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "setPercentageFee",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "fee",
+          "type": "u32"
+        },
+        {
+          "name": "token",
+          "type": "EgldOrEsdtTokenIdentifier"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "claimFees",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "transfer",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "address",
+          "type": "Address"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "getPaidFees",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<multi<multi<EgldOrEsdtTokenIdentifier,u64>,BigUint>>",
+          "multi_result": true
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {
+    "FeeType": {
+      "variants": [
+        {
+          "name": "Unset",
+          "discriminant": 0
+        },
+        {
+          "name": "ExactValue",
+          "discriminant": 1
+        },
+        {
+          "name": "Percentage",
+          "discriminant": 2
+        }
+      ],
+      "type": "enum"
+    }
+  }
+}

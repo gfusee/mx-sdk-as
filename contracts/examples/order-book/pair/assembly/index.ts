@@ -53,10 +53,6 @@ abstract class Pair extends OrdersModule {
         )
     }
 
-    testGas(orderIds: ElrondArray<ElrondString>): void {
-
-    }
-
     matchOrders(
         orderIds: ElrondArray<ElrondU64>
     ): void {

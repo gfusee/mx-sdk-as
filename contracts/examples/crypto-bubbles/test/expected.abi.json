@@ -1,0 +1,110 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "topUp",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "withdraw",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "amount",
+          "type": "BigUint"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "joinGame",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "gameIndex",
+          "type": "BigUint"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "rewardWinner",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "gameIndex",
+          "type": "BigUint"
+        },
+        {
+          "name": "winner",
+          "type": "Address"
+        },
+        {
+          "name": "prize",
+          "type": "BigUint"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "rewardAndSendToWallet",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "gameIndex",
+          "type": "BigUint"
+        },
+        {
+          "name": "winner",
+          "type": "Address"
+        },
+        {
+          "name": "prize",
+          "type": "BigUint"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "balanceOf",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "player",
+          "type": "Address"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {}
+}

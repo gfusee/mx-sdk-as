@@ -6,8 +6,9 @@ export class AbiEndpoint {
 
     constructor(
        public name: string,
+       public onlyOwner: true | undefined,
        public mutability: AbiEndpointMutability,
-       public payableInTokens: string[],
+       public payableInTokens: string[] | undefined,
        public inputs: AbiEndpointInput[],
        public outputs: AbiEndpointOutput[]
     ) {}
