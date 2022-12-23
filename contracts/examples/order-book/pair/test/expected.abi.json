@@ -1,0 +1,325 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "constructor": {
+    "inputs": [
+      {
+        "name": "firstTokenIdentifier",
+        "type": "EgldOrEsdtTokenIdentifier"
+      },
+      {
+        "name": "secondTokenIdentifier",
+        "type": "EgldOrEsdtTokenIdentifier"
+      }
+    ],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "createBuyOrder",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "params",
+          "type": "OrderInputParams"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "createSellOrder",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "params",
+          "type": "OrderInputParams"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "matchOrders",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "orderIds",
+          "type": "List<u64>"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "cancelOrders",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "orderIds",
+          "type": "variadic<u64>",
+          "multi_arg": true
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "cancelAllOrders",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "freeOrders",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "orderIds",
+          "type": "variadic<u64>",
+          "multi_arg": true
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "getOrderIdCounter",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "getOrderById",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "id",
+          "type": "u64"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "Order"
+        }
+      ]
+    },
+    {
+      "name": "getAddressOrderIds",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "address",
+          "type": "Address"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "variadic<u64>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "getFirstTokenId",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "EgldOrEsdtTokenIdentifier"
+        }
+      ]
+    },
+    {
+      "name": "getSecondTokenId",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "EgldOrEsdtTokenIdentifier"
+        }
+      ]
+    },
+    {
+      "name": "startGlobalOperation",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "stopGlobalOperation",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {
+    "DealConfig": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "matchProviderPercent",
+          "type": "u64"
+        }
+      ]
+    },
+    "FeeConfig": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "feeType",
+          "type": "FeeConfigEnum"
+        },
+        {
+          "name": "fixedFee",
+          "type": "BigUint"
+        },
+        {
+          "name": "percentFee",
+          "type": "u64"
+        }
+      ]
+    },
+    "FeeConfigEnum": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Fixed",
+          "discriminant": 0
+        },
+        {
+          "name": "Percent",
+          "discriminant": 1
+        }
+      ]
+    },
+    "Order": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "creator",
+          "type": "Address"
+        },
+        {
+          "name": "matchProvider",
+          "type": "Address"
+        },
+        {
+          "name": "inputAmount",
+          "type": "BigUint"
+        },
+        {
+          "name": "outputAmount",
+          "type": "BigUint"
+        },
+        {
+          "name": "feeConfig",
+          "type": "FeeConfig"
+        },
+        {
+          "name": "dealConfig",
+          "type": "DealConfig"
+        },
+        {
+          "name": "createEpoch",
+          "type": "u64"
+        },
+        {
+          "name": "orderType",
+          "type": "OrderType"
+        }
+      ]
+    },
+    "OrderInputParams": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "amount",
+          "type": "BigUint"
+        },
+        {
+          "name": "matchProvider",
+          "type": "Address"
+        },
+        {
+          "name": "feeConfig",
+          "type": "FeeConfig"
+        },
+        {
+          "name": "dealConfig",
+          "type": "DealConfig"
+        }
+      ]
+    },
+    "OrderType": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Buy",
+          "discriminant": 0
+        },
+        {
+          "name": "Sell",
+          "discriminant": 1
+        }
+      ]
+    },
+    "Payment": {
+      "fields": [
+        {
+          "name": "tokenIdentifier",
+          "type": "EgldOrEsdtTokenIdentifier"
+        },
+        {
+          "name": "amount",
+          "type": "BigUint"
+        }
+      ],
+      "type": "struct"
+    },
+    "Transfer": {
+      "fields": [
+        {
+          "name": "to",
+          "type": "Address"
+        },
+        {
+          "name": "payment",
+          "type": "Payment"
+        }
+      ],
+      "type": "struct"
+    }
+  }
+}

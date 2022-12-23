@@ -1,0 +1,127 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "constructor": {
+    "inputs": [
+      {
+        "name": "target",
+        "type": "BigUint"
+      },
+      {
+        "name": "deadline",
+        "type": "u64"
+      },
+      {
+        "name": "tokenIdentifier",
+        "type": "EgldOrEsdtTokenIdentifier"
+      }
+    ],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "fund",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "status",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Status"
+        }
+      ]
+    },
+    {
+      "name": "getCurrentFunds",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "claim",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "getTarget",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "getDeadline",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "getDeposit",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "donor",
+          "type": "Address"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "getCrowdfundingTokenIdentifier",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "EgldOrEsdtTokenIdentifier"
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {
+    "Status": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "FundingPeriod",
+          "discriminant": 0
+        },
+        {
+          "name": "Successful",
+          "discriminant": 1
+        },
+        {
+          "name": "Failed",
+          "discriminant": 2
+        }
+      ]
+    }
+  }
+}

@@ -82,6 +82,7 @@ abstract class CryptoBubbles extends ContractBase {
         this.transferBackToPlayerWallet(winner, prize)
     }
 
+    @view
     balanceOf(
         player: ManagedAddress
     ): BigUint {

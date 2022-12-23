@@ -23,7 +23,6 @@ abstract class PingPong extends ContractBase {
     deadline: ElrondU64
     activationTimestamp: ElrondU64
     maxFunds: Option<BigUint>
-
     pongAllLastUser: ElrondU32
 
     constructor(
@@ -134,8 +133,39 @@ abstract class PingPong extends ContractBase {
         }
     }
 
+    @view
     getUserAddresses(): MultiValueEncoded<ManagedAddress> {
         return this.user().getAllAddresses().intoMultiValueEncoded()
+    }
+
+    @view
+    getPingAmount(): BigUint {
+        return this.pingAmount
+    }
+
+    @view
+    getDeadline(): ElrondU64 {
+        return this.deadline
+    }
+
+    @view
+    getActivationTimestamp(): ElrondU64 {
+        return this.activationTimestamp
+    }
+
+    @view
+    getMaxFunds(): Option<BigUint> {
+        return this.maxFunds
+    }
+
+    @view
+    getUserStatus(userId: ElrondU32): UserStatus {
+        return this.userStatus(userId).get()
+    }
+
+    @view
+    getPongAllLastUser(): ElrondU32 {
+        return this.pongAllLastUser
     }
 
     private pongByUserId(userId: ElrondU32): string | null {

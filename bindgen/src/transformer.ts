@@ -1,21 +1,27 @@
 import * as path from 'path';
-import { ASTBuilder, Parser, Source, SourceKind } from "assemblyscript/dist/assemblyscript.js";
+import { ASTBuilder, Parser, Source, SourceKind, Module } from "assemblyscript/dist/assemblyscript.js";
 import { Transform } from 'assemblyscript/dist/transform.js'
 import { isEntry } from "visitor-as/dist/utils.js";
 import { ContractExporter } from "./contractDecorator.js";
 import { EnumExporter } from "./enumDecorator.js";
 import { StructExporter } from "./structDecorator.js";
 import {CallableExporter} from "./callableDecorator.js";
+import {AbiEnumType} from "./utils/abi/abiEnumType";
+import {ABIExporter} from "./abiGenerator.js";
+import {AbiStructType} from "./utils/abi/abiStructType"
+import {Abi} from "./utils/abi/abi"
 
 export default class Transformer extends Transform {
     parser: Parser;
-  
+
+    abi: Abi | undefined
+
     afterParse(parser: Parser): void {
       this.parser = parser;
       const writeFile = this.writeFile;
       const baseDir = this.baseDir;
       let newParser = new Parser(parser.diagnostics);
-  
+
       // Filter for files
       let files = this.parser.sources.filter(s => {
         const isUserSource = (s.sourceKind == SourceKind.USER || s.sourceKind == SourceKind.USER_ENTRY)
@@ -24,6 +30,9 @@ export default class Transformer extends Transform {
       });
       // Visit each file
       const contractExporter = new ContractExporter()
+      const userEnums: { [key: string] : AbiEnumType }[] = []
+      const userStructs: { [key: string] : AbiStructType }[] = []
+
       files.forEach((source) => {
         if (source.internalPath.includes("index-stub")) return;
 
@@ -44,12 +53,25 @@ export default class Transformer extends Transform {
         } else if (source.sourceKind === SourceKind.USER) {
           contractExporter.visitUserNonEntrySource(source)
         }
-        (new EnumExporter()).visitSource(source);
-        (new StructExporter()).visitSource(source);
+
+        const enumExporter = new EnumExporter()
+        enumExporter.visitSource(source);
+        userEnums.push(...enumExporter.abiEnumTypes)
+
+        const structExporter = new StructExporter()
+        structExporter.visitSource(source);
+        userStructs.push(...structExporter.abiStructTypes);
+
         (new CallableExporter()).visitSource(source);
       });
-
       contractExporter.commit()
+
+      this.abi = ABIExporter.generateABI(
+          userStructs,
+          userEnums,
+          contractExporter.abiConstructor,
+          contractExporter.abiEndpoints
+      );
 
       files.forEach((source) => {
         if (source.internalPath.includes("index-stub")) return;
@@ -76,6 +98,16 @@ export default class Transformer extends Transform {
         parser.seenlog.add(source.internalPath);
         parser.sources.push(newSource);
       })
+    }
+
+    afterCompile(module: Module): void | Promise<void> {
+      const abiRelativePathEnvName = 'ELROND_WASM_ABI_FOLDER'
+      const abiRelativePath = process.env[abiRelativePathEnvName] ?? 'build'
+      this.writeFile(
+          "release.abi.json",
+          this.abi.intoJSON(),
+          path.join(process.cwd(), abiRelativePath)
+      );
     }
 }
 

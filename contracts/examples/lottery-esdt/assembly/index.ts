@@ -18,9 +18,9 @@ import {
     UnorderedSetMapping,
     ESDTLocalRoleFlag,
     RandomnessSource,
-    TokenPayment, enableDebugBreakpoint
+    TokenPayment, enableDebugBreakpoint, MultiValueEncoded, retainClosureValue, getRetainedClosureValue
 } from "@gfusee/elrond-wasm-as"
-import { LotteryInfos } from "./lotteryInfos"
+import { LotteryInfo } from "./lotteryInfo"
 import { Status } from "./status"
 
 const PERCENTAGE_TOTAL: u32 = 100
@@ -106,6 +106,7 @@ abstract class LotteryContract extends ContractBase {
         }
     }
 
+    @view
     status(lotteryName: ElrondString): Status {
         if (this.lotteryInfo(lotteryName).isEmpty()) {
             return Status.Inactive
@@ -118,6 +119,13 @@ abstract class LotteryContract extends ContractBase {
         }
 
         return Status.Running
+    }
+
+    @view
+    getLotteryInfo(
+        lotteryName: ElrondString
+    ): LotteryInfo {
+        return this.lotteryInfo(lotteryName).get()
     }
 
     private startLottery(
@@ -222,7 +230,7 @@ abstract class LotteryContract extends ContractBase {
             }
         }
 
-        const infos = LotteryInfos.new(
+        const infos = LotteryInfo.new(
             tokenIdentifier,
             ticketPrice,
             totalTickets,
@@ -409,7 +417,7 @@ abstract class LotteryContract extends ContractBase {
     }
 
     abstract ticketHolder(lotteryName: ElrondString): ArrayMapping<ManagedAddress>
-    abstract lotteryInfo(lotteryName: ElrondString): Mapping<LotteryInfos>
+    abstract lotteryInfo(lotteryName: ElrondString): Mapping<LotteryInfo>
     abstract lotteryWhitelist(lotteryName: ElrondString): UnorderedSetMapping<ManagedAddress>
     abstract numberOfEntriesForUser(lotteryName: ElrondString, caller: ManagedAddress): Mapping<ElrondU32>
     abstract burnPercentageForLottery(lotteryName: ElrondString): Mapping<BigUint>

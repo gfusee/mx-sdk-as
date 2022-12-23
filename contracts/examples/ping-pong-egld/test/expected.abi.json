@@ -1,0 +1,156 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "constructor": {
+    "inputs": [
+      {
+        "name": "pingAmount",
+        "type": "BigUint"
+      },
+      {
+        "name": "durationInSeconds",
+        "type": "u64"
+      },
+      {
+        "name": "optActivationTimestamp",
+        "type": "Option<u64>"
+      },
+      {
+        "name": "maxFunds",
+        "type": "optional<BigUint>",
+        "multi_arg": true
+      }
+    ],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "ping",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "pong",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "pongAll",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "getUserAddresses",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<Address>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "getPingAmount",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "getDeadline",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "getActivationTimestamp",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "getMaxFunds",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigUint>"
+        }
+      ]
+    },
+    {
+      "name": "getUserStatus",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "userId",
+          "type": "u32"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "UserStatus"
+        }
+      ]
+    },
+    {
+      "name": "getPongAllLastUser",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u32"
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {
+    "UserStatus": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "New",
+          "discriminant": 0
+        },
+        {
+          "name": "Registered",
+          "discriminant": 1
+        },
+        {
+          "name": "Withdrawn",
+          "discriminant": 2
+        }
+      ]
+    }
+  }
+}

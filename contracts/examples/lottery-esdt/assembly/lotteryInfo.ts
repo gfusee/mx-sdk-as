@@ -3,7 +3,7 @@
 import { BigUint, ElrondArray, ElrondU32, ElrondU64, ElrondU8, TokenIdentifier } from "@gfusee/elrond-wasm-as";
 
 @struct
-export class LotteryInfos {
+export class LotteryInfo {
     tokenIdentifier!: TokenIdentifier
     ticketPrice!: BigUint
     ticketsLeft!: ElrondU32
@@ -20,8 +20,8 @@ export class LotteryInfos {
         maxEntriesPerUser: ElrondU32,
         prizeDistribution: ElrondArray<ElrondU8>,
         prizePool: BigUint,
-    ): LotteryInfos {
-        const result = new LotteryInfos()
+    ): LotteryInfo {
+        const result = new LotteryInfo()
 
         result.tokenIdentifier = tokenIdentifier
         result.ticketPrice = ticketPrice

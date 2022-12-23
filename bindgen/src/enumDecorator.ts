@@ -8,6 +8,8 @@ import {
 } from "assemblyscript/dist/assemblyscript.js";
 import {SimpleParser, TransformVisitor} from "visitor-as";
 import {addElrondWasmASImportToSourceIfMissing} from './utils/parseUtils.js'
+import {AbiEnumType} from "./utils/abi/abiEnumType.js";
+import {AbiEnumTypeVariant} from "./utils/abi/abiEnumTypeVariant.js";
 
 export class EnumExporter extends TransformVisitor {
 
@@ -16,6 +18,7 @@ export class EnumExporter extends TransformVisitor {
   statementsToDelete: Statement[] = []
   newTopLevelStatements: Statement[] = []
   newImports: string[] = []
+  abiEnumTypes: { [key: string]: AbiEnumType }[] = []
 
   visitEnumDeclaration(node: EnumDeclaration, isDefault?: boolean | undefined): EnumDeclaration {
     if (EnumExporter.hasStructDecorator(node)) {
@@ -232,7 +235,18 @@ export class EnumExporter extends TransformVisitor {
       let utilsNamespaceNode = SimpleParser.parseTopLevelStatement(`export namespace ${className} {}`) as NamespaceDeclaration
       utilsNamespaceNode.members.push(utilsClassNode)
 
-      this.newTopLevelStatements.push(utilsNamespaceNode)
+      this.newTopLevelStatements.push(utilsNamespaceNode);
+      const abiEnum: { [key : string]: AbiEnumType } = {};
+      abiEnum[className] = new AbiEnumType(
+          node.values.map((value, index) => {
+              return new AbiEnumTypeVariant(
+                  ASTBuilder.build(value.name),
+                  index
+              )
+          })
+      )
+
+      this.abiEnumTypes.push(abiEnum)
     }
 
     return node

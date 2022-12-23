@@ -7,24 +7,28 @@ import {
     ImportStatement,
     MethodDeclaration,
     NamedTypeNode,
+    NodeKind,
     Source,
-    SourceKind,
-    NodeKind
-} from "assemblyscript/dist/assemblyscript.js";
-import {SimpleParser, TransformVisitor} from "visitor-as";
-import {isEntry} from "visitor-as/dist/utils.js";
-import {
-    addElrondWasmASImportToSourceIfMissing,
-    getSourceElrondWasmASImports,
-    removeAllElrondWasmImports
-} from "./utils/parseUtils.js";
+    SourceKind
+} from "assemblyscript/dist/assemblyscript.js"
+import {SimpleParser, TransformVisitor} from "visitor-as"
+import {isEntry} from "visitor-as/dist/utils.js"
+import {addElrondWasmASImportToSourceIfMissing} from "./utils/parseUtils.js"
+import {AbiEndpoint} from "./utils/abi/abiEndpoint.js"
+import {AbiEndpointMutability} from "./utils/abi/abiEndpointMutability.js"
+import {AbiEndpointInput} from "./utils/abi/abiEndpointInput.js"
+import {AbiEndpointOutput} from "./utils/abi/abiEndpointOutput.js"
+import {AbiConstructor} from "./utils/abi/abiConstructor.js"
 
 export class ContractExporter extends TransformVisitor {
 
-    sb: string[] = []
-    sbImports: string[] = []
+    exportedEndpoints: string[] = []
+    newImports: string[] = []
 
     newMethods: string[] = []
+
+    abiConstructor: AbiEndpoint = new AbiConstructor([], [])
+    abiEndpoints: AbiEndpoint[] = []
 
     get className(): string {
         if (this.classSeen === null) {
@@ -52,7 +56,7 @@ export class ContractExporter extends TransformVisitor {
 
         node.name.text = `__${name}`
 
-        this.sbImports.push("Mapping")
+        this.newImports.push("Mapping")
 
         this.newMethods.push(
             `
@@ -74,7 +78,13 @@ export class ContractExporter extends TransformVisitor {
     }
 
     visitMethodDeclaration(node: MethodDeclaration): MethodDeclaration {
+        const isView = ContractExporter.hasViewDecorator(node)
+
         if (node.is(CommonFlags.PRIVATE) || node.is(CommonFlags.PROTECTED)) {
+            if (isView) {
+                throw 'TODO : non public method cannot be annotated as view'
+            }
+
             return node
         }
 
@@ -92,6 +102,10 @@ export class ContractExporter extends TransformVisitor {
         const isConstructor = name == 'constructor'
 
         if (isConstructor) {
+            if (isView) {
+                throw 'TODO : constructor cannot be annotated as view'
+            }
+
             const initName = 'init'
             let nodeText = ASTBuilder.build(node)
             nodeText = nodeText.replace(/constructor\((.*)\)/, 'init($1): void')
@@ -150,7 +164,7 @@ export class ContractExporter extends TransformVisitor {
                             throw new Error('TODO : error OptionalValue required')
                         } else {
                             if (!ContractExporter.isTypeUserImported(this.classSeen.range.source, paramType)) {
-                                this.sbImports.push(paramType)
+                                this.newImports.push(paramType)
                             }
 
                             endpointCall = endpointCall + `
@@ -172,11 +186,39 @@ export class ContractExporter extends TransformVisitor {
         ${endpointCall}
         `
 
-        this.sb.push(`
+        this.exportedEndpoints.push(`
         export function ${name}(): void {
             ${expression}
         }
         `)
+
+        if (isConstructor) {
+            this.abiConstructor = new AbiConstructor(
+                params.map(param => new AbiEndpointInput(
+                    ASTBuilder.build(param.name),
+                    ASTBuilder.build(param.type)
+                )),
+                []
+            )
+        } else {
+            this.abiEndpoints.push(
+                new AbiEndpoint(
+                    name,
+                    isOnlyOwner ? true : undefined,
+                    isView ? AbiEndpointMutability.READONLY : AbiEndpointMutability.MUTABLE,
+                    isView ? undefined : ["*"],
+                    params.map(param => new AbiEndpointInput(
+                        ASTBuilder.build(param.name),
+                        ASTBuilder.build(param.type)
+                    )),
+                    [
+                        new AbiEndpointOutput(
+                            returnTypeName
+                        )
+                    ]
+                )
+            )
+        }
 
         return node
     }
@@ -209,10 +251,10 @@ export class ContractExporter extends TransformVisitor {
 
             node.flags &= ~CommonFlags.ABSTRACT
 
-            const requiredImports = ["ElrondString", "ArgumentApi", "ContractBase", "StorageKey", "BaseManagedType"].concat(this.sbImports)
+            const requiredImports = ["ElrondString", "ArgumentApi", "ContractBase", "StorageKey", "BaseManagedType"].concat(this.newImports)
 
             for (const requiredImport of requiredImports) {
-                this.sbImports.push(requiredImport)
+                this.newImports.push(requiredImport)
             }
 
             this.visit(node.members)
@@ -253,8 +295,9 @@ export class ContractExporter extends TransformVisitor {
                 extendedClassesNames.push(...exporter.classesExtended.map((newClass) => {
                     return ASTBuilder.build(newClass)
                 }))
-                this.sb.push(...exporter.sb)
-                this.sbImports.push(...exporter.sbImports)
+                this.exportedEndpoints.push(...exporter.exportedEndpoints)
+                this.abiEndpoints.push(...exporter.abiEndpoints)
+                this.newImports.push(...exporter.newImports)
                 extendedClassesNames = extendedClassesNames.filter((name) =>
                     name !== cName
                 )
@@ -262,13 +305,13 @@ export class ContractExporter extends TransformVisitor {
             allUserClassesIndex++
         }
 
-        this.sb.push(
+        this.exportedEndpoints.push(
             `
           @global
           let __CURRENT_CONTRACT: ${this.className} | null = null
           `
         )
-        this.sb.push(
+        this.exportedEndpoints.push(
             `
           @inline
           function __initContract(): ${this.className} {
@@ -278,9 +321,9 @@ export class ContractExporter extends TransformVisitor {
             `
         )
 
-        this.classSeen.range.source.statements.push(...this.sb.map((s) => SimpleParser.parseTopLevelStatement(s)))
+        this.classSeen.range.source.statements.push(...this.exportedEndpoints.map((s) => SimpleParser.parseTopLevelStatement(s)))
 
-        this.sbImports.forEach((importToAdd) => {
+        this.newImports.forEach((importToAdd) => {
             addElrondWasmASImportToSourceIfMissing(this.classSeen.range.source, importToAdd)
         })
     }
@@ -326,7 +369,7 @@ export class ContractExporter extends TransformVisitor {
     visitSource(node: Source): Source {
         const newSource = super.visitSource(node)
 
-        this.sbImports.forEach((importToAdd) => {
+        this.newImports.forEach((importToAdd) => {
             addElrondWasmASImportToSourceIfMissing(newSource, importToAdd)
         })
 
@@ -370,6 +413,12 @@ export class ContractExporter extends TransformVisitor {
         let decorators = node.decorators ?? []
 
         return decorators.map(d => ASTBuilder.build(d.name)).includes('onlyOwner')
+    }
+
+    static hasViewDecorator(node: MethodDeclaration): boolean {
+        let decorators = node.decorators ?? []
+
+        return decorators.map(d => ASTBuilder.build(d.name)).includes('view')
     }
 
 }

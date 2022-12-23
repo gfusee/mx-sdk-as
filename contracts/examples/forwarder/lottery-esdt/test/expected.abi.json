@@ -1,0 +1,65 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "endpoints": [
+    {
+      "name": "forwardStart",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "*"
+      ],
+      "inputs": [
+        {
+          "name": "lotteryName",
+          "type": "bytes"
+        },
+        {
+          "name": "tokenIdentifier",
+          "type": "EgldOrEsdtTokenIdentifier"
+        },
+        {
+          "name": "ticketPrice",
+          "type": "BigUint"
+        },
+        {
+          "name": "optTotalTickets",
+          "type": "Option<u32>"
+        },
+        {
+          "name": "optDeadline",
+          "type": "Option<u64>"
+        },
+        {
+          "name": "optMaxEntriesPerUser",
+          "type": "Option<u32>"
+        },
+        {
+          "name": "optPrizeDistribution",
+          "type": "Option<List<u8>>"
+        },
+        {
+          "name": "optWhitelist",
+          "type": "Option<List<Address>>"
+        },
+        {
+          "name": "optBurnPercentage",
+          "type": "optional<BigUint>",
+          "multi_arg": true
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "events": [],
+  "hasCallback": false,
+  "types": {},
+  "constructor": {
+    "inputs": [
+      {
+        "name": "address",
+        "type": "Address"
+      }
+    ],
+    "outputs": []
+  }
+}

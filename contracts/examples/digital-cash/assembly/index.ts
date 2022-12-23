@@ -104,13 +104,29 @@ abstract class DigitalCash extends ContractBase {
         this.deposit(address).clear()
     }
 
+    @view
+    getAmount(address: ManagedAddress): BigUint {
+        this.require(
+            !this.deposit(address).isEmpty(),
+            "non-existent key"
+        )
+
+        const data = this.deposit(address).get()
+        return data.amount
+    }
+
+    @view
+    getDeposit(donor: ManagedAddress): DepositInfo {
+        return this.deposit(donor).get()
+    }
+
     private getExpirationRound(
         valability: ElrondU64
     ): ElrondU64 {
         const valabilityRounds = valability / ElrondU64.fromValue(SECONDS_PER_ROUND)
         return this.blockchain.currentBlockRound + valabilityRounds
     }
-    
+
     abstract deposit(donor: ManagedAddress): Mapping<DepositInfo>
 
 }

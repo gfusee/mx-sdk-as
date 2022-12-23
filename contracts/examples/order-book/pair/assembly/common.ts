@@ -184,10 +184,12 @@ export abstract class CommonModule extends GlobalOperationModule {
         return amount - this.calculateFeeAmount(amount, feeConfig)
     }
 
+    @view
     getFirstTokenId(): TokenIdentifier {
         return this.firstTokenIdentifier
     }
 
+    @view
     getSecondTokenId(): TokenIdentifier {
         return this.secondTokenIdentifier
     }
