@@ -8,7 +8,7 @@
     "build": "npm run asbuild",
     "prepare": "cd bindgen && tsc",
     "asbuild:tsd": "asc assembly/index.ts -d build/index.d.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cd tests && npm test"
   },
   "dependencies": {
     "visitor-as": "^0.10.2"

@@ -8,7 +8,7 @@ import {
 
 export function parseImport(source: Source, text: string): ImportStatement {
     const parser = new Parser()
-    parser.parseFile(source.text, "index.test.ts", true)
+    parser.parseFile(source.text, "index.ts", true)
     const importStatement = parser.parseTopLevelStatement(new Tokenizer(new Source(source.sourceKind, source.normalizedPath, text))) as ImportStatement
 
     if (importStatement === null) {

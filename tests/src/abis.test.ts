@@ -1,6 +1,7 @@
 import * as fs from "fs/promises"
 import path from "path"
 import {getContractPathByName} from "./utils/contractsPaths"
+import {execCustom} from "./utils/exec"
 
 async function compareAbisAtPath(projectPath: string) {
     const generatedPathSuffixes = ["build", "release.abi.json"]

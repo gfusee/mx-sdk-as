@@ -1,5 +1,11 @@
-import {ExecOptions} from "child_process"
+import {ExecException, ExecOptions} from "child_process"
 import { exec } from "child_process"
+
+type ExecError = {
+    error: ExecException,
+    stdout: string,
+    stderr: string
+}
 
 export function execCustom(
     command: string,
@@ -8,7 +14,12 @@ export function execCustom(
     return new Promise((resolve, reject) => {
         exec(command, options,(error, stdout, stderr) => {
             if (error) {
-                reject(error)
+                const thrownError: ExecError = {
+                    error: error,
+                    stdout: stdout,
+                    stderr: stderr
+                }
+                reject(thrownError)
             } else {
                 resolve({
                     stdout: stdout,
