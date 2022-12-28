@@ -5,12 +5,12 @@ import {
     executeOnDestContext,
     getNumReturnData,
     getReturnData,
-    getReturnDataSize, managedAsyncCall, managedDeployFromSourceContract, Static,
+    getReturnDataSize, managedCreateAsyncCall, managedDeployFromSourceContract, Static,
     transferESDTExecute,
     transferESDTNFTExecute,
     transferValue
 } from "../utils/env";
-import {BigUint, CodeMetadata, ElrondU32, MultiValue2} from "../types";
+import {BigUint, CodeMetadata, ElrondU32, ElrondVoid, MultiValue2} from "../types"
 import { ElrondArray } from "../types";
 import { ElrondU64 } from "../types";
 import { ElrondString } from "../types";
@@ -22,6 +22,7 @@ import { ManagedArgBuffer } from "../types";
 import {TokenPayment} from "../types";
 import {EsdtSystemSmartContractProxy} from "./esdtSystemProxy";
 import {BytesEncodeOutput} from "../types";
+import {ContractCall} from "./call"
 
 export class SendWrapper {
 
@@ -91,6 +92,30 @@ export class SendWrapper {
             changetype<i32>(emptyData.buffer),
             emptyData.byteLength
         )
+    }
+
+    transferEsdtViaAsyncCall(
+        to: ManagedAddress,
+        token: TokenIdentifier,
+        nonce: ElrondU64,
+        amount: BigUint
+    ): void {
+        if (!token.isValidESDTIdentifier()) {
+            throw 'token identifier is not an esdt'
+        }
+
+        const contractCall = ContractCall.new<ElrondVoid>(to, ElrondString.new())
+
+        contractCall
+            .withEsdtTransfer(
+                TokenPayment.new(
+                    token,
+                    nonce,
+                    amount
+                )
+            )
+            .intoAsyncCall()
+            .execute(null)
     }
 
     esdtLocalBurn(
@@ -178,13 +203,28 @@ export class SendWrapper {
         to: ManagedAddress,
         amount: BigUint,
         endpointName: ElrondString,
-        argBuffer: ManagedArgBuffer
+        argBuffer: ManagedArgBuffer,
+        successCallback: string,
+        errorCallback: string,
+        gas: ElrondU64,
+        extraGasForCallback: ElrondU64,
+        callbackClosure: ElrondString
     ): void {
-        managedAsyncCall(
+        const successCallbackBytes = String.UTF8.encode(successCallback)
+        const errorCallbackBytes = String.UTF8.encode(errorCallback)
+
+        managedCreateAsyncCall(
             to.getHandle(),
             amount.getHandle(),
             endpointName.getHandle(),
-            argBuffer.getHandle()
+            argBuffer.getHandle(),
+            changetype<i32>(successCallbackBytes),
+            successCallbackBytes.byteLength,
+            changetype<i32>(errorCallbackBytes),
+            errorCallbackBytes.byteLength,
+            gas.value as i64,
+            extraGasForCallback.value as i64,
+            callbackClosure.getHandle()
         )
     }
 

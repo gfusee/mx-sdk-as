@@ -113,12 +113,19 @@ export declare function executeOnDestContext(
   argumentsLengthOffset: i32,
   dataOffset: i32,
 ): i32;
-export declare function managedAsyncCall(
+export declare function managedCreateAsyncCall(
     dstHandle: i32,
     valueHandle: i32,
     functionHandle: i32,
     argumentsHandle: i32,
-): void;
+    successOffset: i32,
+    successLength: i32,
+    errorOffset: i32,
+    errorLength: i32,
+    gas: i64,
+    extraGasForCallback: i64,
+    callbackClosureHandle: i32,
+): i32;
 export declare function managedDeployFromSourceContract(
     gas: i64,
     valueHandle: i32,

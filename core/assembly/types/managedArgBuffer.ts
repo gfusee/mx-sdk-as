@@ -31,7 +31,7 @@ export class ManagedArgBuffer extends BaseManagedType {
   }
 
   set array(value: ElrondArray<ElrondString>) {
-    this.__array = value
+    this.__arrayPtr = changetype<i32>(value)
   }
 
   get utils(): ManagedArgBuffer.Utils {
@@ -47,9 +47,7 @@ export class ManagedArgBuffer extends BaseManagedType {
   }
 
   getHandle(): i32 {
-    const buffer = ElrondString.new()
-    this.array.utils.encodeWithoutLength(buffer)
-    return buffer.getHandle()
+    return this.array.getHandle()
   }
 
   getNumberOfArgs(): ElrondU32 {

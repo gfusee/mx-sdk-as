@@ -8,11 +8,11 @@ const CALLBACK_CLOSURE_STORAGE_BASE_KEY: string = "CB_CLOSURE";
 
 @struct
 export class CallbackClosure {
-    callbackName!: ElrondString
+    callbackName!: string
     closureArgs!: ManagedArgBuffer
 
     static new(
-        callbackName: ElrondString,
+        callbackName: string,
         closureArgs: ManagedArgBuffer
     ): CallbackClosure {
         const result = new CallbackClosure()
@@ -27,20 +27,5 @@ export class CallbackClosure {
             callbackName,
             new ManagedArgBuffer()
         )
-    }
-
-    private static getStorageKey(): ElrondString {
-        const txHash: ElrondString = __CURRENT_CONTRACT!.blockchain.txHash
-        const key = ElrondString.fromString(CALLBACK_CLOSURE_STORAGE_BASE_KEY)
-        key.append(txHash)
-
-        return key
-    }
-
-    saveToStorage(): void {
-        const key = CallbackClosure.getStorageKey()
-        const mapping = new Mapping(key)
-
-        mapping.set(this)
     }
 }

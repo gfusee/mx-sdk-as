@@ -30,7 +30,7 @@ abstract class EgldEsdtSwap extends ContractBase {
     wrapEgld(): void {
         this.require(
             !this.isPaused().value,
-            "contract is paused"
+            "promises-features is paused"
         )
 
         const paymentAmount = this.callValue.egldValue
@@ -58,7 +58,7 @@ abstract class EgldEsdtSwap extends ContractBase {
     unwrapEgld(): void {
         this.require(
             !this.isPaused().value,
-            "contract is paused"
+            "promises-features is paused"
         )
 
         const payment = this.callValue.singleEsdtPayment

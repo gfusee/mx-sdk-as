@@ -16,16 +16,12 @@ export class TokenIdentifier extends ManagedWrappedString {
     return ElrondString.fromString('EGLD')
   }
 
-  isValid(): bool {
-    return this.isEgld() || this.isEsdt()
+  isValidESDTIdentifier(): bool {
+    return validateTokenIdentifier(this.buffer.getHandle()) != 0
   }
 
   isEgld(): bool {
     return this.buffer == TokenIdentifier.egldRepresentation()
-  }
-
-  isEsdt(): bool {
-    return validateTokenIdentifier(this.buffer.getHandle()) != 0
   }
 
   static fromString(str: string): TokenIdentifier {

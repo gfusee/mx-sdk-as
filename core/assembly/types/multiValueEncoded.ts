@@ -140,13 +140,13 @@ export namespace MultiValueEncoded {
         }
 
         decodeTop(buffer: ElrondString): MultiValueEncoded<T> {
-            this.value.rawBuffer = ElrondArray.dummy<ElrondString>().utils.decodeTop(buffer)
+            this.value.rawBuffer = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.decodeTop(buffer)
 
             return this.value
         }
 
         decodeNested(input: ManagedBufferNestedDecodeInput): MultiValueEncoded<T> {
-            this.value.rawBuffer = ElrondArray.dummy<ElrondString>().utils.decodeNested(input)
+            this.value.rawBuffer = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.decodeNested(input)
 
             return this.value
         }

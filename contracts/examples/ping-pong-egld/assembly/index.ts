@@ -59,7 +59,7 @@ abstract class PingPong extends ContractBase {
 
         this.require(
             this.activationTimestamp <= blockTimestamp,
-            "smart contract not active yet"
+            "smart promises-features not active yet"
         )
 
         this.require(
@@ -74,7 +74,7 @@ abstract class PingPong extends ContractBase {
                     TokenIdentifier.egld(),
                     ElrondU64.zero()
                 ) + payment <= maxFunds,
-                "smart contract full"
+                "smart promises-features full"
             )
         }
 

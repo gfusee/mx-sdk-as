@@ -19,14 +19,14 @@ export class ArrayMapping<T extends ManagedType> extends BaseMapping {
             lenKey.appendBuffer(ElrondString.fromString(ArrayMapping.LEN_SUFFIX))
 
             this._lenKeyCache = lenKey
-            
+
             return lenKey
         }
     }
 
     get(index: ElrondU32): T {
         const result = ElrondString.dummy().utils.fromStorage(this.getItemKey(index))
-        
+
         return result.utils.intoTop<T>()
     }
 

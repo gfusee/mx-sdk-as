@@ -29,11 +29,21 @@ export class CallValue {
             return this._singlePaymentCache!
         } else {
             let result: TokenPayment
-            if (this.getNumberOfEsdtTransfers() == 0) {
+
+            const numPayments = this.getNumberOfEsdtTransfers()
+            if (numPayments > 1) {
+                throw new Error('single payment expected, got multiples')
+            } else if (numPayments == 0) {
+                const egldValue = this.egldValue
+
+                if (egldValue == BigUint.zero()) {
+                    throw new Error('single payment expected, no one received')
+                }
+
                 result = TokenPayment.new(
                     TokenIdentifier.egld(),
                     ElrondU64.fromValue(0),
-                    this.egldValue
+                    egldValue
                 )
             } else {
                 result = this.singleEsdtPayment
@@ -43,7 +53,7 @@ export class CallValue {
             return result
         }
 
-        
+
     }
 
     get singleEsdtPayment(): TokenPayment {
@@ -56,10 +66,10 @@ export class CallValue {
                 this.getSingleEsdtPaymentValue()
             )
             this._singleEsdtPaymentCache = payment
-    
+
             return payment
         }
-        
+
     }
 
     get allEsdtPayments(): ElrondArray<TokenPayment> {
@@ -80,7 +90,7 @@ export class CallValue {
             }
 
             this._allEsdtPaymentsCache = result
-    
+
             return result
         }
     }

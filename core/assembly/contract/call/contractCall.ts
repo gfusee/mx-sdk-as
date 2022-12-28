@@ -16,6 +16,8 @@ import {
 } from "../../utils/env";
 import {Blockchain} from "../blockchain";
 import {SendWrapper} from "../sendWrapper";
+import {CallbackClosure} from "./callbackClosure"
+import {AsyncCall} from "./asyncCall"
 
 const UNSPECIFIED_GAS_LIMIT: u64 = u64.MAX_VALUE
 
@@ -36,8 +38,6 @@ export class ContractCall<T extends BaseManagedType> {
     ): ContractCall<T> {
         const argBuffer = new ManagedArgBuffer()
         const egldPayment = BigUint.zero()
-        const successCallback = new Uint8Array(0)
-        const errorCallback = new Uint8Array(0)
 
         return new ContractCall(
             to,
@@ -45,10 +45,7 @@ export class ContractCall<T extends BaseManagedType> {
             payments,
             endpointName,
             ElrondU64.fromValue(UNSPECIFIED_GAS_LIMIT),
-            ElrondU64.fromValue(UNSPECIFIED_GAS_LIMIT),
-            argBuffer,
-            successCallback,
-            errorCallback
+            argBuffer
         )
     }
 
@@ -57,18 +54,51 @@ export class ContractCall<T extends BaseManagedType> {
        public egldPayment: BigUint,
        public payments: ElrondArray<TokenPayment>,
        public endpointName: ElrondString,
-       public extraGasForCallback: ElrondU64,
        public explicitGasLimit: ElrondU64,
-       public argBuffer: ManagedArgBuffer,
-       public successCallback: Uint8Array,
-       public errorCallback: Uint8Array
+       public argBuffer: ManagedArgBuffer
     ) {}
 
     withEgldTransfer(
         egldAmount: BigUint
-    ): ContractCall {
+    ): ContractCall<T> {
         this.payments = ElrondArray.new<TokenPayment>()
         this.egldPayment = egldAmount
+
+        return this
+    }
+
+    withEsdtTransfer(
+        payment: TokenPayment
+    ): ContractCall<T> {
+        if (!payment.tokenIdentifier.isValidESDTIdentifier()) {
+            throw new Error('token is not an esdt')
+        }
+
+        this.egldPayment = BigUint.zero()
+        this.payments.push(payment)
+
+        return this
+    }
+
+    withEgldOrSingleEsdtTransfer(
+        payment: TokenPayment
+    ): ContractCall<T> {
+        this.payments = ElrondArray.new<TokenPayment>()
+        if (payment.tokenIdentifier.isEgld()) {
+            this.egldPayment = payment.amount
+            this.payments = ElrondArray.new<TokenPayment>()
+        } else {
+            this.egldPayment = BigUint.zero()
+            this.payments.push(payment)
+        }
+
+        return this
+    }
+
+    withGasLimit(
+        gasLimit: ElrondU64
+    ): ContractCall<T> {
+        this.explicitGasLimit = gasLimit
 
         return this
     }
@@ -81,16 +111,26 @@ export class ContractCall<T extends BaseManagedType> {
         this.argBuffer.pushArgRaw(rawArg)
     }
 
+    resolveGasLimit(): ElrondU64 {
+        if (this.explicitGasLimit.value == UNSPECIFIED_GAS_LIMIT) {
+            const blockchainWrapper: Blockchain = __CURRENT_CONTRACT!.blockchain
+            return blockchainWrapper.getGasLeft()
+        } else {
+            return this.explicitGasLimit
+        }
+    }
+
     call(): T {
-        const blockchainWrapper: Blockchain = __CURRENT_CONTRACT!.blockchain
+        const converted = this.convertToEsdtTransferCall()
+
         const sendWrapper: SendWrapper = __CURRENT_CONTRACT!.send
 
         const result = sendWrapper.executeOnDestContext(
-            blockchainWrapper.getGasLeft(),
-            this.to,
-            this.egldPayment,
-            this.endpointName,
-            this.argBuffer
+            this.resolveGasLimit(),
+            converted.to,
+            converted.egldPayment,
+            converted.endpointName,
+            converted.argBuffer
         )
 
         const dummy = BaseManagedType.dummy<T>()
@@ -99,6 +139,13 @@ export class ContractCall<T extends BaseManagedType> {
         } else {
             return dummy
         }
+    }
+
+    intoAsyncCall(): AsyncCall<T> {
+        return new AsyncCall<T>(
+            this.convertToEsdtTransferCall(),
+            ElrondU64.zero()
+        )
     }
 
     private convertToEsdtTransferCall(): ContractCall<T> {
@@ -137,11 +184,8 @@ export class ContractCall<T extends BaseManagedType> {
                     zero,
                     noPayments,
                     endpointName,
-                    this.extraGasForCallback,
                     this.explicitGasLimit,
-                    newArgBuffer.concat(this.argBuffer),
-                    this.successCallback,
-                    this.errorCallback
+                    newArgBuffer.concat(this.argBuffer)
                 )
             } else {
                 const payments = new ElrondArray<TokenPayment>()
@@ -164,11 +208,8 @@ export class ContractCall<T extends BaseManagedType> {
                     zero,
                     payments,
                     endpointName,
-                    this.extraGasForCallback,
                     this.explicitGasLimit,
-                    newArgBuffer.concat(this.argBuffer),
-                    this.successCallback,
-                    this.errorCallback
+                    newArgBuffer.concat(this.argBuffer)
                 )
             }
         } else {
@@ -206,11 +247,8 @@ export class ContractCall<T extends BaseManagedType> {
             zero,
             payments,
             endpointName,
-            this.extraGasForCallback,
             this.explicitGasLimit,
-            newArgBuffer.concat(this.argBuffer),
-            this.successCallback,
-            this.errorCallback
+            newArgBuffer.concat(this.argBuffer)
         )
     }
 

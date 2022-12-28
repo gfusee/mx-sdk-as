@@ -1,0 +1,111 @@
+{
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "address:a_user": {
+                    "nonce": "0",
+                    "balance": "0"
+                },
+                "sc:vault": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "esdt": {
+                        "str:TEST-abcdef": "1000"
+                    },
+                    "code": "file:../vault/build/release.wasm"
+                },
+                "sc:forwarder": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "code": "file:../promises-features/build/release.wasm"
+                }
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "1",
+            "displayLogs": true,
+            "tx": {
+                "from": "address:a_user",
+                "to": "sc:forwarder",
+                "function": "forwardPromiseRetrieveFunds",
+                "arguments": [
+                    "sc:vault",
+                    "str:TEST-abcdef",
+                    "0",
+                    "1000"
+                ],
+                "gasLimit": "600,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "0",
+                "logs": [
+                    {
+                        "address": "sc:vault",
+                        "endpoint": "str:retrieveFunds",
+                        "topics": [
+                            "str:retrieveFunds",
+                            "str:TEST-abcdef",
+                            "0",
+                            "1000"
+                        ],
+                        "data": ""
+                    },
+                    {
+                        "address": "sc:vault",
+                        "endpoint": "str:ESDTTransfer",
+                        "topics": [
+                            "str:TEST-abcdef",
+                            "",
+                            "1000",
+                            "sc:forwarder"
+                        ],
+                        "data": ""
+                    },
+                    {
+                        "address": "sc:forwarder",
+                        "endpoint": "str:retrieveFundsCallback",
+                        "topics": [
+                            "str:retrieveFundsCallback",
+                            "str:TEST-abcdef",
+                            "0",
+                            "1000"
+                        ],
+                        "data": ""
+                    }
+                ],
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "address:a_user": {
+                    "nonce": "*",
+                    "balance": "0",
+                    "storage": {},
+                    "code": ""
+                },
+                "sc:vault": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {},
+                    "code": "file:../vault/build/release.wasm"
+                },
+                "sc:forwarder": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "esdt": {
+                        "str:TEST-abcdef": "1000"
+                    },
+                    "storage": "*",
+                    "code": "file:../promises-features/build/release.wasm"
+                }
+            }
+        }
+    ]
+}

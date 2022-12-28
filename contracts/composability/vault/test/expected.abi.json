@@ -1,0 +1,12 @@
+{
+  "buildInfo": {},
+  "name": "Contract",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [],
+  "events": [],
+  "hasCallback": false,
+  "types": {}
+}

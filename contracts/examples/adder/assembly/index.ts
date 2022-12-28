@@ -8,7 +8,7 @@ import {
 @contract
 abstract class Adder extends ContractBase {
 
-    sum!: BigUint
+    sum: BigUint
 
     constructor(
         initialValue: BigUint
