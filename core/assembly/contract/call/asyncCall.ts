@@ -1,4 +1,4 @@
-import {BaseManagedType, ElrondString, ElrondU32, ElrondU64} from "../../types"
+import {BaseManagedType, ElrondString, ElrondU32, ElrondU64, ManagedAddress} from "../../types"
 import {CallbackClosure} from "./callbackClosure"
 import {SendWrapper} from "../sendWrapper"
 import {ContractCall} from "./contractCall"
@@ -21,7 +21,6 @@ export class AsyncCall<T extends BaseManagedType> {
     execute(callback: CallbackClosure | null): void {
         const sendWrapper: SendWrapper = __CURRENT_CONTRACT!.send
 
-
         const cbClosureArgsSerialized = callback != null ? callback.closureArgs.utils.encodeTop() : ElrondString.new()
         const cbName = callback != null ? callback.callbackName : ""
 
@@ -32,7 +31,7 @@ export class AsyncCall<T extends BaseManagedType> {
             this.contractCall.argBuffer,
             cbName,
             cbName,
-            this.contractCall.resolveGasLimit(),
+            this.contractCall.explicitGasLimit,
             this.extraGasForCallback,
             cbClosureArgsSerialized
         )

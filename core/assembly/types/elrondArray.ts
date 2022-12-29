@@ -7,6 +7,9 @@ import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
 import {checkIfDebugBreakpointEnabled} from "../utils/env";
 import {MultiValueEncoded} from "./multiValueEncoded";
+import {ManagedArgBuffer} from "./managedArgBuffer"
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
 
 //TODO : make it allocated on the stack... but how to deal with the generic bug?
 // An idea : remove ManagedUtils class and move all methods in ManagedType
@@ -106,7 +109,18 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
         }
     }
 
-    intoMultiValueEncoded(): MultiValueEncoded<T> {
+    toArgsBuffer(): ManagedArgBuffer {
+        const result = new ManagedArgBuffer()
+
+        const thisLength = this.getLength()
+        for (let i = ElrondU32.zero(); i < thisLength; i++) {
+            result.pushArg(this.get(i))
+        }
+
+        return result
+    }
+
+    toMultiValueEncoded(): MultiValueEncoded<T> {
         const result = new MultiValueEncoded<T>()
 
         const thisLength = this.getLength()
@@ -228,8 +242,11 @@ export namespace ElrondArray {
             return this.value
         }
 
-        fromArgumentIndex(index: i32): ElrondArray<T> {
-            return this.decodeTop(ElrondString.dummy().utils.fromArgumentIndex(index))
+        fromArgument<L extends ArgumentLoader>(loader: L): ElrondArray<T> {
+            const buffer = loader.getRawArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
+
+            return this.decodeTop(buffer)
         }
 
         fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ElrondArray<T> {

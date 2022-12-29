@@ -59,7 +59,7 @@ abstract class PingPong extends ContractBase {
 
         this.require(
             this.activationTimestamp <= blockTimestamp,
-            "smart promises-features not active yet"
+            "smart contract not active yet"
         )
 
         this.require(
@@ -74,7 +74,7 @@ abstract class PingPong extends ContractBase {
                     TokenIdentifier.egld(),
                     ElrondU64.zero()
                 ) + payment <= maxFunds,
-                "smart promises-features full"
+                "smart contract full"
             )
         }
 
@@ -135,7 +135,7 @@ abstract class PingPong extends ContractBase {
 
     @view
     getUserAddresses(): MultiValueEncoded<ManagedAddress> {
-        return this.user().getAllAddresses().intoMultiValueEncoded()
+        return this.user().getAllAddresses().toMultiValueEncoded()
     }
 
     @view

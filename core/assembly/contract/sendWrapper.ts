@@ -5,11 +5,11 @@ import {
     executeOnDestContext,
     getNumReturnData,
     getReturnData,
-    getReturnDataSize, managedCreateAsyncCall, managedDeployFromSourceContract, Static,
+    getReturnDataSize, managedCreateAsyncCall, managedDeployFromSourceContract, managedGetCallbackClosure, Static,
     transferESDTExecute,
     transferESDTNFTExecute,
     transferValue
-} from "../utils/env";
+} from "../utils/env"
 import {BigUint, CodeMetadata, ElrondU32, ElrondVoid, MultiValue2} from "../types"
 import { ElrondArray } from "../types";
 import { ElrondU64 } from "../types";
@@ -98,10 +98,11 @@ export class SendWrapper {
         to: ManagedAddress,
         token: TokenIdentifier,
         nonce: ElrondU64,
-        amount: BigUint
+        amount: BigUint,
+        gasLimit: ElrondU64
     ): void {
         if (!token.isValidESDTIdentifier()) {
-            throw 'token identifier is not an esdt'
+            throw new Error('token identifier is not an esdt')
         }
 
         const contractCall = ContractCall.new<ElrondVoid>(to, ElrondString.new())
@@ -114,6 +115,7 @@ export class SendWrapper {
                     amount
                 )
             )
+            .withGasLimit(gasLimit)
             .intoAsyncCall()
             .execute(null)
     }
@@ -226,6 +228,13 @@ export class SendWrapper {
             extraGasForCallback.value as i64,
             callbackClosure.getHandle()
         )
+    }
+
+    getCallbackClosure(): ElrondString {
+        const resultRaw = ElrondString.new()
+        managedGetCallbackClosure(resultRaw.getHandle())
+
+        return resultRaw
     }
 
     deployFromSourceContract(

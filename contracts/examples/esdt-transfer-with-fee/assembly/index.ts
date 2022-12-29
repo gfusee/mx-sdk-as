@@ -103,6 +103,7 @@ abstract class EsdtTransferWithFee extends ContractBase {
 
         let i = ElrondU32.zero()
         const paymentLength = payments.getLength()
+
         while (i < paymentLength) {
             const payment = payments.get(i)
             const fee = this.tokenFee(payment.tokenIdentifier).get()

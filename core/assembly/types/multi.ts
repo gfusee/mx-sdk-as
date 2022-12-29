@@ -7,6 +7,8 @@ import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
 import {checkIfDebugBreakpointEnabled, checkIfSecondDebugBreakpointEnabled} from "../utils/env";
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
 
 @unmanaged
 export abstract class MultiValue extends BaseManagedType {
@@ -362,8 +364,9 @@ export namespace MultiValue {
             return this.decodeTop(buffer)
         }
 
-        fromArgumentIndex(index: i32): T {
-            const buffer = ElrondString.dummy().utils.fromArgumentIndex(index)
+        fromArgument<L extends ArgumentLoader>(loader: L): T {
+            const buffer = loader.getRawArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
 
             return this.decodeTop(buffer)
         }

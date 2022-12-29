@@ -10,6 +10,7 @@ import {ManagedBufferNestedDecodeInput} from "../managedBufferNestedDecodeInput"
 import {ElrondU32} from "./elrondu32";
 import {BaseManagedUtils} from "../interfaces/managedUtils";
 import {ElrondU8} from "./elrondu8";
+import {ArgumentLoader} from "../../utils/argumentLoader"
 
 @unmanaged
 export class ElrondU64 extends BaseManagedType {
@@ -206,8 +207,9 @@ export namespace ElrondU64 {
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): ElrondU64 {
-            const value = smallIntGetUnsignedArgument(index)
+        fromArgument<L extends ArgumentLoader>(loader: L): ElrondU64 {
+            const value = loader.getSmallIntUnsignedArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
 
             return ElrondU64.fromValue(value)
         }

@@ -31,22 +31,16 @@ export class CallValue {
             let result: TokenPayment
 
             const numPayments = this.getNumberOfEsdtTransfers()
-            if (numPayments > 1) {
-                throw new Error('single payment expected, got multiples')
-            } else if (numPayments == 0) {
-                const egldValue = this.egldValue
-
-                if (egldValue == BigUint.zero()) {
-                    throw new Error('single payment expected, no one received')
-                }
-
+            if (numPayments == 0) {
                 result = TokenPayment.new(
                     TokenIdentifier.egld(),
-                    ElrondU64.fromValue(0),
-                    egldValue
+                    ElrondU64.zero(),
+                    this.egldValue
                 )
-            } else {
+            } else if (numPayments == 1) {
                 result = this.singleEsdtPayment
+            } else {
+                throw new Error('single payment expected, got multiples')
             }
 
             this._singlePaymentCache = result

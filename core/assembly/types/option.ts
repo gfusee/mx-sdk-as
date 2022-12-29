@@ -6,6 +6,9 @@ import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU8} from "./numbers/elrondu8";
 import {ElrondU32} from "./numbers";
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
+import {checkIfDebugBreakpointEnabled} from "../utils/env"
 
 @unmanaged
 export class Option<T extends ManagedType> extends BaseManagedType {
@@ -126,7 +129,7 @@ export namespace Option {
             this.value.value = value
 
             return this.value
-        } 
+        }
 
         storeAtBuffer(key: ElrondString): void {
             this.encodeTop().utils.storeAtBuffer(key)
@@ -175,8 +178,10 @@ export namespace Option {
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): Option<T> {
-            const buffer = ElrondString.dummy().utils.fromArgumentIndex(index)
+        fromArgument<L extends ArgumentLoader>(loader: L): Option<T> {
+            const buffer = loader.getRawArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
+
             return this.decodeNested(new ManagedBufferNestedDecodeInput(buffer))
         }
 
@@ -200,9 +205,9 @@ export namespace Option {
 
         decodeNested(input: ManagedBufferNestedDecodeInput): Option<T> {
             const type = ElrondU8.dummy().utils.decodeNested(input)
-            
+
             this.value.type = type
-            
+
             if (type.value == 0) {
                 return this.fromNull()
             } else {

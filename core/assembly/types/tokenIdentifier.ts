@@ -4,6 +4,8 @@ import { ManagedWrappedString } from "./managedWrappedString"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
+import {EndpointArgumentLoader} from "../utils/endpointArgumentLoader"
+import {ArgumentLoader} from "../utils/argumentLoader"
 
 @unmanaged
 export class TokenIdentifier extends ManagedWrappedString {
@@ -100,8 +102,10 @@ export namespace TokenIdentifier {
       return changetype<TokenIdentifier>(handle)
     }
 
-    fromArgumentIndex(argIndex: i32): TokenIdentifier {
-      const buffer = ElrondString.dummy().utils.fromArgumentIndex(argIndex)
+    fromArgument<L extends ArgumentLoader>(loader: L): TokenIdentifier {
+      const buffer = loader.getRawArgumentAtIndex(loader.currentIndex)
+      loader.currentIndex++
+
       return this.fromBuffer(buffer)
     }
 

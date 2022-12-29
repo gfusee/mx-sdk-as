@@ -19,3 +19,6 @@ export {
     __frameworkRetainClosureValue,
     __frameworkGetRetainedClosureValue
 } from './utils/env'
+export {
+    EndpointArgumentLoader
+} from './utils/endpointArgumentLoader'

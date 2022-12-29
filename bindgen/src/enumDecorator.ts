@@ -213,8 +213,8 @@ export class EnumExporter extends TransformVisitor {
           return enumValue;
         }
 
-        fromArgumentIndex(index: i32): ${className} {
-          return this.fromRawValueToField(ElrondU8.dummy().utils.fromArgumentIndex(input).value);
+        fromArgument<L extends ArgumentLoader>(loader: L): ${className} {
+            return this.fromRawValueToField(ElrondU8.dummy().utils.fromArgument<L>(loader).value);
         }
 
         decodeTop(buffer: ElrondString): ${className} {

@@ -296,12 +296,14 @@ export class StructExporter extends TransformVisitor {
       }
       `
 
-            const fromArgumentIndexMethod = `
-      fromArgumentIndex(argIndex: i32): ${className} {
-        const buffer = ElrondString.dummy().utils.fromArgumentIndex(argIndex);
-        const input = new ManagedBufferNestedDecodeInput(buffer);
-        return this.decodeNested(input);
-      }
+            const fromArgumentMethod = `
+        fromArgument<L extends ArgumentLoader>(loader: L): ${className} {
+            const buffer = loader.getRawArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
+
+            const input = new ManagedBufferNestedDecodeInput(buffer);
+            return this.decodeNested(input);
+        }
       `
 
             let utilsMethods = [
@@ -319,7 +321,7 @@ export class StructExporter extends TransformVisitor {
                 newMethod,
                 fromHandleMethod,
                 fromStorageMethod,
-                fromArgumentIndexMethod,
+                fromArgumentMethod,
                 toByteWriterMethod,
                 fromByteReaderMethod,
                 fromBytesMethod

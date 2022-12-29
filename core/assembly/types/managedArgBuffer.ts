@@ -5,6 +5,8 @@ import {BaseManagedUtils} from "./interfaces/managedUtils"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
 
 class ArgBuffer {
   constructor(
@@ -117,8 +119,8 @@ export namespace ManagedArgBuffer {
       this.value.array.utils.finish()
     }
 
-    fromArgumentIndex(index: i32): ManagedArgBuffer {
-      this.value.array = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.fromArgumentIndex(index)
+    fromArgument<L extends ArgumentLoader>(loader: L): ManagedArgBuffer {
+      this.value.array = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.fromArgument<L>(loader)
 
       return this.value
     }

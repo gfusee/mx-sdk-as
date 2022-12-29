@@ -140,6 +140,8 @@ export declare function getReturnDataSize(returnIndex: i32): i32;
 export declare function getReturnData(resultIndex: i32, dataOffset: i32): i32;
 export declare function cleanReturnData(): void;
 
+export declare function managedGetCallbackClosure(callbackClosureHandle: i32): void;
+
 export declare function bigIntGetCallValue(dest: i32): void;
 export declare function getESDTTokenName(resultOffset: i32): i32;
 export declare function getESDTTokenNonce(): i64;

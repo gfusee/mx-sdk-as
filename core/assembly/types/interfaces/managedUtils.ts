@@ -4,6 +4,8 @@ import {NestedEncodeOutput} from "./nestedEncodeOutput";
 import {BaseManagedType, ManagedType} from "./managedType";
 import {ElrondU32} from "../numbers";
 import {checkIfDebugBreakpointEnabled, checkIfSecondDebugBreakpointEnabled} from "../../utils/env";
+import {ArgumentLoader} from "../../utils/argumentLoader"
+import {TokenIdentifier} from "../tokenIdentifier"
 
 @unmanaged
 export abstract class IManagedUtils {
@@ -29,7 +31,7 @@ export abstract class IManagedUtils {
 
     abstract fromHandle(handle: i32): BaseManagedType
 
-    abstract fromArgumentIndex(index: i32): BaseManagedType
+    abstract fromArgument<L extends ArgumentLoader>(loader: L): BaseManagedType
 
     abstract decodeTop(buffer: ElrondString): BaseManagedType // TODO : optimize by using TopDecodeInput like in rust
 
@@ -65,7 +67,7 @@ export abstract class BaseManagedUtils<T extends BaseManagedType> extends IManag
 
     abstract fromHandle(handle: i32): T
 
-    abstract fromArgumentIndex(index: i32): T
+    abstract fromArgument<L extends ArgumentLoader>(loader: L): T
 
     abstract decodeTop(buffer: ElrondString): T // TODO : optimize by using TopDecodeInput like in rust
 

@@ -10,6 +10,8 @@ import {getBytesFromStorage} from "../../utils/storage";
 import {ManagedBufferNestedDecodeInput} from "../managedBufferNestedDecodeInput";
 import {ElrondU32} from "./elrondu32";
 import {ElrondU8} from "./elrondu8";
+import {ArgumentLoader} from "../../utils/argumentLoader"
+import {TokenIdentifier} from "../tokenIdentifier"
 
 @unmanaged
 export class ElrondBoolean extends ManagedType {
@@ -157,8 +159,11 @@ export namespace ElrondBoolean {
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): ElrondBoolean {
-            return this.fromValue(smallIntGetUnsignedArgument(index))
+        fromArgument<L extends ArgumentLoader>(loader: L): ElrondBoolean {
+            const value = loader.getSmallIntUnsignedArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
+
+            return this.fromValue(value)
         }
 
         fromValue(value: u64): ElrondBoolean {

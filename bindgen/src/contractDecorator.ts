@@ -79,10 +79,15 @@ export class ContractExporter extends TransformVisitor {
 
     visitMethodDeclaration(node: MethodDeclaration): MethodDeclaration {
         const isView = ContractExporter.hasViewDecorator(node)
+        const isCallback = ContractExporter.hasCallbackDecorator(node)
 
         if (node.is(CommonFlags.PRIVATE) || node.is(CommonFlags.PROTECTED)) {
             if (isView) {
                 throw 'TODO : non public method cannot be annotated as view'
+            }
+
+            if (isCallback) {
+                throw 'TODO : non public method cannot be annotated as callback'
             }
 
             return node
@@ -106,6 +111,10 @@ export class ContractExporter extends TransformVisitor {
                 throw 'TODO : constructor cannot be annotated as view'
             }
 
+            if (isCallback) {
+                throw 'TODO : constructor cannot be annotated as callback'
+            }
+
             const initName = 'init'
             let nodeText = ASTBuilder.build(node)
             nodeText = nodeText.replace(/constructor\((.*)\)/, 'init($1): void')
@@ -120,59 +129,31 @@ export class ContractExporter extends TransformVisitor {
         const params = node.signature.parameters
 
         const isOnlyOwner = ContractExporter.hasOnlyOwnerDecorator(node)
-        let endpointCall = ''
+        let endpointCall = `
+            const loader = new EndpointArgumentLoader();
+        `
         if (isOnlyOwner) {
-            endpointCall = `
+            endpointCall += `
             contract.blockchain.assertCallerIsContractOwner();
             `
         }
-        let argHasOptionalValue = false
 
         if (params.length == 0) {
-            endpointCall = `contract.${name}()`
+            endpointCall += `
+                contract.${name}()
+            `
         } else {
             params.forEach((param, index, _) => {
                 let paramName = ASTBuilder.build(param.name)
                 let paramType = ASTBuilder.build(param.type)
-                if (paramType.includes('OptionalValue<')) {
-                    if (!argHasOptionalValue) {
-                        endpointCall += `
-                const numArguments = ArgumentApi.getNumberOfArguments();\n
-                `
-                        argHasOptionalValue = true
-                    }
 
-                    endpointCall += `
-              let ${paramName}: ${paramType} = BaseManagedType.dummy<${paramType}>()
-              if (numArguments >= ${index + 1}) {
-                ${paramName} = ${paramName}.utils.fromArgumentIndex(${index})
-              } else {
-                ${paramName} = ${paramName}.utils.fromNull()
-              }
-              `
-                } else {
-                    if (paramType.includes('MultiValueEncoded<')) {
-                        if (index === params.length - 1) {
-                            endpointCall += `
-                            const ${paramName} = BaseManagedType.dummy<${paramType}>().${paramName}.utils.fromArgumentIndex(${index})
-                            `
-                        } else {
-                            throw new Error('TODO : MultiValueEncoded should be the last argument')
-                        }
-                    } else {
-                        if (argHasOptionalValue) {
-                            throw new Error('TODO : error OptionalValue required')
-                        } else {
-                            if (!ContractExporter.isTypeUserImported(this.classSeen.range.source, paramType)) {
-                                this.newImports.push(paramType)
-                            }
-
-                            endpointCall = endpointCall + `
-                const ${paramName}: ${paramType} = BaseManagedType.dummy<${paramType}>().utils.fromArgumentIndex(${index});
-                `
-                        }
-                    }
+                if (!ContractExporter.isTypeUserImported(this.classSeen.range.source, paramType)) {
+                    this.newImports.push(paramType)
                 }
+
+                endpointCall = endpointCall + `
+                const ${paramName}: ${paramType} = BaseManagedType.dummy<${paramType}>().utils.fromArgument<EndpointArgumentLoader>(loader);
+                `
 
             })
 
@@ -251,7 +232,16 @@ export class ContractExporter extends TransformVisitor {
 
             node.flags &= ~CommonFlags.ABSTRACT
 
-            const requiredImports = ["ElrondString", "ArgumentApi", "ContractBase", "StorageKey", "BaseManagedType"].concat(this.newImports)
+            const requiredImports = [
+                "ElrondString",
+                "ArgumentApi",
+                "ContractBase",
+                "StorageKey",
+                "BaseManagedType",
+                "EndpointArgumentLoader",
+                "MultiValueEncoded",
+                "OptionalValue"
+            ].concat(this.newImports)
 
             for (const requiredImport of requiredImports) {
                 this.newImports.push(requiredImport)
@@ -407,6 +397,13 @@ export class ContractExporter extends TransformVisitor {
         const decoratorsNames = decorators.map(d => ASTBuilder.build(d.name))
 
         return decoratorsNames.includes('module')
+    }
+
+    static hasCallbackDecorator(node: MethodDeclaration): boolean {
+        const decorators = node.decorators ?? []
+        const decoratorsNames = decorators.map(d => ASTBuilder.build(d.name))
+
+        return decoratorsNames.includes('callback')
     }
 
     static hasOnlyOwnerDecorator(node: MethodDeclaration): boolean {

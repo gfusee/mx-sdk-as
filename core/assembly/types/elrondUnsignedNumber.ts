@@ -12,6 +12,8 @@ import { ManagedUtils } from "./interfaces/managedUtils"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
 
 @unmanaged
 export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
@@ -95,7 +97,7 @@ export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
     __greaterThanOrEquals(a: this): bool {
         return !(this < a)
     }
-    
+
     @operator.postfix("++")
     __increase(): this {
         return this.__add(ElrondUnsignedNumber.fromValue<T>(1 as T))
@@ -177,8 +179,9 @@ export namespace ElrondUnsignedNumber {
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): ElrondUnsignedNumber<T> {
-            const value = smallIntGetUnsignedArgument(index)
+        fromArgument<L extends ArgumentLoader>(loader: L): ElrondUnsignedNumber<T> {
+            const value = loader.getSmallIntUnsignedArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
 
             return ElrondUnsignedNumber.fromValue<T>(value)
         }

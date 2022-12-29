@@ -34,7 +34,7 @@ abstract class VaultContract extends ContractBase {
             const event = new AcceptFundsEsdtEvent(
                 ElrondString.fromString("acceptFunds"),
                 MultiValue1.from<MultiValueEncoded<TokenPayment>>(
-                    this.callValue.allEsdtPayments.intoMultiValueEncoded()
+                    this.callValue.allEsdtPayments.toMultiValueEncoded()
                 ),
                 ElrondString.fromString("")
             )
@@ -64,10 +64,19 @@ abstract class VaultContract extends ContractBase {
         event.emit()
 
         if (token.isValidESDTIdentifier()) {
-            this.send.transferEsdtViaAsyncCall(caller, token, nonce, amount)
+            this.send.transferEsdtViaAsyncCall(caller, token, nonce, amount, ElrondU64.fromValue(20_000_000))
         } else {
             this.send.directEgld(caller, amount)
         }
+    }
+
+    echoArguments(
+        args: MultiValueEncoded<ElrondString>
+    ): MultiValueEncoded<ElrondString> {
+        const mapping = this.callCounts(ElrondString.fromString("echoArguments"))
+        mapping.set(mapping.get() + ElrondU64.fromValue(1))
+
+        return args
     }
 
     abstract callCounts(endpoint: ElrondString): Mapping<ElrondU64>

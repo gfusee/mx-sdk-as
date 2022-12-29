@@ -157,7 +157,7 @@ abstract class FlipContract extends ContractBase {
 
         this.require(
             !this.blockchain.isSmartContract(caller),
-            "caller is a smart promises-features"
+            "caller is a smart contract"
         )
 
         const lastBountyFlipId = this.lastBountyFlipId().get()

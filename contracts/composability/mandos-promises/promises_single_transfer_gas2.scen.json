@@ -22,13 +22,14 @@
         {
             "step": "scCall",
             "txId": "2",
+            "displayLogs": true,
             "tx": {
                 "from": "address:a_user",
                 "to": "sc:promises",
-                "function": "promise_raw_single_token",
+                "function": "promiseRawSingleToken",
                 "arguments": [
                     "sc:vault",
-                    "str:echo_arguments",
+                    "str:echoArguments",
                     "1,000,000",
                     "100,000,000",
                     "1",
@@ -43,9 +44,9 @@
                 "logs": [
                     {
                         "address": "sc:promises",
-                        "endpoint": "str:the_one_callback",
+                        "endpoint": "str:theOneCallback",
                         "topics": [
-                            "str:async_call_event_callback",
+                            "str:asyncCallCallbackEvent",
                             "1001",
                             "1002"
                         ],

@@ -36,7 +36,7 @@ abstract class CounterContract extends ContractBase {
         this.deadline = deadline
 
         this.require(
-            tokenIdentifier.isValidESDTIdentifier(),
+            tokenIdentifier.isEgld() | tokenIdentifier.isValidESDTIdentifier(),
             "Invalid token provided"
         )
         this.tokenIdentifier = tokenIdentifier

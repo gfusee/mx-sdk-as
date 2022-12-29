@@ -9,6 +9,8 @@ import {bytesToSize} from "../../utils/bytes";
 import {getBytesFromStorage} from "../../utils/storage";
 import {ManagedBufferNestedDecodeInput} from "../managedBufferNestedDecodeInput";
 import {ElrondU32} from "./elrondu32";
+import {ArgumentLoader} from "../../utils/argumentLoader"
+import {TokenIdentifier} from "../tokenIdentifier"
 
 @unmanaged
 export class ElrondU8 extends ManagedType {
@@ -196,8 +198,9 @@ export namespace ElrondU8 {
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): ElrondU8 {
-            const value = smallIntGetUnsignedArgument(index)
+        fromArgument<L extends ArgumentLoader>(loader: L): ElrondU8 {
+            const value = loader.getSmallIntUnsignedArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
 
             return ElrondU8.fromValue(value)
         }

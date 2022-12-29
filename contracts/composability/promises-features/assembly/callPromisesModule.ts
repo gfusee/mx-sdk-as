@@ -2,21 +2,25 @@
 
 import {
     ArrayMapping,
-    BigUint, CallbackClosure,
-    ContractBase, ElrondArray,
-    ElrondEvent, ElrondString,
+    BigUint,
+    CallbackClosure,
+    ElrondArray,
+    ElrondEvent,
+    ElrondString,
     ElrondU64,
-    ManagedAddress, ManagedArgBuffer,
+    ManagedAddress,
+    ManagedArgBuffer,
     MultiValue3,
     TokenIdentifier
 } from "@gfusee/elrond-wasm-as"
 import {VaultContract} from "./vaultContract"
 import {CallbackData} from "./callbackData"
+import {CallPromiseDirectModule} from "./callPromiseDirectModule"
 
 class RetrieveFundsCallbackEvent extends ElrondEvent<MultiValue3<TokenIdentifier, ElrondU64, BigUint>, ElrondString> {}
 
 @module
-export abstract class CallPromisesModule extends ContractBase {
+export abstract class CallPromisesModule extends CallPromiseDirectModule {
 
     forwardPromiseAcceptFunds(
         to: ManagedAddress
@@ -47,12 +51,12 @@ export abstract class CallPromisesModule extends ContractBase {
             new ManagedArgBuffer()
         )
 
-        const gasLimit = this.blockchain.getGasLeft() - ElrondU64.fromValue(50_000_000)
+        const gasLimit = this.blockchain.getGasLeft() - ElrondU64.fromValue(20_000_000)
         vault
             .retrieveFunds(token, tokenNonce, amount)
             .withGasLimit(gasLimit)
             .intoAsyncCall()
-            .withExtraGasForCallback(ElrondU64.fromValue(30_000_000))
+            .withExtraGasForCallback(ElrondU64.fromValue(10_000_000))
             .execute(tempCallbackClosure)
     }
 

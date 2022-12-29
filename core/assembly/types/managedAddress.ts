@@ -6,6 +6,8 @@ import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
 import {checkIfDebugBreakpointEnabled} from "../utils/env";
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
 
 @unmanaged
 export class ManagedAddress extends ManagedWrappedString {
@@ -104,8 +106,10 @@ export namespace ManagedAddress {
             return changetype<ManagedAddress>(handle)
         }
 
-        fromArgumentIndex(argIndex: i32): ManagedAddress {
-            const buffer = ElrondString.dummy().utils.fromArgumentIndex(argIndex)
+        fromArgument<L extends ArgumentLoader>(loader: L): ManagedAddress {
+            const buffer = loader.getRawArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
+
             return this.fromBuffer(buffer)
         }
 

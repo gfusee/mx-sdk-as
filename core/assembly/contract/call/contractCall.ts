@@ -103,6 +103,14 @@ export class ContractCall<T extends BaseManagedType> {
         return this
     }
 
+    withRawArguments(
+        rawArgs: ManagedArgBuffer
+    ): ContractCall<T> {
+        this.argBuffer = rawArgs
+
+        return this
+    }
+
     pushEndpointArg<T extends BaseManagedType>(arg: T): void {
         this.argBuffer.pushArg(arg)
     }

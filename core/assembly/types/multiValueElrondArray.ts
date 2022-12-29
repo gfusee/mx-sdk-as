@@ -1,15 +1,15 @@
 import {BaseManagedType, ManagedType} from "./interfaces/managedType";
 import {ElrondArray} from "./elrondArray";
-import {
-    checkIfDebugBreakpointEnabled,
-    getNumArguments
-} from "../utils/env";
 import {ElrondString} from "./erdString";
 import {ElrondU32} from "./numbers";
 import {Option} from "./option";
 import {BaseManagedUtils} from "./interfaces/managedUtils";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
+import {MultiValueEncoded} from "./multiValueEncoded"
+import {getNumArguments} from "../utils/env"
 
 //TODO : make it allocated on the stack... but how to deal with the generic bug?
 // An idea : remove ManagedUtils class and move all methods in ManagedType
@@ -228,11 +228,15 @@ export namespace MultiValueElrondArray {
             return this.value
         }
 
-        fromArgumentIndex(index: i32): MultiValueElrondArray<T> {
-            const numberOfArguments = getNumArguments()
-            for (let i = index; i < numberOfArguments - index; i++) {
-                const newValue = BaseManagedType.dummy<T>().utils.fromArgumentIndex(i)
-                this.value.push(newValue)
+        fromArgument<L extends ArgumentLoader>(loader: L): MultiValueElrondArray<T> {
+            const numberOfArguments = loader.getNumArguments()
+            const currentIndex = loader.currentIndex
+            for (let i = ElrondU32.zero(); i < numberOfArguments - currentIndex; i++) {
+                this.value.push(BaseManagedType.dummy<T>().utils.fromArgument<L>(loader))
+            }
+
+            if (loader.currentIndex < numberOfArguments) {
+                throw new Error("MultiValueElrondArray should be the last argument")
             }
 
             return this.value

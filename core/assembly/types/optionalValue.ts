@@ -6,6 +6,8 @@ import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32, ElrondU8} from "./numbers";
 import {BaseManagedUtils} from "./interfaces/managedUtils";
 import {Option} from "./option";
+import {ArgumentLoader} from "../utils/argumentLoader"
+import {TokenIdentifier} from "./tokenIdentifier"
 
 @unmanaged
 export class OptionalValue<T extends ManagedType> extends BaseManagedType {
@@ -183,8 +185,15 @@ export namespace OptionalValue {
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): OptionalValue<T> {
-            const buffer = ElrondString.dummy().utils.fromArgumentIndex(index)
+        fromArgument<L extends ArgumentLoader>(loader: L): OptionalValue<T> {
+            if (loader.currentIndex >= loader.getNumArguments()) {
+                loader.currentIndex++
+                return OptionalValue.null<T>()
+            }
+
+            const buffer = loader.getRawArgumentAtIndex(loader.currentIndex)
+            loader.currentIndex++
+
             return this.decodeTop(buffer)
         }
 

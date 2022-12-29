@@ -18,7 +18,12 @@ import {
     UnorderedSetMapping,
     ESDTLocalRoleFlag,
     RandomnessSource,
-    TokenPayment, enableDebugBreakpoint, MultiValueEncoded, retainClosureValue, getRetainedClosureValue
+    TokenPayment,
+    enableDebugBreakpoint,
+    MultiValueEncoded,
+    retainClosureValue,
+    getRetainedClosureValue,
+    EndpointArgumentLoader, BaseManagedType
 } from "@gfusee/elrond-wasm-as"
 import { LotteryInfo } from "./lotteryInfo"
 import { Status } from "./status"
@@ -208,7 +213,7 @@ abstract class LotteryContract extends ContractBase {
             const roles = this.blockchain.getESDTLocalRoles(tokenIdentifier)
             this.require(
                 roles.hasRole(ESDTLocalRoleFlag.BURN),
-                "The promises-features can't burn the selected token!"
+                "The contract can't burn the selected token!"
             )
 
             const burnPercentage = optBurnPercentage.unwrap()

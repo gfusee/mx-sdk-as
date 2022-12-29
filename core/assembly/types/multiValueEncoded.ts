@@ -1,16 +1,12 @@
 import {BaseManagedType, ManagedType} from "./interfaces/managedType";
-import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
+import {BaseManagedUtils} from "./interfaces/managedUtils";
 import {ElrondString} from "./erdString";
-import {
-    __frameworkGetRetainedClosureValue,
-    __frameworkReleaseRetainedClosureValue,
-    __frameworkRetainClosureValue,
-    getNumArguments
-} from "../utils/env";
 import {ElrondArray} from "./elrondArray";
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
+import {ManagedArgBuffer} from "./managedArgBuffer"
+import {ArgumentLoader} from "../utils/argumentLoader"
 
 @unmanaged
 export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
@@ -60,6 +56,10 @@ export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
         }
 
         return result
+    }
+
+    toArgsBuffer(): ManagedArgBuffer {
+        return this.rawBuffer.toArgsBuffer()
     }
 
     static fromArray<T extends BaseManagedType>(array: ElrondArray<ElrondString>): MultiValueEncoded<T> {
@@ -121,11 +121,16 @@ export namespace MultiValueEncoded {
             return this
         }
 
-        fromArgumentIndex(index: i32): MultiValueEncoded<T> {
-            const numberOfArguments = getNumArguments()
-            for (let i = 0; i < numberOfArguments - index; i++) {
-                const newRawBuffer = ElrondString.dummy().utils.fromArgumentIndex(i)
+        fromArgument<L extends ArgumentLoader>(loader: L): MultiValueEncoded<T> {
+            const numberOfArguments = loader.getNumArguments()
+            const currentIndex = loader.currentIndex
+            for (let i = ElrondU32.zero(); i < numberOfArguments - currentIndex; i++) {
+                const newRawBuffer = ElrondString.dummy().utils.fromArgument<L>(loader)
                 this.value.rawBuffer.push(newRawBuffer)
+            }
+
+            if (loader.currentIndex < numberOfArguments) {
+                throw new Error("MultiValueEncoded should be the last argument")
             }
 
             return this.value
