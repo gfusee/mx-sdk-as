@@ -46,7 +46,7 @@ export abstract class CallPromisesModule extends CallPromiseDirectModule {
     ): void {
         const vault = new VaultContract(to)
 
-        const tempCallbackClosure = CallbackClosure.new(
+        const tempCallbackClosure = new CallbackClosure(
             "retrieveFundsCallback",
             new ManagedArgBuffer()
         )

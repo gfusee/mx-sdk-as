@@ -1,9 +1,9 @@
 //@ts-nocheck
 
 import {
-    ContractBase,
-    ElrondEvent,
-    MultiValue1, MultiValue3,
+    ContractBase, ElrondArray,
+    ElrondEvent, ElrondU32,
+    MultiValue1, MultiValue2, MultiValue3,
     MultiValueEncoded,
     TokenPayment
 } from "@gfusee/elrond-wasm-as"
@@ -11,7 +11,7 @@ import {ElrondString} from "@gfusee/elrond-wasm-as"
 import {BigUint, ElrondU64, Mapping, TokenIdentifier} from "@gfusee/elrond-wasm-as"
 
 class AcceptFundsEgldEvent extends ElrondEvent<MultiValue1<BigUint>, ElrondString> {}
-class AcceptFundsEsdtEvent extends ElrondEvent<MultiValue1<MultiValueEncoded<TokenPayment>>, ElrondString> {}
+class AcceptFundsEsdtEvent extends ElrondEvent<MultiValue1<MultiValueEncoded<TokenPayment>>, ElrondString> {} //TODO : replace when TopDecodeMulti is implemented
 class RetrieveFundsEvent extends ElrondEvent<MultiValue3<TokenIdentifier, ElrondU64, BigUint>, ElrondString> {}
 
 @contract
@@ -43,6 +43,19 @@ abstract class VaultContract extends ContractBase {
 
         const mapping = this.callCounts(ElrondString.fromString("acceptFunds"))
         mapping.set(mapping.get() + ElrondU64.fromValue(1))
+    }
+
+    acceptFundsEchoPayment(): MultiValue2<BigUint, MultiValueEncoded<TokenPayment>> {
+        const egldValue = this.callValue.egldValue
+        const payments = this.callValue.allEsdtPayments.toMultiValueEncoded()
+
+        const mapping = this.callCounts(ElrondString.fromString("acceptFundsEchoPayment"))
+        mapping.set(mapping.get() + ElrondU64.fromValue(1))
+
+        return MultiValue2.from(
+            egldValue,
+            payments
+        )
     }
 
     retrieveFunds(

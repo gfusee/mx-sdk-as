@@ -1,7 +1,8 @@
 //@ts-nocheck
 
 import {
-    CallbackClosure,
+    CallbackArgumentLoader,
+    CallbackClosure, CallbackResult,
     ContractBase, ContractCall, ElrondArray, ElrondEvent,
     ElrondString, ElrondU32,
     ElrondU64, ElrondVoid,
@@ -24,9 +25,9 @@ export abstract class CallPromiseDirectModule extends ContractBase {
         const payment = this.callValue.singlePayment
 
         const callbackArgs = new ManagedArgBuffer()
-        callbackArgs.pushArg(ElrondU32.fromValue(2001))
-        callbackArgs.pushArg(ElrondU32.fromValue(2002))
-        const callback = CallbackClosure.new("theOneCallback", callbackArgs)
+        callbackArgs.pushArg(ElrondU32.fromValue(1001))
+        callbackArgs.pushArg(ElrondU32.fromValue(1002))
+        const callback = new CallbackClosure("theOneCallback", callbackArgs)
 
         ContractCall.new<ElrondVoid>(to, endpointName)
             .withEgldOrSingleEsdtTransfer(payment)
@@ -38,24 +39,21 @@ export abstract class CallPromiseDirectModule extends ContractBase {
     }
 
     @callback
-    theOneCallback(): void {
-
-        const resultRaw = this.send.getCallbackClosure()
-        const argsRaw = ElrondArray.new<ElrondString>().utils.decodeTop(resultRaw)
-        argsRaw.get(ElrondU32.fromValue(1)).utils.intoTop<ElrondU32>().utils.signalError()
-
-        /*
+    theOneCallback(
+        arg1: ElrondU32,
+        arg2: ElrondU32,
+        result: CallbackResult<MultiValueEncoded<ElrondString>>
+    ): void {
         const event = new AsyncCallCallbackEvent(
             ElrondString.fromString("asyncCallCallbackEvent"),
             MultiValue2.from(
                 arg1,
                 arg2
             ),
-            new ManagedArgBuffer()
+            result.toArgsBuffer()
         )
 
         event.emit()
-         */
     }
 
 }

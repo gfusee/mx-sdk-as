@@ -129,8 +129,9 @@ export class ContractExporter extends TransformVisitor {
         const params = node.signature.parameters
 
         const isOnlyOwner = ContractExporter.hasOnlyOwnerDecorator(node)
+        const loaderType = isCallback ? 'CallbackArgumentLoader' : 'EndpointArgumentLoader'
         let endpointCall = `
-            const loader = new EndpointArgumentLoader();
+            const loader = new ${loaderType}();
         `
         if (isOnlyOwner) {
             endpointCall += `
@@ -143,6 +144,7 @@ export class ContractExporter extends TransformVisitor {
                 contract.${name}()
             `
         } else {
+            let hasCallbackResult = false
             params.forEach((param, index, _) => {
                 let paramName = ASTBuilder.build(param.name)
                 let paramType = ASTBuilder.build(param.type)
@@ -151,16 +153,28 @@ export class ContractExporter extends TransformVisitor {
                     this.newImports.push(paramType)
                 }
 
-                endpointCall = endpointCall + `
-                const ${paramName}: ${paramType} = BaseManagedType.dummy<${paramType}>().utils.fromArgument<EndpointArgumentLoader>(loader);
-                `
+                if (isCallback && paramType.startsWith('CallbackResult<')) {
+                    if (hasCallbackResult) {
+                        throw 'TODO : cannot have 2 CallbackResult'
+                    }
+
+                    hasCallbackResult = true
+                    endpointCall += `
+                        const endpointLoader = new EndpointArgumentLoader();
+                        const ${paramName}: ${paramType} = BaseManagedType.dummy<${paramType}>().utils.fromArgument<EndpointArgumentLoader>(endpointLoader);
+                    `
+                } else {
+                    endpointCall += `
+                        const ${paramName}: ${paramType} = BaseManagedType.dummy<${paramType}>().utils.fromArgument<${loaderType}>(loader);   
+                    `
+                }
 
             })
 
-            endpointCall = endpointCall + `contract.${name}(` + params.map(p => ASTBuilder.build(p.name)).join(', ') + ')'
+            endpointCall += `contract.${name}(` + params.map(p => ASTBuilder.build(p.name)).join(', ') + ')'
         }
 
-        endpointCall = endpointCall + (returnTypeName == 'void' || returnTypeName.length == 0 ? ';' : '.utils.finish();')
+        endpointCall += (returnTypeName == 'void' || returnTypeName.length == 0 ? ';' : '.utils.finish();')
 
         let expression = `
         const contract = __initContract();
@@ -239,6 +253,8 @@ export class ContractExporter extends TransformVisitor {
                 "StorageKey",
                 "BaseManagedType",
                 "EndpointArgumentLoader",
+                "CallbackArgumentLoader",
+                "CallbackResult",
                 "MultiValueEncoded",
                 "OptionalValue"
             ].concat(this.newImports)

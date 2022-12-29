@@ -22,7 +22,6 @@
         {
             "step": "scCall",
             "txId": "2",
-            "displayLogs": true,
             "tx": {
                 "from": "address:a_user",
                 "to": "sc:promises",
@@ -47,8 +46,8 @@
                         "endpoint": "str:theOneCallback",
                         "topics": [
                             "str:asyncCallCallbackEvent",
-                            "1001",
-                            "1002"
+                            "0x00000000000003e9",
+                            "0x00000000000003ea"
                         ],
                         "data": {
                             "0-status": "biguint:5",

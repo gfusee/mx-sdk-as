@@ -22,3 +22,9 @@ export {
 export {
     EndpointArgumentLoader
 } from './utils/endpointArgumentLoader'
+export {
+    CallbackArgumentLoader
+} from './utils/callbackArgumentLoader'
+export {
+    CallbackResult
+} from './utils/callbackResultType'

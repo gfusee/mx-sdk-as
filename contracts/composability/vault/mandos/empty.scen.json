@@ -20,12 +20,11 @@
         {
             "step": "scDeploy",
             "txId": "deploy",
-            "displayLogs": true,
             "tx": {
                 "from": "address:owner",
                 "contractCode": "file:../build/release.wasm",
                 "arguments": [],
-                "gasLimit": "5,000,000",
+                "gasLimit": "6,000,000",
                 "gasPrice": "0"
             },
             "expect": {
