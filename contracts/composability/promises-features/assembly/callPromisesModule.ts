@@ -46,18 +46,13 @@ export abstract class CallPromisesModule extends CallPromiseDirectModule {
     ): void {
         const vault = new VaultContract(to)
 
-        const tempCallbackClosure = new CallbackClosure(
-            "retrieveFundsCallback",
-            new ManagedArgBuffer()
-        )
-
         const gasLimit = this.blockchain.getGasLeft() - ElrondU64.fromValue(20_000_000)
         vault
             .retrieveFunds(token, tokenNonce, amount)
             .withGasLimit(gasLimit)
             .intoAsyncCall()
             .withExtraGasForCallback(ElrondU64.fromValue(10_000_000))
-            .execute(tempCallbackClosure)
+            .execute(this.callbacks.retrieveFundsCallback())
     }
 
     @callback

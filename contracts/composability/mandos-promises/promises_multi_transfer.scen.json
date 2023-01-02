@@ -44,20 +44,26 @@
             "tx": {
                 "from": "address:a_user",
                 "to": "sc:promises",
-                "function": "promise_raw_multi_transfer",
+                "function": "promiseRawMultiTransfer",
                 "arguments": [
                     "sc:vault",
-                    "str:acceptFunds_echo_payment",
+                    "str:acceptFundsEchoPayment",
                     "5,000",
-                    "str:FWD-TOKEN",
-                    "0",
-                    "500",
-                    "str:NFT-123456",
-                    "1",
-                    "1",
-                    "str:SFT-456789",
-                    "3",
-                    "6"
+                    {
+                        "00_tokenIdentifier": "nested:str:FWD-TOKEN",
+                        "01_tokenNonce": "u64:0",
+                        "02_amount": "biguint:500"
+                    },
+                    {
+                        "00_tokenIdentifier": "nested:str:NFT-123456",
+                        "01_tokenNonce": "u64:1",
+                        "02_amount": "biguint:1"
+                    },
+                    {
+                        "00_tokenIdentifier": "nested:str:SFT-456789",
+                        "01_tokenNonce": "u64:3",
+                        "02_amount": "biguint:6"
+                    }
                 ],
                 "gasLimit": "100,000,000",
                 "gasPrice": "0"
@@ -65,15 +71,21 @@
             "expect": {
                 "out": [
                     "0",
-                    "str:FWD-TOKEN",
-                    "0",
-                    "500",
-                    "str:NFT-123456",
-                    "1",
-                    "1",
-                    "str:SFT-456789",
-                    "3",
-                    "6"
+                    {
+                        "00_tokenIdentifier": "nested:str:FWD-TOKEN",
+                        "01_tokenNonce": "u64:0",
+                        "02_amount": "biguint:500"
+                    },
+                    {
+                        "00_tokenIdentifier": "nested:str:NFT-123456",
+                        "01_tokenNonce": "u64:1",
+                        "02_amount": "biguint:1"
+                    },
+                    {
+                        "00_tokenIdentifier": "nested:str:SFT-456789",
+                        "01_tokenNonce": "u64:3",
+                        "02_amount": "biguint:6"
+                    }
                 ],
                 "status": "0",
                 "message": "",
@@ -113,7 +125,7 @@
                         }
                     },
                     "storage": {
-                        "str:callCounts|nested:str:acceptFunds_echo_payment": "1"
+                        "str:callCounts|nested:str:acceptFundsEchoPayment": "1"
                     },
                     "code": "file:../vault/build/release.wasm"
                 },

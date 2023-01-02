@@ -80,6 +80,15 @@ export class ContractCall<T extends BaseManagedType> {
         return this
     }
 
+    withMultiEsdtTransfers(
+        payments: ElrondArray<TokenPayment>
+    ): ContractCall<T> {
+        this.egldPayment = BigUint.zero()
+        this.payments = ElrondArray.fromBuffer<TokenPayment>(payments.buffer)
+
+        return this
+    }
+
     withEgldOrSingleEsdtTransfer(
         payment: TokenPayment
     ): ContractCall<T> {

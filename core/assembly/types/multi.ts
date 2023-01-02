@@ -58,6 +58,8 @@ export abstract class MultiValue extends BaseManagedType {
         this.pushItem<T>(item)
     }
 
+    abstract finish(): void
+
     abstract encodeNested(output: NestedEncodeOutput): void
 
     abstract decodeNested(input: ManagedBufferNestedDecodeInput): this
@@ -84,6 +86,10 @@ export class MultiValue1<A extends BaseManagedType> extends MultiValue {
         result.pushItem<A>(a)
 
         return result
+    }
+
+    finish(): void {
+        this.a.utils.finish()
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -123,6 +129,11 @@ export class MultiValue2<A extends BaseManagedType, B extends BaseManagedType> e
         result.pushItem<B>(b)
 
         return result
+    }
+
+    finish(): void {
+        this.a.utils.finish()
+        this.b.utils.finish()
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -169,6 +180,12 @@ export class MultiValue3<A extends BaseManagedType, B extends BaseManagedType, C
         result.pushItem<C>(c)
 
         return result
+    }
+
+    finish(): void {
+        this.a.utils.finish()
+        this.b.utils.finish()
+        this.c.utils.finish()
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -222,6 +239,13 @@ export class MultiValue4<A extends BaseManagedType, B extends BaseManagedType, C
         result.pushItem<D>(d)
 
         return result
+    }
+
+    finish(): void {
+        this.a.utils.finish()
+        this.b.utils.finish()
+        this.c.utils.finish()
+        this.d.utils.finish()
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -282,6 +306,14 @@ export class MultiValue5<A extends BaseManagedType, B extends BaseManagedType, C
         result.pushItem<E>(e)
 
         return result
+    }
+
+    finish(): void {
+        this.a.utils.finish()
+        this.b.utils.finish()
+        this.c.utils.finish()
+        this.d.utils.finish()
+        this.e.utils.finish()
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -353,9 +385,7 @@ export namespace MultiValue {
         }
 
         finish(): void {
-            const output = ElrondString.new()
-            this.encodeNested(output)
-            output.utils.finish()
+            this.value.finish()
         }
 
         fromHandle(handle: i32): T {

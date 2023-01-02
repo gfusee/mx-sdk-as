@@ -1,9 +1,10 @@
-import { ElrondString } from "../types/erdString";
-import { ManagedType } from "../types/interfaces/managedType";
+import { ElrondString, ManagedArgBuffer, ElrondU32 } from "../..";
+import {BaseManagedType, ManagedType} from "../types/interfaces/managedType"
 import { Blockchain } from "./blockchain";
 import { CallValue } from "./callValue";
 import { SendWrapper } from "./sendWrapper";
 import {CryptoWrapper} from "./cryptoWrapper";
+import {CallbackClosure} from "./call"
 
 export function getContractInstance<T extends ContractBase>(): T {
     return __CURRENT_CONTRACT!
@@ -20,7 +21,10 @@ class GlobalContractCache {
 
 }
 
+@base
 export class ContractBase {
+
+    callbacks!: any //will be removed at compile time
 
     get callValue(): CallValue {
         if (GlobalContractCache._callValueCache != null) {

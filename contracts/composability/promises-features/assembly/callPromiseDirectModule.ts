@@ -7,7 +7,7 @@ import {
     ElrondString, ElrondU32,
     ElrondU64, ElrondVoid,
     ManagedAddress, ManagedArgBuffer, MultiValue2,
-    MultiValueEncoded,
+    MultiValueEncoded, TokenPayment,
 } from "@gfusee/elrond-wasm-as"
 
 class AsyncCallCallbackEvent extends ElrondEvent<MultiValue2<ElrondU32, ElrondU32>, ManagedArgBuffer> {}
@@ -24,18 +24,31 @@ export abstract class CallPromiseDirectModule extends ContractBase {
     ): void {
         const payment = this.callValue.singlePayment
 
-        const callbackArgs = new ManagedArgBuffer()
-        callbackArgs.pushArg(ElrondU32.fromValue(1001))
-        callbackArgs.pushArg(ElrondU32.fromValue(1002))
-        const callback = new CallbackClosure("theOneCallback", callbackArgs)
-
         ContractCall.new<ElrondVoid>(to, endpointName)
             .withEgldOrSingleEsdtTransfer(payment)
             .withRawArguments(args.toArgsBuffer())
             .withGasLimit(gasLimit)
             .intoAsyncCall()
             .withExtraGasForCallback(extraGasForCallback)
-            .execute(callback)
+            .execute(this.callbacks.theOneCallback(ElrondU32.fromValue(1001), ElrondU32.fromValue(1002)))
+    }
+
+    promiseRawMultiTransfer(
+        to: ManagedAddress,
+        endpointName: ElrondString,
+        extraGasForCallback: ElrondU64,
+        tokenPaymentArgs: MultiValueEncoded<TokenPayment>
+    ): void {
+        const tokenPaymentsArray = tokenPaymentArgs.toElrondArray()
+
+        const gasLimit = (this.blockchain.getGasLeft() - extraGasForCallback) * ElrondU64.fromValue(9) / ElrondU64.fromValue(10)
+
+        ContractCall.new<ElrondVoid>(to, endpointName)
+            .withMultiEsdtTransfers(tokenPaymentsArray)
+            .withGasLimit(gasLimit)
+            .intoAsyncCall()
+            .withExtraGasForCallback(extraGasForCallback)
+            .execute(this.callbacks.theOneCallback(ElrondU32.fromValue(2001), ElrondU32.fromValue(2002)))
     }
 
     @callback

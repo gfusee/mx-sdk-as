@@ -10,6 +10,7 @@ import {AbiEnumType} from "./utils/abi/abiEnumType";
 import {ABIExporter} from "./abiGenerator.js";
 import {AbiStructType} from "./utils/abi/abiStructType"
 import {Abi} from "./utils/abi/abi"
+import {ContractBaseExporter} from "./contractBaseDecorator.js"
 
 export default class Transformer extends Transform {
     parser: Parser;
@@ -37,8 +38,8 @@ export default class Transformer extends Transform {
         if (source.internalPath.includes("index-stub")) return;
 
         // Remove from logs in parser
-        parser.donelog.delete(source.internalPath);
-        parser.seenlog.delete(source.internalPath);
+        //parser.donelog.delete(source.internalPath);
+        //parser.seenlog.delete(source.internalPath);
         // Remove from programs sources
         this.parser.sources = this.parser.sources.filter(
           (_source: Source) => _source !== source
@@ -64,7 +65,10 @@ export default class Transformer extends Transform {
 
         (new CallableExporter()).visitSource(source);
       });
-      contractExporter.commit()
+      contractExporter.commit();
+      files.forEach((source) => {
+        (new ContractBaseExporter()).visitSource(source, contractExporter.userCallbacks)
+      })
 
       this.abi = ABIExporter.generateABI(
           userStructs,

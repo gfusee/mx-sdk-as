@@ -27,6 +27,8 @@ export class ContractExporter extends TransformVisitor {
 
     newMethods: string[] = []
 
+    userCallbacks: MethodDeclaration[] = []
+
     abiConstructor: AbiEndpoint = new AbiConstructor([], [])
     abiEndpoints: AbiEndpoint[] = []
 
@@ -125,6 +127,10 @@ export class ContractExporter extends TransformVisitor {
             this.classSeen.members = this.classSeen.members.filter((m) => m !== node)
         }
 
+        if (isCallback) {
+            this.userCallbacks.push(node)
+        }
+
         const returnTypeName = ASTBuilder.build(node.signature.returnType)
         const params = node.signature.parameters
 
@@ -195,7 +201,7 @@ export class ContractExporter extends TransformVisitor {
                 )),
                 []
             )
-        } else {
+        } else if (!isCallback) {
             this.abiEndpoints.push(
                 new AbiEndpoint(
                     name,
@@ -302,6 +308,7 @@ export class ContractExporter extends TransformVisitor {
                     return ASTBuilder.build(newClass)
                 }))
                 this.exportedEndpoints.push(...exporter.exportedEndpoints)
+                this.userCallbacks.push(...exporter.userCallbacks)
                 this.abiEndpoints.push(...exporter.abiEndpoints)
                 this.newImports.push(...exporter.newImports)
                 extendedClassesNames = extendedClassesNames.filter((name) =>
