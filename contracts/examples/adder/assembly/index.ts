@@ -10,9 +10,7 @@ abstract class Adder extends ContractBase {
 
     sum!: BigUint
 
-    constructor(
-        initialValue: BigUint
-    ) {
+    constructor(initialValue: BigUint) {
         this.sum = initialValue
     }
 

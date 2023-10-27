@@ -59,7 +59,7 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
 
     removeByNodeId(nodeId: ElrondU32): Option<T> {
         if (nodeId.value == NULL_ENTRY) {
-            return Option.null()
+            return Option.null<T>()
         }
 
         const node = this.getNode(nodeId)
