@@ -68,7 +68,7 @@ export class MapMapping<K extends MultiValue, V extends ManagedType> extends Bas
             return Option.withValue(value)
         }
 
-        return Option.null()
+        return Option.null<V>()
     }
 
     entry(key: K): Entry<K, V> {
