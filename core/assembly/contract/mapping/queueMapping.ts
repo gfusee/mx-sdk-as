@@ -7,6 +7,7 @@ const NODE_IDENTIFIER: string = '.node_links'
 const VALUE_IDENTIFIER: string = '.value'
 const NULL_ENTRY: u32 = 0
 
+@unmanaged
 export class QueueMapping<T extends ManagedType> extends BaseMapping {
 
     private infoMapping!: Mapping<QueueMappingInfo>

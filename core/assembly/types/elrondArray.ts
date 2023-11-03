@@ -4,8 +4,8 @@ import {BaseManagedUtils} from "./interfaces/managedUtils";
 import {Option} from "./option";
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
-import {checkIfDebugBreakpointEnabled} from "../utils/env";
+import {ElrondU32, ElrondU64} from "./numbers"
+import {checkIfDebugBreakpointEnabled, checkIfSecondDebugBreakpointEnabled, enableDebugBreakpoint} from "../utils/env"
 import {MultiValueEncoded} from "./multiValueEncoded";
 
 //TODO : make it allocated on the stack... but how to deal with the generic bug?
@@ -65,6 +65,7 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
 
             bufferRef.utils.loadSlice(ElrondU32.fromValue(byteIndexRef), bytes)
         })
+
         return value
     }
 
@@ -199,7 +200,7 @@ export namespace ElrondArray {
             this.encodeWithoutLength(output)
         }
 
-        encodeWithoutLength<T extends NestedEncodeOutput>(output: T): void {
+        encodeWithoutLength<O extends NestedEncodeOutput>(output: O): void {
             const length = this.value.getLength()
             for (let i = ElrondU32.zero(); i < length; i++) {
                 const value = this.value.get(i)

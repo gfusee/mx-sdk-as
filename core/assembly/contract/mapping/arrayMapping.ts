@@ -4,6 +4,7 @@ import {ManagedType} from "../../types/interfaces/managedType";
 import {Static} from "../../utils/env";
 import {BaseMapping} from "./baseMapping";
 
+@unmanaged
 export class ArrayMapping<T extends ManagedType> extends BaseMapping {
 
     private static ITEM_SUFFIX: string = '.item'
@@ -19,14 +20,14 @@ export class ArrayMapping<T extends ManagedType> extends BaseMapping {
             lenKey.appendBuffer(ElrondString.fromString(ArrayMapping.LEN_SUFFIX))
 
             this._lenKeyCache = lenKey
-            
+
             return lenKey
         }
     }
 
     get(index: ElrondU32): T {
         const result = ElrondString.dummy().utils.fromStorage(this.getItemKey(index))
-        
+
         return result.utils.intoTop<T>()
     }
 

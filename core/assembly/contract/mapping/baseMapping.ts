@@ -1,5 +1,6 @@
 import {StorageKey} from "../../types";
 
+@unmanaged
 export class BaseMapping {
 
     constructor(

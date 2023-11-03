@@ -357,6 +357,19 @@ export class StructExporter extends TransformVisitor {
       }
       `
 
+            const skipsReserializationFields: Array<String> = []
+            this.fields.forEach((f, index) => {
+                const fieldType = ASTBuilder.build(f.type!)
+
+                skipsReserializationFields.push(`BaseManagedType.dummy<${fieldType}>().skipsReserialization`)
+            })
+
+            const getSkipsReserialization = `
+        get skipsReserialization(): boolean {
+            return ${skipsReserializationFields.join(" && ")}
+        }
+            `
+
             const getTypeLenMethod = `
       getTypeLen(): i32 {
         return 4
@@ -385,6 +398,7 @@ export class StructExporter extends TransformVisitor {
                 utilsGetter,
                 payloadSizeGetter,
                 getTypeLenMethod,
+                getSkipsReserialization,
                 bufferCacheField,
                 getHandleMethod,
                 shouldBeInstantiatedOnHeapGetter

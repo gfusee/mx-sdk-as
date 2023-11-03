@@ -2,11 +2,11 @@ import {getContractPathByName} from "./utils/contractsPaths"
 import {execCustom} from "./utils/exec"
 
 async function runMandosTestAtPath(projectPath: string) {
-    let mandosExecutable: string = '$HOME/multiversx-sdk/vmtools/run-scenarios'
+    let mandosExecutable: string = '$HOME/multiversx-sdk/vmtools/scenariostest'
 
     try {
-        await execCustom('which run-scenarios')
-        mandosExecutable = 'run-scenarios'
+        await execCustom('which scenariostest')
+        mandosExecutable = 'scenariostest'
     } catch (e) {}
 
     try {

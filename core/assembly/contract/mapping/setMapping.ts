@@ -11,6 +11,7 @@ import {QueueMapping, QueueMappingIterator} from "./queueMapping";
 const NULL_ENTRY: u32 = 0
 const NODE_ID_IDENTIFIER: string = ".node_id"
 
+@unmanaged
 export class SetMapping<T extends ManagedType> extends BaseMapping {
 
     private queueMapping: QueueMapping<T>

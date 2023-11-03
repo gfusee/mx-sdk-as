@@ -8,7 +8,7 @@
     }
   },
   "options": {
-    "runtime": "stub",
+    "runtime": "minimal",
     "enable": ["gc", "reference-types"],
     "disable": ["bulk-memory"],
     "use": "abort=wasiabort",
