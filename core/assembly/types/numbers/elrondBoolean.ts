@@ -1,4 +1,4 @@
-import {ManagedType} from "../interfaces/managedType";
+import {defaultBaseManagedTypeWriteImplementation, ManagedType} from "../interfaces/managedType"
 import {BigUint} from "../bigUint";
 import {ManagedUtils} from "../interfaces/managedUtils";
 import {ElrondString} from "../erdString";
@@ -28,16 +28,16 @@ export class ElrondBoolean extends ManagedType {
         return ElrondBoolean.Utils.fromValue(this)
     }
 
-    get skipsReserialization(): boolean {
-        return true
-    }
-
     get payloadSize(): ElrondU32 {
         return ElrondU32.fromValue(this.utils.sizeOf)
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
         return false
+    }
+
+    skipsReserialization(): boolean {
+        return true
     }
 
     getHandle(): i32 {
@@ -50,6 +50,10 @@ export class ElrondBoolean extends ManagedType {
 
     toBigUint(): BigUint {
         return this.utils.toBigUint()
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static fromBoolean(boolean: boolean): ElrondBoolean {

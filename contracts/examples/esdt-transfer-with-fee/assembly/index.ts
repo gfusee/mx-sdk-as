@@ -1,14 +1,9 @@
 //@ts-nocheck
 
 import {
-    BaseManagedType,
-    BigUint, checkIfDebugBreakpointEnabled,
-    ContractBase,
-    ElrondArray, ElrondString,
-    ElrondU32,
-    ElrondU64, enableDebugBreakpoint, enableSecondDebugBreakpoint,
-    ManagedAddress, ManagedType,
-    MapMapping,
+    BigUint, ContractBase,
+    ElrondArray, ElrondU32,
+    ElrondU64, ManagedAddress, MapMapping,
     Mapping,
     MultiValue2, MultiValueEncoded, OptionalValue,
     TokenIdentifier,

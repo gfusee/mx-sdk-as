@@ -7,7 +7,7 @@ import {numberToBytes, universalDecodeNumber} from "../utils/math/number"
 import { getBytesFromStorage } from "../utils/storage"
 import { BigUint } from "./bigUint"
 import { ElrondString } from "./erdString"
-import { ManagedType } from "./interfaces/managedType"
+import {defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import { ManagedUtils } from "./interfaces/managedUtils"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
@@ -24,16 +24,16 @@ export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
         return ElrondUnsignedNumber.Utils.fromValue(this)
     }
 
-    get skipsReserialization(): boolean {
-        return true
-    }
-
     get payloadSize(): ElrondU32 {
         return ElrondU32.fromValue(sizeof<T>())
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
         return false
+    }
+
+    skipsReserialization(): boolean {
+        return true
     }
 
     getHandle(): i32 {
@@ -46,6 +46,10 @@ export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
 
     toBigUint(): BigUint {
         return this.utils.toBigUint()
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static fromValue<T extends Number>(value: T): ElrondUnsignedNumber<T> {
@@ -95,7 +99,7 @@ export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
     __greaterThanOrEquals(a: this): bool {
         return !(this < a)
     }
-    
+
     @operator.postfix("++")
     __increase(): this {
         return this.__add(ElrondUnsignedNumber.fromValue<T>(1 as T))

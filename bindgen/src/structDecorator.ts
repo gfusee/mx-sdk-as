@@ -361,11 +361,11 @@ export class StructExporter extends TransformVisitor {
             this.fields.forEach((f, index) => {
                 const fieldType = ASTBuilder.build(f.type!)
 
-                skipsReserializationFields.push(`BaseManagedType.dummy<${fieldType}>().skipsReserialization`)
+                skipsReserializationFields.push(`BaseManagedType.dummy<${fieldType}>().skipsReserialization()`)
             })
 
             const getSkipsReserialization = `
-        get skipsReserialization(): boolean {
+        skipsReserialization(): boolean {
             return ${skipsReserializationFields.join(" && ")}
         }
             `
@@ -394,6 +394,12 @@ export class StructExporter extends TransformVisitor {
       }
       `
 
+            const writeMethod = `
+            write(bytes: Uint8Array): void {
+                defaultBaseManagedTypeWriteImplementation()
+            }
+            `
+
             const members = [
                 utilsGetter,
                 payloadSizeGetter,
@@ -401,7 +407,8 @@ export class StructExporter extends TransformVisitor {
                 getSkipsReserialization,
                 bufferCacheField,
                 getHandleMethod,
-                shouldBeInstantiatedOnHeapGetter
+                shouldBeInstantiatedOnHeapGetter,
+                writeMethod
             ]
 
             const abiStructFields: AbiStructTypeField[] = [];

@@ -1,4 +1,4 @@
-import {BaseManagedType} from "../interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation} from "../interfaces/managedType"
 import {BigUint} from "../bigUint";
 import {ElrondString} from "../erdString";
 import {checkIfDebugBreakpointEnabled, smallIntFinishUnsigned, smallIntGetUnsignedArgument} from "../../utils/env";
@@ -28,16 +28,16 @@ export class ElrondU64 extends BaseManagedType {
         return new ElrondU64.Utils(this)
     }
 
-    get skipsReserialization(): boolean {
-        return true
-    }
-
     get payloadSize(): ElrondU32 {
         return ElrondU32.fromValue(this.utils.sizeOf)
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
         return false
+    }
+
+    skipsReserialization(): boolean {
+        return true
     }
 
     getHandle(): i32 {
@@ -50,6 +50,10 @@ export class ElrondU64 extends BaseManagedType {
 
     toBigUint(): BigUint {
         return this.utils.toBigUint()
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static fromValue(value: u64): ElrondU64 {

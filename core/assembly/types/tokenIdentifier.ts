@@ -4,6 +4,7 @@ import { ManagedWrappedString } from "./managedWrappedString"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
+import {defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
 
 @unmanaged
 export class TokenIdentifier extends ManagedWrappedString {
@@ -16,6 +17,10 @@ export class TokenIdentifier extends ManagedWrappedString {
     return ElrondString.fromString('EGLD')
   }
 
+  skipsReserialization(): boolean {
+    return false
+  }
+
   isValid(): bool {
     return this.isEgld() || this.isEsdt()
   }
@@ -26,6 +31,10 @@ export class TokenIdentifier extends ManagedWrappedString {
 
   isEsdt(): bool {
     return validateTokenIdentifier(this.buffer.getHandle()) != 0
+  }
+
+  write(bytes: Uint8Array): void {
+    defaultBaseManagedTypeWriteImplementation()
   }
 
   static fromString(str: string): TokenIdentifier {

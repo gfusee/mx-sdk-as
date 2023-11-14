@@ -25,7 +25,7 @@ const MAPPED_VALUE_IDENTIFIER: string = ".mapped"
 @unmanaged
 export class MapMapping<K extends MultiValue, V extends ManagedType> extends BaseMapping {
 
-    private keysSet!: SetMapping<K>
+    private keysSet: SetMapping<K>
 
     constructor(
         key: StorageKey

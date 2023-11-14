@@ -13,11 +13,9 @@ import {
     BigUint,
     ElrondArray,
     ElrondU32,
-    ElrondU64, enableDebugBreakpoint,
-    getContractInstance,
+    ElrondU64, getContractInstance,
     getRetainedClosureValue,
     ManagedAddress, MultiValueElrondArray,
-    releaseRetainedClosureValue,
     retainClosureValue
 } from "@gfusee/elrond-wasm-as";
 import {OrdersModule} from "./orders";

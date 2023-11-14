@@ -8,7 +8,6 @@ import {
     ContractBase, ElrondEvent, ElrondString,
     ElrondU16,
     ElrondU32,
-    ElrondU8, enableDebugBreakpoint,
     ManagedAddress,
     Mapping, MultiValue3,
     OptionalValue

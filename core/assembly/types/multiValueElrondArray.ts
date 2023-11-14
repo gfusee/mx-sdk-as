@@ -1,4 +1,4 @@
-import {BaseManagedType, ManagedType} from "./interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {ElrondArray} from "./elrondArray";
 import {
     checkIfDebugBreakpointEnabled,
@@ -57,6 +57,10 @@ export class MultiValueElrondArray<T extends BaseManagedType> extends BaseManage
         return true
     }
 
+    skipsReserialization(): boolean {
+        return false
+    }
+
     getHandle(): i32 {
         return this.buffer.getHandle()
     }
@@ -113,6 +117,10 @@ export class MultiValueElrondArray<T extends BaseManagedType> extends BaseManage
 
     asElrondArray(): ElrondArray<T> {
         return ElrondArray.fromBuffer<T>(this.buffer)
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static new<T extends BaseManagedType>(): MultiValueElrondArray<T> {
@@ -183,7 +191,7 @@ export namespace MultiValueElrondArray {
 
         encodeTop(): ElrondString {
             const dummy = BaseManagedType.dummy<T>()
-            if (dummy.skipsReserialization) {
+            if (dummy.skipsReserialization()) {
                 return this.value.buffer.clone()
             } else {
                 const output = ElrondString.new()
@@ -248,7 +256,7 @@ export namespace MultiValueElrondArray {
 
         decodeTop(buffer: ElrondString): MultiValueElrondArray<T> {
             const dummy = BaseManagedType.dummy<T>()
-            if (dummy.skipsReserialization) {
+            if (dummy.skipsReserialization()) {
                 this.value.buffer = buffer
             } else {
                 const input = new ManagedBufferNestedDecodeInput(buffer)

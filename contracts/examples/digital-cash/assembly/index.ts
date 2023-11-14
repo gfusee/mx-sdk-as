@@ -2,7 +2,7 @@
 
 import {
     BigUint, checkIfDebugBreakpointEnabled,
-    ContractBase, ElrondString, ElrondU32, ElrondU64, enableDebugBreakpoint, ManagedAddress, Mapping, TokenIdentifier
+    ContractBase, ElrondString, ElrondU32, ElrondU64, ManagedAddress, Mapping, TokenIdentifier
 } from "@gfusee/elrond-wasm-as";
 import {DepositInfo} from "./deposit-info";
 import {TokenPayment} from "@gfusee/elrond-wasm-as";

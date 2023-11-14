@@ -1,4 +1,4 @@
-import {BaseManagedType, ManagedType} from "./interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
 import {ElrondString} from "./erdString";
 import {
@@ -42,6 +42,10 @@ export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
         return true
     }
 
+    skipsReserialization(): boolean {
+        return false
+    }
+
     getHandle(): i32 {
         return this.rawBuffer.getHandle();
     }
@@ -60,6 +64,10 @@ export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
         }
 
         return result
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static fromArray<T extends BaseManagedType>(array: ElrondArray<ElrondString>): MultiValueEncoded<T> {

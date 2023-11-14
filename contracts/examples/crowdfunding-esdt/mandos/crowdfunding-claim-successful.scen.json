@@ -131,7 +131,12 @@
                             "500,000,000,000",
                             "address:my_address"
                         ],
-                        "data": ""
+                        "data": [
+                            "str:DirectCall",
+                            "str:ESDTTransfer",
+                            "str:CROWD-123456",
+                            "500000000000"
+                        ]
                     }
                 ],
                 "gas": "*",

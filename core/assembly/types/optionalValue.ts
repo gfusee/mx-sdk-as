@@ -1,6 +1,6 @@
 import { getBytesFromStorage } from "../utils/storage";
 import { ElrondString } from "./erdString";
-import {BaseManagedType, ManagedType} from "./interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32, ElrondU8} from "./numbers";
@@ -11,7 +11,7 @@ import {Option} from "./option";
 export class OptionalValue<T extends ManagedType> extends BaseManagedType {
 
     private _type!: ElrondU8 //TODO : optimize by removing this field
-    private _value!: T | null
+    private _value: T | null = null
 
     get type(): ElrondU8 {
         return this._type
@@ -41,6 +41,10 @@ export class OptionalValue<T extends ManagedType> extends BaseManagedType {
 
     get shouldBeInstantiatedOnHeap(): boolean {
         return true
+    }
+
+    skipsReserialization(): boolean {
+        return false
     }
 
     intoOption(): Option<T> {
@@ -88,6 +92,10 @@ export class OptionalValue<T extends ManagedType> extends BaseManagedType {
         } else {
             return value
         }
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static null<T extends ManagedType>(): OptionalValue<T> {

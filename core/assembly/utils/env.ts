@@ -263,5 +263,5 @@ export function wasiabort(
   if (newMessage == null) {
     newMessage = "Unknown error"
   }
-  ElrondString.fromString(newMessage!).utils.signalError()
+  ElrondString.fromString(newMessage).utils.signalError()
 }

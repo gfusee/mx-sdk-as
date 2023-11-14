@@ -1,6 +1,6 @@
 import { getBytesFromStorage } from "../utils/storage";
 import { ElrondString } from "./erdString";
-import {BaseManagedType, ManagedType} from "./interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
@@ -11,7 +11,7 @@ import {ElrondU32} from "./numbers";
 export class Option<T extends ManagedType> extends BaseManagedType {
 
     private _type!: ElrondU8 //TODO : optimize by removing this field
-    private _value!: T | null
+    private _value: T | null = null
 
     get type(): ElrondU8 {
         return this._type
@@ -41,6 +41,10 @@ export class Option<T extends ManagedType> extends BaseManagedType {
 
     get shouldBeInstantiatedOnHeap(): boolean {
         return true
+    }
+
+    skipsReserialization(): boolean {
+        return false
     }
 
     getHandle(): i32 {
@@ -85,6 +89,10 @@ export class Option<T extends ManagedType> extends BaseManagedType {
         }
     }
 
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
+    }
+
     static null<T extends ManagedType>(): Option<T> {
         return BaseManagedType.dummy<Option<T>>().utils.fromNull()
     }
@@ -126,7 +134,7 @@ export namespace Option {
             this.value.value = value
 
             return this.value
-        } 
+        }
 
         storeAtBuffer(key: ElrondString): void {
             this.encodeTop().utils.storeAtBuffer(key)
@@ -200,9 +208,9 @@ export namespace Option {
 
         decodeNested(input: ManagedBufferNestedDecodeInput): Option<T> {
             const type = ElrondU8.dummy().utils.decodeNested(input)
-            
+
             this.value.type = type
-            
+
             if (type.value == 0) {
                 return this.fromNull()
             } else {

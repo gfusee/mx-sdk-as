@@ -1,11 +1,10 @@
 import { ElrondString } from "./erdString";
-import {BaseManagedType} from "./interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
 import {BaseManagedUtils} from "./interfaces/managedUtils";
 import {Option} from "./option";
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32, ElrondU64} from "./numbers"
-import {checkIfDebugBreakpointEnabled, checkIfSecondDebugBreakpointEnabled, enableDebugBreakpoint} from "../utils/env"
+import {ElrondU32} from "./numbers"
 import {MultiValueEncoded} from "./multiValueEncoded";
 
 //TODO : make it allocated on the stack... but how to deal with the generic bug?
@@ -50,6 +49,10 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
 
     get shouldBeInstantiatedOnHeap(): boolean {
         return true
+    }
+
+    skipsReserialization(): boolean {
+        return false
     }
 
     getHandle(): i32 {
@@ -118,6 +121,10 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
         return result
     }
 
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
+    }
+
     static new<T extends BaseManagedType>(): ElrondArray<T> {
         return new ElrondArray<T>()
     }
@@ -184,7 +191,7 @@ export namespace ElrondArray {
 
         encodeTop(): ElrondString {
             const dummy = BaseManagedType.dummy<T>()
-            if (dummy.skipsReserialization) {
+            if (dummy.skipsReserialization()) {
                 return this.value.buffer.clone()
             } else {
                 const output = ElrondString.new()
@@ -243,7 +250,7 @@ export namespace ElrondArray {
 
         decodeTop(buffer: ElrondString): ElrondArray<T> {
             const dummy = BaseManagedType.dummy<T>()
-            if (dummy.skipsReserialization) {
+            if (dummy.skipsReserialization()) {
                 this.value.buffer = buffer
             } else {
                 const input = new ManagedBufferNestedDecodeInput(buffer)

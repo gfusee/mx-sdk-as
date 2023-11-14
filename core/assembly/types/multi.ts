@@ -1,12 +1,11 @@
 
 import { ElrondString } from "./erdString";
-import {BaseManagedType, ManagedType} from "./interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
 import {ElrondArray} from "./elrondArray";
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
-import {checkIfDebugBreakpointEnabled, checkIfSecondDebugBreakpointEnabled} from "../utils/env";
 
 @unmanaged
 export abstract class MultiValue extends BaseManagedType {
@@ -20,6 +19,10 @@ export abstract class MultiValue extends BaseManagedType {
     }
 
     private _bufferCache: ElrondString | null = null
+
+    skipsReserialization(): boolean {
+        return false
+    }
 
     getHandle(): i32 {
         if (this._bufferCache) {
@@ -77,6 +80,10 @@ export class MultiValue1<A extends BaseManagedType> extends MultiValue {
         return this.getItem<A>(ElrondU32.fromValue(0))
     }
 
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
+    }
+
     static from<A extends BaseManagedType>(a: A): MultiValue1<A> {
         const result = new MultiValue1<A>()
         result.pushItem<A>(a)
@@ -113,6 +120,10 @@ export class MultiValue2<A extends BaseManagedType, B extends BaseManagedType> e
 
     get b(): B {
         return this.getItem<B>(ElrondU32.fromValue(1))
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static from<A extends BaseManagedType, B extends BaseManagedType>(a: A, b: B): MultiValue2<A, B> {
@@ -158,6 +169,10 @@ export class MultiValue3<A extends BaseManagedType, B extends BaseManagedType, C
 
     get c(): C {
         return this.getItem<C>(ElrondU32.fromValue(2))
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static from<A extends BaseManagedType, B extends BaseManagedType, C extends BaseManagedType>(a: A, b: B, c: C): MultiValue3<A, B, C> {
@@ -210,6 +225,10 @@ export class MultiValue4<A extends BaseManagedType, B extends BaseManagedType, C
 
     get d(): D {
         return this.getItem<D>(ElrondU32.fromValue(3))
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static from<A extends BaseManagedType, B extends BaseManagedType, C extends BaseManagedType, D extends BaseManagedType>(a: A, b: B, c: C, d: D): MultiValue4<A, B, C, D> {
@@ -269,6 +288,10 @@ export class MultiValue5<A extends BaseManagedType, B extends BaseManagedType, C
 
     get e(): E {
         return this.getItem<E>(ElrondU32.fromValue(4))
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static from<A extends BaseManagedType, B extends BaseManagedType, C extends BaseManagedType, D extends BaseManagedType, E extends BaseManagedType>(a: A, b: B, c: C, d: D, e: E): MultiValue5<A, B, C, D, E> {

@@ -17,7 +17,7 @@ import {
   Static
 } from "../utils/env"
 import {ElrondString} from "./erdString"
-import {BaseManagedType, ManagedType} from "./interfaces/managedType"
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
@@ -35,12 +35,12 @@ export class BigUint extends ManagedType {
     return changetype<i32>(this)
   }
 
-  get skipsReserialization(): boolean {
-    return false
-  }
-
   get utils(): BigUint.Utils {
     return BigUint.Utils.fromValue(this)
+  }
+
+  skipsReserialization(): boolean {
+    return false
   }
 
   toU64(): u64 {
@@ -49,6 +49,10 @@ export class BigUint extends ManagedType {
 
   getHandle(): i32 {
     return this.handle
+  }
+
+  write(bytes: Uint8Array): void {
+    defaultBaseManagedTypeWriteImplementation()
   }
 
   get payloadSize(): ElrondU32 {
