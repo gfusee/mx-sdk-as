@@ -7,6 +7,8 @@ import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers"
 import {MultiValueEncoded} from "./multiValueEncoded";
 
+const INDEX_OUT_OF_RANGE_MSG = "ManagedVec index out of range"
+
 //TODO : make it allocated on the stack... but how to deal with the generic bug?
 // An idea : remove ManagedUtils class and move all methods in ManagedType
 @unmanaged
@@ -70,6 +72,44 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
         })
 
         return value
+    }
+
+    remove(index: ElrondU32): void {
+        let length = this.getLength()
+        if (index >= length) {
+            throw new Error(INDEX_OUT_OF_RANGE_MSG)
+        }
+
+        let partBefore: ElrondArray<T>
+
+        if (index > ElrondU32.zero()) {
+            partBefore = this.slice(ElrondU32.zero(), index)
+        } else {
+            partBefore = ElrondArray.new<T>()
+        }
+
+        let partAfter: ElrondArray<T>
+
+        if (index < length) {
+            partAfter = this.slice(index + ElrondU32.fromValue(1), length)
+        } else {
+            partAfter = ElrondArray.new<T>()
+        }
+
+        this.buffer = partBefore.buffer
+        this.buffer.append(partAfter.buffer)
+    }
+
+    slice(startIndex: ElrondU32, endIndex: ElrondU32): ElrondArray<T> {
+        const bytesStart = startIndex * BaseManagedType.dummy<T>().payloadSize
+        const bytesEnd = endIndex * BaseManagedType.dummy<T>().payloadSize
+
+        const buffer = this.buffer.utils.copySlice(
+            bytesStart,
+            bytesEnd - bytesStart
+        )
+
+        return ElrondArray.fromBuffer<T>(buffer)
     }
 
     tryGet(index: ElrondU32): Option<T> { //TODO : not optimized

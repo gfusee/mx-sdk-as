@@ -1,11 +1,9 @@
 //@ts-nocheck
 
 import {
-    BigUint, checkIfDebugBreakpointEnabled,
-    ContractBase, ElrondString, ElrondU32, ElrondU64, ManagedAddress, Mapping, TokenIdentifier
+    BigUint, ContractBase, ElrondString, ElrondU32, ElrondU64, ManagedAddress, Mapping, TokenIdentifier
 } from "@gfusee/elrond-wasm-as";
 import {DepositInfo} from "./deposit-info";
-import {TokenPayment} from "@gfusee/elrond-wasm-as";
 
 const SECONDS_PER_ROUND: u64 = 6
 

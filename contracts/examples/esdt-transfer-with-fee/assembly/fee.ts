@@ -2,13 +2,11 @@
 
 import {
     BaseManagedType,
-    BigUint, checkIfDebugBreakpointEnabled,
     ElrondString,
-    ElrondU32, ElrondU8, enableSecondDebugBreakpoint, ManagedBufferNestedDecodeInput, ManagedType, MultiValue,
+    ElrondU32, ManagedBufferNestedDecodeInput, MultiValue,
     MultiValue1,
     MultiValue2,
-    OptionalValue, TokenIdentifier,
-    TokenPayment
+    OptionalValue, TokenPayment
 } from "@gfusee/elrond-wasm-as";
 
 export const PERCENTAGE_DIVISOR: u32 = 10000

@@ -131,7 +131,7 @@ export namespace MultiValueEncoded {
 
         fromArgumentIndex(index: i32): MultiValueEncoded<T> {
             const numberOfArguments = getNumArguments()
-            for (let i = 0; i < numberOfArguments - index; i++) {
+            for (let i = index; i < numberOfArguments; i++) {
                 const newRawBuffer = ElrondString.dummy().utils.fromArgumentIndex(i)
                 this.value.rawBuffer.push(newRawBuffer)
             }

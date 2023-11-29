@@ -1,7 +1,6 @@
 //@ts-nocheck
 import {
-    BigUint, checkIfDebugBreakpointEnabled,
-    ElrondArray,
+    BigUint, ElrondArray,
     ElrondEvent,
     ElrondString,
     ElrondU32,

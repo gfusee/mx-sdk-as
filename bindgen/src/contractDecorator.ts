@@ -153,7 +153,7 @@ export class ContractExporter extends TransformVisitor {
                     if (paramType.includes('MultiValueEncoded<')) {
                         if (index === params.length - 1) {
                             endpointCall += `
-                            const ${paramName} = BaseManagedType.dummy<${paramType}>().${paramName}.utils.fromArgumentIndex(${index})
+                            const ${paramName} = BaseManagedType.dummy<${paramType}>().utils.fromArgumentIndex(${index})
                             `
                         } else {
                             throw new Error('TODO : MultiValueEncoded should be the last argument')

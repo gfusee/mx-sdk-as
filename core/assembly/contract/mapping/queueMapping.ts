@@ -1,6 +1,7 @@
 import {ManagedType, ElrondString, ElrondU32, Option, StorageKey} from "../../types";
 import { BaseMapping } from "./baseMapping";
 import { Mapping } from "./mapping";
+import {enableDebugBreakpoint} from "../../utils/env"
 
 const INFO_IDENTIFIER: string = '.info'
 const NODE_IDENTIFIER: string = '.node_links'
@@ -86,6 +87,7 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
         const removedValue = this.getValue(nodeId)
         this.clearValue(nodeId)
         info.length -= ElrondU32.fromValue(1)
+        info.newItem = ElrondU32.zero()
         this.setInfo(info)
         return Option.withValue(removedValue)
     }
@@ -145,7 +147,11 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
     }
 
     private setInfo(value: QueueMappingInfo): void {
-        return this.infoMapping.set(value)
+        if (value.length === ElrondU32.zero()) { // imitates the "impl EncodeDefault for QueueMapperInfo" in mx-sdk-rs
+            this.infoMapping.clear()
+        } else {
+            this.infoMapping.set(value)
+        }
     }
 
     getNode(nodeId: ElrondU32): QueueMappingNode {

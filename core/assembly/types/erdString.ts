@@ -25,6 +25,7 @@ import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {universalDecodeNumber} from "../utils/math/number";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32, ElrondU64} from "./numbers";
+import {Option} from "./option"
 
 @unmanaged
 export class ElrondString extends ManagedType {

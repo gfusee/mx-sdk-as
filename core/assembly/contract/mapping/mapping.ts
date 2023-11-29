@@ -1,6 +1,6 @@
 import {ElrondString} from "../../types"
 import { ManagedType } from "../../types"
-import {Static} from "../../utils/env"
+import { Static } from "../../utils/env"
 import { BaseMapping } from "./baseMapping"
 
 @unmanaged
