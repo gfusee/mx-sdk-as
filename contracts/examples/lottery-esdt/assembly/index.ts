@@ -17,8 +17,7 @@ import {
     TokenIdentifier,
     UnorderedSetMapping,
     ESDTLocalRoleFlag,
-    RandomnessSource,
-    TokenPayment, enableDebugBreakpoint, MultiValueEncoded, retainClosureValue, getRetainedClosureValue
+    RandomnessSource
 } from "@gfusee/elrond-wasm-as"
 import { LotteryInfo } from "./lotteryInfo"
 import { Status } from "./status"

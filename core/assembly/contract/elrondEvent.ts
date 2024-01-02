@@ -1,8 +1,6 @@
 import {ElrondArray, ElrondString, ElrondU32, ManagedType, MultiValue} from "../types";
 import {
-    __frameworkGetRetainedClosureValue,
-    __frameworkReleaseRetainedClosureValue,
-    __frameworkRetainClosureValue, checkIfDebugBreakpointEnabled, enableDebugBreakpoint, managedWriteLog
+    managedWriteLog
 } from "../utils/env";
 
 export class ElrondEvent<T extends MultiValue, D extends ManagedType> {

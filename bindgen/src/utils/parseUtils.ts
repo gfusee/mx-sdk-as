@@ -3,7 +3,8 @@ import {
     ImportStatement,
     Parser,
     Source,
-    Tokenizer
+    Tokenizer,
+    NodeKind
   } from "assemblyscript/dist/assemblyscript.js";
 
 export function parseImport(source: Source, text: string): ImportStatement {
@@ -41,10 +42,29 @@ export function addElrondWasmASImportToSourceIfMissing(source: Source, value: st
     }
     const imports = getSourceElrondWasmASImports(source)
 
-    if (!imports.includes(value)) {
+    if (!imports.includes(value) && !isTypeUserImported(source, value)) {
         const newImport = parseImport(source, `import { ${value} } from "@gfusee/elrond-wasm-as"`)
         source.statements.unshift(newImport)
     }
+}
+
+function isTypeUserImported(source: Source, type: string): boolean {
+    const imports = source.statements.filter((s) => s.kind === NodeKind.IMPORT) as ImportStatement[]
+
+    for (const i of imports) {
+        let isTypeImported = false
+        for (const declaration of i.declarations) {
+            if (ASTBuilder.build(declaration) === type) {
+                isTypeImported = true
+                break
+            }
+        }
+        if (isTypeImported) {
+            return ASTBuilder.build(i.path) !== '"@gfusee/elrond-wasm-as"'
+        }
+    }
+
+    return false
 }
 
 export function removeAllElrondWasmImports(source: Source) {

@@ -3,6 +3,12 @@ import {ElrondU32} from "../numbers";
 import {NestedEncodeOutput} from "./nestedEncodeOutput";
 import {checkIfDebugBreakpointEnabled} from "../../utils/env";
 
+const NESTED_ENCODE_OUTPUT_NOT_IMPLEMENTED = "NestedEncodeOutput not implemented for this type"
+
+export function defaultBaseManagedTypeWriteImplementation(): void {
+    throw new Error(NESTED_ENCODE_OUTPUT_NOT_IMPLEMENTED)
+}
+
 @unmanaged
 export abstract class BaseManagedType extends NestedEncodeOutput {
 
@@ -18,25 +24,13 @@ export abstract class BaseManagedType extends NestedEncodeOutput {
 
     abstract getHandle(): i32
 
-    instantiateDefaults(): void {
-        throw new Error("instantiate defaults not implemented")
-    }
-
-    get canDecodeDefaults(): boolean {
-        return false
-    }
-
-    get skipsReserialization(): boolean {
-        return false
-    }
+    abstract skipsReserialization(): boolean
 
     abstract get payloadSize(): ElrondU32
 
     abstract get shouldBeInstantiatedOnHeap(): boolean
 
-    write(bytes: Uint8Array): void {
-        throw new Error("NestedEncodeOutput not implemented for this type")
-    }
+    abstract write(bytes: Uint8Array): void
 }
 
 @unmanaged

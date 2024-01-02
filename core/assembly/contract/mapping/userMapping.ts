@@ -6,6 +6,7 @@ const ADDRESS_TO_ID_SUFFIX = "_address_to_id"
 const ID_TO_ADDRESS_SUFFIX = "_id_to_address"
 const COUNT_SUFFIX = "_count";
 
+@unmanaged
 export class UserMapping extends BaseMapping {
 
     private getUserIdKey(
@@ -173,10 +174,10 @@ export class UserMapping extends BaseMapping {
             this.setUserId(address, userId)
             this.setUserAddress(userId, address)
         }
-        
+
         return userId
     }
-    
+
     getAllAddresses(): ElrondArray<ManagedAddress> {
         const userCount = this.getUserCount()
         const result = ElrondArray.new<ManagedAddress>()

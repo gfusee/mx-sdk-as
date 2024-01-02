@@ -17,7 +17,7 @@ import {
   Static
 } from "../utils/env"
 import {ElrondString} from "./erdString"
-import {BaseManagedType, ManagedType} from "./interfaces/managedType"
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
@@ -39,12 +39,20 @@ export class BigUint extends ManagedType {
     return BigUint.Utils.fromValue(this)
   }
 
+  skipsReserialization(): boolean {
+    return false
+  }
+
   toU64(): u64 {
     return bigIntGetInt64(this.getHandle()) as u64
   }
 
   getHandle(): i32 {
     return this.handle
+  }
+
+  write(bytes: Uint8Array): void {
+    defaultBaseManagedTypeWriteImplementation()
   }
 
   get payloadSize(): ElrondU32 {
@@ -171,7 +179,7 @@ export namespace BigUint {
     get value(): BigUint {
       return changetype<BigUint>(this)
     }
-  
+
     storeAtBuffer(key: ElrondString): void {
       let valueBuffer = ElrondString.fromBigUint(this.value)
       valueBuffer.utils.storeAtBuffer(key)
@@ -181,15 +189,15 @@ export namespace BigUint {
       const buffer = this.toElrondString()
       buffer.utils.signalError()
     }
-  
+
     finish(): void {
       bigIntFinishUnsigned(this.value.getHandle())
     }
-  
+
     encodeTop(): ElrondString {
       return ElrondString.fromBigUint(this.value)
     }
-  
+
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
       const length = bigIntUnsignedByteLength(this.value.getHandle());
       (ElrondU32.fromValue(length)).utils.encodeNested(output)
@@ -224,12 +232,12 @@ export namespace BigUint {
     fromHandle(handle: i32): BigUint {
       return BigUint.fromHandle(handle)
     }
-  
+
     fromStorage(key: ElrondString): void {
       const buffer = ElrondString.dummy().utils.fromStorage(key)
       this.fromElrondString(buffer)
     }
-  
+
     fromArgumentIndex(index: i32): BigUint {
       const newHandle = Static.nextHandle()
       bigIntGetUnsignedArgument(index, newHandle)
@@ -243,7 +251,7 @@ export namespace BigUint {
 
       return result
     }
-  
+
     fromBytes(bytes: Uint8Array): void {
       bigIntSetUnsignedBytes(this.value.getHandle(), changetype<i32>(bytes.buffer), bytes.byteLength)
     }
@@ -259,7 +267,7 @@ export namespace BigUint {
     decodeNested(input: ManagedBufferNestedDecodeInput): BigUint {
       return input.readBigUint()
     }
-  
+
   }
 
 }

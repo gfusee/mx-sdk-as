@@ -8,6 +8,7 @@ import {
 import {ArrayMapping} from "./arrayMapping";
 import {BaseMapping} from "./baseMapping";
 
+@unmanaged
 export class UnorderedSetMapping<T extends ManagedType> extends BaseMapping {
 
     private static INDEX_SUFFIX: string = '.index'

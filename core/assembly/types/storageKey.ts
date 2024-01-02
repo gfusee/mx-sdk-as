@@ -2,6 +2,7 @@ import {ElrondString} from "./erdString";
 import {BaseManagedType, ManagedType} from "./interfaces/managedType";
 import {checkIfDebugBreakpointEnabled} from "../utils/env";
 
+@unmanaged
 export class StorageKey { //TODO : allocate on the stack
 
     constructor(

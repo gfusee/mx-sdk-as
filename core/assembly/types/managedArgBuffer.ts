@@ -1,6 +1,6 @@
 import {ElrondArray} from "./elrondArray"
 import {ElrondString} from "./erdString"
-import {BaseManagedType} from "./interfaces/managedType"
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
 import {BaseManagedUtils} from "./interfaces/managedUtils"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
@@ -44,6 +44,10 @@ export class ManagedArgBuffer extends BaseManagedType {
 
   get payloadSize(): ElrondU32 {
     return ElrondU32.fromValue(4)
+  }
+
+  skipsReserialization(): boolean {
+    return false
   }
 
   getHandle(): i32 {
@@ -97,6 +101,10 @@ export class ManagedArgBuffer extends BaseManagedType {
     }
 
     return argsBuffer
+  }
+
+  write(bytes: Uint8Array): void {
+    defaultBaseManagedTypeWriteImplementation()
   }
 }
 

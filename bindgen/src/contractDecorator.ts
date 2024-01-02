@@ -4,10 +4,8 @@ import {
     ClassDeclaration,
     CommonFlags,
     FieldDeclaration,
-    ImportStatement,
     MethodDeclaration,
     NamedTypeNode,
-    NodeKind,
     Source,
     SourceKind
 } from "assemblyscript/dist/assemblyscript.js"
@@ -38,6 +36,7 @@ export class ContractExporter extends TransformVisitor {
     }
 
     private classSeen: ClassDeclaration | null = null
+    private hasInitExportedFunction: boolean = false
 
     private allUserClasses: ClassDeclaration[] = []
     private classesExtended: NamedTypeNode[] = []
@@ -97,9 +96,8 @@ export class ContractExporter extends TransformVisitor {
             }
         }
 
-
         let name = ASTBuilder.build(node.name)
-        const isConstructor = name == 'constructor'
+        const isConstructor = name === 'constructor'
 
         if (isConstructor) {
             if (isView) {
@@ -112,6 +110,7 @@ export class ContractExporter extends TransformVisitor {
             nodeText = nodeText.replace(/super\((.*)\)\s*;?/, '')
             this.newMethods.push(nodeText)
             name = initName
+            this.hasInitExportedFunction = true
 
             this.classSeen.members = this.classSeen.members.filter((m) => m !== node)
         }
@@ -154,7 +153,7 @@ export class ContractExporter extends TransformVisitor {
                     if (paramType.includes('MultiValueEncoded<')) {
                         if (index === params.length - 1) {
                             endpointCall += `
-                            const ${paramName} = BaseManagedType.dummy<${paramType}>().${paramName}.utils.fromArgumentIndex(${index})
+                            const ${paramName} = BaseManagedType.dummy<${paramType}>().utils.fromArgumentIndex(${index})
                             `
                         } else {
                             throw new Error('TODO : MultiValueEncoded should be the last argument')
@@ -163,9 +162,7 @@ export class ContractExporter extends TransformVisitor {
                         if (argHasOptionalValue) {
                             throw new Error('TODO : error OptionalValue required')
                         } else {
-                            if (!ContractExporter.isTypeUserImported(this.classSeen.range.source, paramType)) {
-                                this.newImports.push(paramType)
-                            }
+                            this.newImports.push(paramType)
 
                             endpointCall = endpointCall + `
                 const ${paramName}: ${paramType} = BaseManagedType.dummy<${paramType}>().utils.fromArgumentIndex(${index});
@@ -321,6 +318,14 @@ export class ContractExporter extends TransformVisitor {
             `
         )
 
+        if (!this.hasInitExportedFunction) {
+            this.exportedEndpoints.push(
+                `
+                export function init(): void {}
+                `
+            )
+        }
+
         this.classSeen.range.source.statements.push(...this.exportedEndpoints.map((s) => SimpleParser.parseTopLevelStatement(s)))
 
         this.newImports.forEach((importToAdd) => {
@@ -374,25 +379,6 @@ export class ContractExporter extends TransformVisitor {
         })
 
         return newSource
-    }
-
-    static isTypeUserImported(source: Source, type: string): boolean {
-        const imports = source.statements.filter((s) => s.kind === NodeKind.IMPORT) as ImportStatement[]
-
-        for (const i of imports) {
-            let isTypeImported = false
-            for (const declaration of i.declarations) {
-                if (ASTBuilder.build(declaration) === type) {
-                    isTypeImported = true
-                    break
-                }
-            }
-            if (isTypeImported) {
-                return ASTBuilder.build(i.path) !== '"@gfusee/elrond-wasm-as"'
-            }
-        }
-
-        return false
     }
 
     static hasContractDecorator(node: ClassDeclaration): boolean {

@@ -67,12 +67,20 @@ export class EnumExporter extends TransformVisitor {
           return false
         }
         
+        skipsReserialization(): boolean {
+            return true
+        }
+        
         getHandle(): i32 {
             throw new Error('TODO getHandle (${className})')
         }
         
         toU64(): u64 {
             return this.value as u64
+        }
+        
+        write(bytes: Uint8Array): void {
+            defaultBaseManagedTypeWriteImplementation()
         }
 
         static fromValue(value: u8): ${className} {

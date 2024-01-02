@@ -41,7 +41,7 @@ export function universalDecodeNumber(bytes: Uint8Array, signed: bool): u64 {
 
 export function numberToBytes<T extends number>(value: T): Uint8Array {
     const size = sizeof<T>()
-    const buffer = new ArrayBuffer(size)
+    const buffer = new ArrayBuffer(size as i32)
     const view = new DataView(buffer)
 
     if (nameof<T>() == nameof<i8>()) {

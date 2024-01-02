@@ -1,12 +1,10 @@
 //@ts-nocheck
 import {
-    BigUint, checkIfDebugBreakpointEnabled,
-    ElrondArray,
+    BigUint, ElrondArray,
     ElrondEvent,
     ElrondString,
     ElrondU32,
-    ElrondU64, enableDebugBreakpoint,
-    getContractInstance,
+    ElrondU64, getContractInstance,
     getRetainedClosureValue,
     ManagedAddress,
     Mapping,

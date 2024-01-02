@@ -1,8 +1,9 @@
-import {BigUint, ElrondString, ElrondU32, ElrondU64} from "../../types"
+import {ElrondString} from "../../types"
 import { ManagedType } from "../../types"
-import {checkIfDebugBreakpointEnabled, enableDebugBreakpoint, Static} from "../../utils/env"
+import { Static } from "../../utils/env"
 import { BaseMapping } from "./baseMapping"
 
+@unmanaged
 export class Mapping<T extends ManagedType> extends BaseMapping { //TODO : Make all methods statics to avoid heap allocation
 
     get(): T {

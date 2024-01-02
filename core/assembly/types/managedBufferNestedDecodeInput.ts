@@ -1,7 +1,6 @@
 import {ElrondString} from "./erdString";
 import {BigUint} from "./bigUint";
 import {PreloadedManagedBuffer} from "./preloadedManagedBuffer";
-import {checkIfDebugBreakpointEnabled, enableDebugBreakpoint} from "../utils/env";
 import {ElrondU32} from "./numbers";
 import {ElrondU8} from "./numbers/elrondu8";
 

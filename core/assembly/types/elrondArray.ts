@@ -1,12 +1,13 @@
 import { ElrondString } from "./erdString";
-import {BaseManagedType} from "./interfaces/managedType";
+import {BaseManagedType, defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
 import {BaseManagedUtils} from "./interfaces/managedUtils";
 import {Option} from "./option";
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
-import {checkIfDebugBreakpointEnabled} from "../utils/env";
+import {ElrondU32} from "./numbers"
 import {MultiValueEncoded} from "./multiValueEncoded";
+
+const INDEX_OUT_OF_RANGE_MSG = "ManagedVec index out of range"
 
 //TODO : make it allocated on the stack... but how to deal with the generic bug?
 // An idea : remove ManagedUtils class and move all methods in ManagedType
@@ -52,6 +53,10 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
         return true
     }
 
+    skipsReserialization(): boolean {
+        return false
+    }
+
     getHandle(): i32 {
         return this.buffer.getHandle()
     }
@@ -65,7 +70,46 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
 
             bufferRef.utils.loadSlice(ElrondU32.fromValue(byteIndexRef), bytes)
         })
+
         return value
+    }
+
+    remove(index: ElrondU32): void {
+        let length = this.getLength()
+        if (index >= length) {
+            throw new Error(INDEX_OUT_OF_RANGE_MSG)
+        }
+
+        let partBefore: ElrondArray<T>
+
+        if (index > ElrondU32.zero()) {
+            partBefore = this.slice(ElrondU32.zero(), index)
+        } else {
+            partBefore = ElrondArray.new<T>()
+        }
+
+        let partAfter: ElrondArray<T>
+
+        if (index < length) {
+            partAfter = this.slice(index + ElrondU32.fromValue(1), length)
+        } else {
+            partAfter = ElrondArray.new<T>()
+        }
+
+        this.buffer = partBefore.buffer
+        this.buffer.append(partAfter.buffer)
+    }
+
+    slice(startIndex: ElrondU32, endIndex: ElrondU32): ElrondArray<T> {
+        const bytesStart = startIndex * BaseManagedType.dummy<T>().payloadSize
+        const bytesEnd = endIndex * BaseManagedType.dummy<T>().payloadSize
+
+        const buffer = this.buffer.utils.copySlice(
+            bytesStart,
+            bytesEnd - bytesStart
+        )
+
+        return ElrondArray.fromBuffer<T>(buffer)
     }
 
     tryGet(index: ElrondU32): Option<T> { //TODO : not optimized
@@ -115,6 +159,10 @@ export class ElrondArray<T extends BaseManagedType> extends BaseManagedType {
         }
 
         return result
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static new<T extends BaseManagedType>(): ElrondArray<T> {
@@ -183,7 +231,7 @@ export namespace ElrondArray {
 
         encodeTop(): ElrondString {
             const dummy = BaseManagedType.dummy<T>()
-            if (dummy.skipsReserialization) {
+            if (dummy.skipsReserialization()) {
                 return this.value.buffer.clone()
             } else {
                 const output = ElrondString.new()
@@ -199,7 +247,7 @@ export namespace ElrondArray {
             this.encodeWithoutLength(output)
         }
 
-        encodeWithoutLength<T extends NestedEncodeOutput>(output: T): void {
+        encodeWithoutLength<O extends NestedEncodeOutput>(output: O): void {
             const length = this.value.getLength()
             for (let i = ElrondU32.zero(); i < length; i++) {
                 const value = this.value.get(i)
@@ -242,7 +290,7 @@ export namespace ElrondArray {
 
         decodeTop(buffer: ElrondString): ElrondArray<T> {
             const dummy = BaseManagedType.dummy<T>()
-            if (dummy.skipsReserialization) {
+            if (dummy.skipsReserialization()) {
                 this.value.buffer = buffer
             } else {
                 const input = new ManagedBufferNestedDecodeInput(buffer)

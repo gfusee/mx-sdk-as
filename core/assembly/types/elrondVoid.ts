@@ -1,5 +1,5 @@
 import {ElrondString} from "./erdString"
-import {ManagedType} from "./interfaces/managedType"
+import {defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {ManagedUtils} from "./interfaces/managedUtils"
 import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
@@ -29,8 +29,16 @@ export class ElrondVoid extends ManagedType {
     return false
   }
 
+  skipsReserialization(): boolean {
+    return true
+  }
+
   getHandle(): i32 {
     throw new Error("No handle on ElrondVoid type")
+  }
+
+  write(bytes: Uint8Array): void {
+    defaultBaseManagedTypeWriteImplementation()
   }
 
   static dummy(): ElrondVoid {
@@ -53,7 +61,7 @@ export namespace ElrondVoid {
     get value(): ElrondVoid {
       return changetype<ElrondVoid>(this)
     }
-  
+
     storeAtBuffer(key: ElrondString): void {
       throw new Error("Cannot be stored")
     }
@@ -61,15 +69,15 @@ export namespace ElrondVoid {
     signalError(): void {
       throw new Error("Cannot be signalled as error")
     }
-  
+
     finish(): void {
 
     }
-  
+
     encodeTop(): ElrondString {
       throw new Error("Cannot encode")
     }
-  
+
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
       throw new Error("Cannot encode")
     }
@@ -89,11 +97,11 @@ export namespace ElrondVoid {
     fromHandle(handle: i32): ElrondVoid {
       return this.value
     }
-  
+
     fromStorage(key: ElrondString): ElrondVoid {
       return this.value
     }
-  
+
     fromArgumentIndex(index: i32): ElrondVoid {
       return this.value
     }
@@ -101,7 +109,7 @@ export namespace ElrondVoid {
     fromElrondString(buffer: ElrondString): ElrondVoid {
       return this.value
     }
-  
+
     fromBytes(bytes: Uint8Array): ElrondVoid {
       return this.value
     }
@@ -117,7 +125,7 @@ export namespace ElrondVoid {
     decodeNested(input: ManagedBufferNestedDecodeInput): ElrondVoid {
       return this.value
     }
-  
+
   }
 
 }

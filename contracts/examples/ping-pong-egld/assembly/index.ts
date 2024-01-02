@@ -102,7 +102,7 @@ abstract class PingPong extends ContractBase {
         const error = this.pongByUserId(userId)
 
         if (error) {
-            throw new Error(error!!)
+            throw new Error(error)
         }
     }
 

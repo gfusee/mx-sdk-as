@@ -25,6 +25,7 @@ import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
 import {universalDecodeNumber} from "../utils/math/number";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32, ElrondU64} from "./numbers";
+import {Option} from "./option"
 
 @unmanaged
 export class ElrondString extends ManagedType {
@@ -45,7 +46,7 @@ export class ElrondString extends ManagedType {
     return false
   }
 
-  get skipsReserialization(): boolean {
+  skipsReserialization(): boolean {
     return false
   }
 
@@ -69,7 +70,7 @@ export class ElrondString extends ManagedType {
     const resultHandle = mBufferNew()
     const result = ElrondString.fromHandle(resultHandle)
     result.append(this)
-    
+
     return result
   }
 
@@ -145,19 +146,19 @@ export namespace ElrondString {
     get value(): ElrondString {
       return changetype<ElrondString>(this)
     }
-  
+
     finish(): void {
       mBufferFinish(this.value.getHandle())
     }
-  
+
     storeAtBuffer(key: ElrondString): void {
       mBufferStorageStore(key.getHandle(), this.value.getHandle())
     }
-  
+
     signalError(): void {
       managedSignalError(this.value.getHandle())
     }
-  
+
     encodeTop(): ElrondString {
       return this.value.clone()
     }
@@ -178,7 +179,7 @@ export namespace ElrondString {
       let length = this.getBytesLength()
       let bytes = new Uint8Array(length)
       mBufferGetBytes(this.value.getHandle(), changetype<i32>(bytes.buffer))
-  
+
       return bytes
     }
 
@@ -272,13 +273,13 @@ export namespace ElrondString {
     fromHandle(handle: i32): ElrondString {
       return changetype<ElrondString>(handle)
     }
-  
+
     fromArgumentIndex(argIndex: i32): ElrondString {
       const newHandle = Static.nextHandle()
       mBufferGetArgument(argIndex, newHandle)
       return this.fromHandle(newHandle)
     }
-  
+
     fromStorage(key: ElrondString): ElrondString {
       const newHandle = Static.nextHandle()
       mBufferStorageLoad(key.getHandle(), newHandle)
@@ -294,7 +295,7 @@ export namespace ElrondString {
 
       return this.value
     }
-  
+
     fromBytes(bytes: Uint8Array): ElrondString {
       let ptr = changetype<i32>(bytes.buffer)
       const newHandle = Static.nextHandle()
@@ -313,7 +314,7 @@ export namespace ElrondString {
 
       return result
     }
-  
+
     decodeNested(input: ManagedBufferNestedDecodeInput): ElrondString {
       const size = ElrondU32.dummy().utils.decodeNested(input)
 
@@ -321,6 +322,6 @@ export namespace ElrondString {
 
       return buffer
     }
-  
+
   }
 }

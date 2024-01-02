@@ -6,6 +6,7 @@ import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {ElrondU32} from "./numbers";
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
 import {checkIfDebugBreakpointEnabled} from "../utils/env";
+import {defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
 
 @unmanaged
 export class ManagedAddress extends ManagedWrappedString {
@@ -23,6 +24,14 @@ export class ManagedAddress extends ManagedWrappedString {
         heap.free(changetype<i32>(bytes))
 
         return result
+    }
+
+    skipsReserialization(): boolean {
+        return false
+    }
+
+    write(bytes: Uint8Array): void {
+        defaultBaseManagedTypeWriteImplementation()
     }
 
     static from(buffer: ElrondString): ManagedAddress {
