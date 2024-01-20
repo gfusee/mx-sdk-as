@@ -335,6 +335,7 @@ export class ContractExporter extends TransformVisitor {
 
     private parseStorageMethod(node: MethodDeclaration, classDeclaration: ClassDeclaration) {
         const name = ASTBuilder.build(node.name)
+        const storageName = ContractExporter.parseStorageDecoratorIfAny(node) ?? name
 
         classDeclaration.members = classDeclaration.members.filter(m => m !== node)
 
@@ -352,7 +353,7 @@ export class ContractExporter extends TransformVisitor {
         })
 
         let newBody = `
-      const key = new StorageKey(ElrondString.fromString('${name}'));
+      const key = new StorageKey(ElrondString.fromString('${storageName}'));
       ${additionnalsKeysAppend}
       const result = instantiate<${returnTypeName}>(key);\n
       `
@@ -407,4 +408,30 @@ export class ContractExporter extends TransformVisitor {
         return decorators.map(d => ASTBuilder.build(d.name)).includes('view')
     }
 
+    static parseStorageDecoratorIfAny(node: MethodDeclaration): string | undefined {
+        let decorators = node.decorators ?? []
+
+        const decorator = decorators.find(d => ASTBuilder.build(d.name) === 'storage')
+
+        if (decorator === undefined || decorator.args === null) {
+            return undefined
+        }
+
+        if (decorator.args.length !== 1) {
+            throw new Error("The storage decorator only accepts one argument")
+        }
+
+        const storageName = ASTBuilder.build(decorator.args[0])
+
+        if (!ContractExporter.isStorageNameValid(storageName)) {
+            throw new Error("Invalid characters in the storage's name")
+        }
+
+        return storageName
+    }
+
+    static isStorageNameValid(name: string): boolean {
+        const regex = /^[A-Za-z0-9_.]+$/;
+        return regex.test(name);
+    }
 }
