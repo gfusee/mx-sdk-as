@@ -1,6 +1,9 @@
 import {
     ASTBuilder,
     ImportStatement,
+    ClassDeclaration,
+    EnumDeclaration,
+    TypeDeclaration,
     Parser,
     Source,
     Tokenizer,
@@ -49,7 +52,25 @@ export function addElrondWasmASImportToSourceIfMissing(source: Source, value: st
 }
 
 function isTypeUserImported(source: Source, type: string): boolean {
-    const imports = source.statements.filter((s) => s.kind === NodeKind.IMPORT) as ImportStatement[]
+    const typeDeclaration = source.statements.find(s => {
+        const isTypeDeclaration = s.kind === NodeKind.CLASS || s.kind === NodeKind.ENUMDECLARATION || s.kind === NodeKind.TYPEDECLARATION
+
+        if (isTypeDeclaration) {
+            const name = ASTBuilder.build((s as (ClassDeclaration | EnumDeclaration | TypeDeclaration)).name)
+
+            if (name === type) {
+                return true
+            }
+        }
+
+        return false
+    })
+
+    if (typeDeclaration !== undefined) {
+        return true
+    }
+
+    const imports = source.statements.filter(s => s.kind === NodeKind.IMPORT) as ImportStatement[]
 
     for (const i of imports) {
         let isTypeImported = false

@@ -3,6 +3,7 @@ import {
   ClassDeclaration,
   EnumDeclaration,
   NamespaceDeclaration,
+  CommonFlags,
   Source,
   Statement
 } from "assemblyscript/dist/assemblyscript.js";
@@ -240,7 +241,10 @@ export class EnumExporter extends TransformVisitor {
 
       this.newTopLevelStatements.push(enumClassNode)
 
-      let utilsNamespaceNode = SimpleParser.parseTopLevelStatement(`export namespace ${className} {}`) as NamespaceDeclaration
+      let utilsNamespaceNode = SimpleParser.parseTopLevelStatement(`namespace ${className} {}`) as NamespaceDeclaration
+      if (node.is(CommonFlags.EXPORT)) {
+        utilsNamespaceNode.flags |= CommonFlags.EXPORT
+      }
       utilsNamespaceNode.members.push(utilsClassNode)
 
       this.newTopLevelStatements.push(utilsNamespaceNode);

@@ -330,7 +330,10 @@ export class StructExporter extends TransformVisitor {
                 node
             )))
 
-            let utilsNamespaceNode = SimpleParser.parseTopLevelStatement(`export namespace ${className} {}`) as NamespaceDeclaration
+            let utilsNamespaceNode = SimpleParser.parseTopLevelStatement(`namespace ${className} {}`) as NamespaceDeclaration
+            if (node.is(CommonFlags.EXPORT)) {
+                utilsNamespaceNode.flags |= CommonFlags.EXPORT
+            }
             utilsNamespaceNode.members.push(utilsClassNode)
 
             node.range.source.statements.push(utilsNamespaceNode)
