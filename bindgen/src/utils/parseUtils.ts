@@ -22,13 +22,13 @@ export function parseImport(source: Source, text: string): ImportStatement {
     return importStatement
 }
 
-export function getSourceElrondWasmASImports(source: Source): string[] {
-    const imports = source.statements.filter(s => s instanceof ImportStatement && s.path.value.includes('elrond-wasm-as')) as ImportStatement[]
+export function getSourceMxSdkASImports(source: Source): string[] {
+    const imports = source.statements.filter(s => s instanceof ImportStatement && s.path.value.includes('mx-sdk-as')) as ImportStatement[]
 
     return imports.flatMap(i => i.declarations?.map(d => ASTBuilder.build(d)) ?? [])
 }
 
-export function addElrondWasmASImportToSourceIfMissing(source: Source, value: string) {
+export function addMxSdkASImportToSourceIfMissing(source: Source, value: string) {
     const genericRegex = /(.+)<(.+)>/g
     const matches = genericRegex.exec(value)
     if (matches !== null) {
@@ -37,16 +37,16 @@ export function addElrondWasmASImportToSourceIfMissing(source: Source, value: st
         const typesMatches = genericsTypesRaw.matchAll(genericTypesRegex)
         let type = typesMatches.next()
         while (!type.done) {
-            addElrondWasmASImportToSourceIfMissing(source, type.value[0])
+            addMxSdkASImportToSourceIfMissing(source, type.value[0])
             type = typesMatches.next()
         }
 
         return
     }
-    const imports = getSourceElrondWasmASImports(source)
+    const imports = getSourceMxSdkASImports(source)
 
     if (!imports.includes(value) && !isTypeUserImported(source, value)) {
-        const newImport = parseImport(source, `import { ${value} } from "@gfusee/elrond-wasm-as"`)
+        const newImport = parseImport(source, `import { ${value} } from "@gfusee/mx-sdk-as"`)
         source.statements.unshift(newImport)
     }
 }
@@ -81,13 +81,13 @@ function isTypeUserImported(source: Source, type: string): boolean {
             }
         }
         if (isTypeImported) {
-            return ASTBuilder.build(i.path) !== '"@gfusee/elrond-wasm-as"'
+            return ASTBuilder.build(i.path) !== '"@gfusee/mx-sdk-as"'
         }
     }
 
     return false
 }
 
-export function removeAllElrondWasmImports(source: Source) {
-    source.statements = source.statements.filter(s => !(s instanceof ImportStatement && s.path.value.includes('elrond-wasm-as'))) as ImportStatement[]
+export function removeAllMxSdkAsImports(source: Source) {
+    source.statements = source.statements.filter(s => !(s instanceof ImportStatement && s.path.value.includes('mx-sdk-as'))) as ImportStatement[]
 }

@@ -1,4 +1,4 @@
-import {ManagedType, ElrondString, ElrondU32, BigUint, StorageKey} from "../../types";
+import {ManagedType, ManagedBuffer, ManagedU32, BigUint, StorageKey} from "../../types";
 import {
     __frameworkGetRetainedClosureValue, __frameworkReleaseRetainedClosureValue,
     __frameworkRetainClosureValue,
@@ -26,12 +26,12 @@ export class SetMapping<T extends ManagedType> extends BaseMapping {
         return this.queueMapping.isEmpty()
     }
 
-    getLength(): ElrondU32 {
+    getLength(): ManagedU32 {
         return this.queueMapping.getLength()
     }
 
     includes(value: T): bool {
-        return this.getNodeId(value) != ElrondU32.fromValue(NULL_ENTRY)
+        return this.getNodeId(value) != ManagedU32.fromValue(NULL_ENTRY)
     }
 
     insert(value: T): bool {
@@ -76,12 +76,12 @@ export class SetMapping<T extends ManagedType> extends BaseMapping {
         return this.queueMapping.getIterator()
     }
 
-    private getNodeId(value: T): ElrondU32 {
+    private getNodeId(value: T): ManagedU32 {
         const mapping = this.getNodeIdMapping(value)
         return mapping.get()
     }
 
-    private setNodeId(value: T, nodeId: ElrondU32): void {
+    private setNodeId(value: T, nodeId: ManagedU32): void {
         const mapping = this.getNodeIdMapping(value)
         mapping.set(nodeId)
     }
@@ -91,12 +91,12 @@ export class SetMapping<T extends ManagedType> extends BaseMapping {
         mapping.clear()
     }
 
-    private getNodeIdMapping(value: T): Mapping<ElrondU32> {
-        const key = this.buildNamedValueKey(ElrondString.fromString(NODE_ID_IDENTIFIER), value)
-        return new Mapping<ElrondU32>(key)
+    private getNodeIdMapping(value: T): Mapping<ManagedU32> {
+        const key = this.buildNamedValueKey(ManagedBuffer.fromString(NODE_ID_IDENTIFIER), value)
+        return new Mapping<ManagedU32>(key)
     }
 
-    private buildNamedValueKey(name: ElrondString, value: T): StorageKey {
+    private buildNamedValueKey(name: ManagedBuffer, value: T): StorageKey {
         const namedKey = this.key.clone()
         namedKey.appendBuffer(name)
         namedKey.appendItem(value)

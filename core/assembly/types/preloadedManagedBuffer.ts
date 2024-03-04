@@ -1,9 +1,9 @@
-import {ElrondString} from "./erdString";
-import {ElrondU32} from "./numbers";
+import {ManagedBuffer} from "./buffer";
+import {ManagedU32} from "./numbers";
 
 export class PreloadedManagedBuffer {
 
-    public bufferLength: ElrondU32
+    public bufferLength: ManagedU32
     private _bufferBytes: Uint8Array | null = null
 
     get bufferBytes(): Uint8Array {
@@ -12,7 +12,7 @@ export class PreloadedManagedBuffer {
         } else {
             const bytes = new Uint8Array(this.bufferLength.value)
             this.buffer.utils.loadSlice(
-                ElrondU32.zero(),
+                ManagedU32.zero(),
                 bytes
             )
 
@@ -23,13 +23,13 @@ export class PreloadedManagedBuffer {
     }
 
     constructor(
-        public buffer: ElrondString
+        public buffer: ManagedBuffer
     ) {
-        this.bufferLength = ElrondU32.fromValue(this.buffer.utils.getBytesLength())
+        this.bufferLength = ManagedU32.fromValue(this.buffer.utils.getBytesLength())
     }
 
     loadSlice(
-        startPosition: ElrondU32,
+        startPosition: ManagedU32,
         dest: Uint8Array
     ): void {
         dest.set(
@@ -39,9 +39,9 @@ export class PreloadedManagedBuffer {
     }
 
     copySlice(
-        startPosition: ElrondU32,
-        sliceLength: ElrondU32
-    ): ElrondString {
+        startPosition: ManagedU32,
+        sliceLength: ManagedU32
+    ): ManagedBuffer {
         return this.buffer.utils.copySlice(
             startPosition,
             sliceLength

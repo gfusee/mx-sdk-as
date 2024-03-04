@@ -1,21 +1,21 @@
 //@ts-nocheck
 
-import {BigUint, ElrondU64, ManagedAddress, TokenIdentifier} from "@gfusee/elrond-wasm-as";
+import {BigUint, ManagedU64, ManagedAddress, TokenIdentifier} from "@gfusee/mx-sdk-as";
 
 @struct
 export class DepositInfo {
     amount!: BigUint
     depositorAddress!: ManagedAddress
-    expirationRound!: ElrondU64
+    expirationRound!: ManagedU64
     tokenName!: TokenIdentifier
-    nonce!: ElrondU64
+    nonce!: ManagedU64
 
     static new(
         amount: BigUint,
         depositorAddress: ManagedAddress,
-        expirationRound: ElrondU64,
+        expirationRound: ManagedU64,
         tokenName: TokenIdentifier,
-        nonce: ElrondU64
+        nonce: ManagedU64
     ): DepositInfo {
         const result = new DepositInfo()
 

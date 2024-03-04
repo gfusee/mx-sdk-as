@@ -1,4 +1,4 @@
-import {ElrondBoolean, ElrondString} from "../types"
+import {ManagedBoolean, ManagedBuffer} from "../types"
 import {Mapping} from "../contract";
 
 export declare function bigIntNew(value: i64): i32;
@@ -155,13 +155,13 @@ export declare function managedWriteLog(topicsHandle: i32, dataHandle: i32): voi
 export class Static {
   static NEXT_HANDLE: i32 = -100
 
-  private static _EMPTY_BUFFER: ElrondString | null = null
+  private static _EMPTY_BUFFER: ManagedBuffer | null = null
 
-  static get EMPTY_BUFFER(): ElrondString {
+  static get EMPTY_BUFFER(): ManagedBuffer {
     if (Static._EMPTY_BUFFER) {
       return Static._EMPTY_BUFFER!
     } else {
-      const emptyBuffer = ElrondString.new()
+      const emptyBuffer = ManagedBuffer.new()
       Static._EMPTY_BUFFER = emptyBuffer
 
       return emptyBuffer
@@ -199,7 +199,7 @@ export function retainClosureValue<T>(value: T): void {
 //retrieve retained closure value and reset ptr for more security
 export function getRetainedClosureValue<T>(): T {
   if (__CLOSURE_PTR === 0) {
-    ElrondString.fromString('no value retained').utils.signalError()
+    ManagedBuffer.fromString('no value retained').utils.signalError()
   }
   const result = changetype<T>(__CLOSURE_PTR)
   __CLOSURE_PTR = 0
@@ -240,7 +240,7 @@ export function __frameworkRetainClosureValue<T>(value: T): void {
 //retrieve retained closure value and reset ptr for more security
 export function __frameworkGetRetainedClosureValue<T>(): T {
   if (__FRAMEWORK_CLOSURE_PTR === 0) {
-    ElrondString.fromString('no value retained').utils.signalError()
+    ManagedBuffer.fromString('no value retained').utils.signalError()
   }
   const result = changetype<T>(__FRAMEWORK_CLOSURE_PTR)
   __FRAMEWORK_CLOSURE_PTR = 0
@@ -263,5 +263,5 @@ export function wasiabort(
   if (newMessage == null) {
     newMessage = "Unknown error"
   }
-  ElrondString.fromString(newMessage).utils.signalError()
+  ManagedBuffer.fromString(newMessage).utils.signalError()
 }

@@ -1,13 +1,13 @@
 import {
     ManagedType,
-    ElrondString,
-    ElrondU32,
+    ManagedBuffer,
+    ManagedU32,
     Option,
     MultiValue,
     MultiValue2,
     BigUint,
     TokenIdentifier,
-    ElrondU64, StorageKey
+    ManagedU64, StorageKey
 } from "../../types";
 import {
     __frameworkGetRetainedClosureValue, __frameworkReleaseRetainedClosureValue,
@@ -39,7 +39,7 @@ export class MapMapping<K extends MultiValue, V extends ManagedType> extends Bas
         return this.keysSet.isEmpty()
     }
 
-    getLength(): ElrondU32 {
+    getLength(): ManagedU32 {
         return this.keysSet.getLength()
     }
 
@@ -128,11 +128,11 @@ export class MapMapping<K extends MultiValue, V extends ManagedType> extends Bas
     }
 
     private getMappedValueMapping(key: K): Mapping<V> {
-        const mappingKey = this.buildNamedKey(ElrondString.fromString(MAPPED_VALUE_IDENTIFIER), key)
+        const mappingKey = this.buildNamedKey(ManagedBuffer.fromString(MAPPED_VALUE_IDENTIFIER), key)
         return new Mapping<V>(mappingKey)
     }
 
-    private buildNamedKey(name: ElrondString, key: K): StorageKey {
+    private buildNamedKey(name: ManagedBuffer, key: K): StorageKey {
         const namedKey = this.key.clone()
         namedKey.appendBuffer(name)
         namedKey.appendItem(key)

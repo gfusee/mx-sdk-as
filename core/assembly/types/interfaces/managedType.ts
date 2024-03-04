@@ -1,5 +1,5 @@
 import {IManagedUtils} from "./managedUtils";
-import {ElrondU32} from "../numbers";
+import {ManagedU32} from "../numbers";
 import {NestedEncodeOutput} from "./nestedEncodeOutput";
 import {checkIfDebugBreakpointEnabled} from "../../utils/env";
 
@@ -26,7 +26,7 @@ export abstract class BaseManagedType extends NestedEncodeOutput {
 
     abstract skipsReserialization(): boolean
 
-    abstract get payloadSize(): ElrondU32
+    abstract get payloadSize(): ManagedU32
 
     abstract get shouldBeInstantiatedOnHeap(): boolean
 

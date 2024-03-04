@@ -3,29 +3,29 @@
 import {
     BigUint,
     CallableContract, ContractCall,
-    ElrondArray,
-    ElrondString,
-    ElrondU32,
-    ElrondU64,
-    ElrondU8, ElrondVoid,
+    ManagedArray,
+    ManagedBuffer,
+    ManagedU32,
+    ManagedU64,
+    ManagedU8, ManagedVoid,
     ManagedAddress,
     Option, OptionalValue,
     TokenIdentifier
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 
 @callable
 export abstract class LotteryEsdtContract extends CallableContract {
 
     abstract start(
-        lotteryName: ElrondString,
+        lotteryName: ManagedBuffer,
         tokenIdentifier: TokenIdentifier,
         ticketPrice: BigUint,
-        optTotalTickets: Option<ElrondU32>,
-        optDeadline: Option<ElrondU64>,
-        optMaxEntriesPerUser: Option<ElrondU32>,
-        optPrizeDistribution: Option<ElrondArray<ElrondU8>>,
-        optWhitelist: Option<ElrondArray<ManagedAddress>>,
+        optTotalTickets: Option<ManagedU32>,
+        optDeadline: Option<ManagedU64>,
+        optMaxEntriesPerUser: Option<ManagedU32>,
+        optPrizeDistribution: Option<ManagedArray<ManagedU8>>,
+        optWhitelist: Option<ManagedArray<ManagedAddress>>,
         optBurnPercentage: OptionalValue<BigUint>
-    ): ContractCall<ElrondVoid>
+    ): ContractCall<ManagedVoid>
 
 }

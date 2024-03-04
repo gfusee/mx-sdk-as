@@ -1,5 +1,5 @@
 {
-  "extends": "@gfusee/elrond-wasm-as/asconfig.json",
+  "extends": "@gfusee/mx-sdk-as/asconfig.json",
   "options": {
     "outFile": "build/release.wasm",
     "textFile": "build/release.wat"

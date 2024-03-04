@@ -1,25 +1,25 @@
-import { ElrondU64, ManagedAddress, TokenIdentifier, BigUint } from "@gfusee/elrond-wasm-as"
+import { ManagedU64, ManagedAddress, TokenIdentifier, BigUint } from "@gfusee/mx-sdk-as"
 
 @struct
 export class Flip {
-    id!: ElrondU64
+    id!: ManagedU64
     playerAddress!: ManagedAddress
     tokenIdentifier!: TokenIdentifier
-    tokenNonce!: ElrondU64
+    tokenNonce!: ManagedU64
     amount!: BigUint
     bounty!: BigUint
-    blockNonce!: ElrondU64
-    minimumBlockBounty!: ElrondU64
+    blockNonce!: ManagedU64
+    minimumBlockBounty!: ManagedU64
 
     static new(
-        id: ElrondU64,
+        id: ManagedU64,
         playerAddress: ManagedAddress,
         tokenIdentifier: TokenIdentifier,
-        tokenNonce: ElrondU64,
+        tokenNonce: ManagedU64,
         amount: BigUint,
         bounty: BigUint,
-        blockNonce: ElrondU64,
-        minimumBlockBounty: ElrondU64
+        blockNonce: ManagedU64,
+        minimumBlockBounty: ManagedU64
     ): Flip {
         const result = new Flip()
 

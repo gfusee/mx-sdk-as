@@ -1,14 +1,14 @@
-import {ElrondString, ElrondU32} from "../types";
+import {ManagedBuffer, ManagedU32} from "../types";
 import {bytesToSize} from "../utils/bytes";
 import {verifyEd25519} from "../utils/env";
 
 export class CryptoWrapper {
 
     verifyEd25519LegacyManaged(
-        maxMessageLength: ElrondU32,
-        key: ElrondString,
-        message: ElrondString,
-        signature: ElrondString
+        maxMessageLength: ManagedU32,
+        key: ManagedBuffer,
+        message: ManagedBuffer,
+        signature: ManagedBuffer
     ): boolean {
         const keyBytes = bytesToSize(key.utils.toBytes(), 32)
         const messageByteSlice = bytesToSize(message.utils.toBytes(), maxMessageLength.value)

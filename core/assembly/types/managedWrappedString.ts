@@ -1,21 +1,21 @@
-import { ElrondString } from "./erdString"
+import { ManagedBuffer } from "./buffer"
 import { ManagedType } from "./interfaces/managedType"
 import { ManagedUtils } from "./interfaces/managedUtils"
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 import {checkIfDebugBreakpointEnabled} from "../utils/env";
 
 @unmanaged
 export abstract class ManagedWrappedString extends ManagedType {
 
-  get buffer(): ElrondString {
-    return changetype<ElrondString>(this)
+  get buffer(): ManagedBuffer {
+    return changetype<ManagedBuffer>(this)
   }
 
   abstract get utils(): ManagedWrappedString.Utils<ManagedWrappedString>
 
-  get payloadSize(): ElrondU32 {
-    return ElrondU32.fromValue(4)
+  get payloadSize(): ManagedU32 {
+    return ManagedU32.fromValue(4)
   }
 
   get shouldBeInstantiatedOnHeap(): boolean {
@@ -58,22 +58,22 @@ export namespace ManagedWrappedString {
       this.value.buffer.utils.finish()
     }
 
-    storeAtBuffer(key: ElrondString): void {
+    storeAtBuffer(key: ManagedBuffer): void {
       this.value.buffer.utils.storeAtBuffer(key)
     }
 
     signalError(): void {
       this.value.buffer.utils.signalError()
     }
-  
-    encodeTop(): ElrondString {
+
+    encodeTop(): ManagedBuffer {
       return this.value.buffer
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
       this.value.buffer.utils.encodeNested(output)
     }
-  
+
     toBytes(): Uint8Array {
       return this.value.buffer.utils.toBytes()
     }
@@ -82,34 +82,34 @@ export namespace ManagedWrappedString {
       return this.value.buffer.utils.toString()
     }
 
-    fromBuffer(buffer: ElrondString): T {
+    fromBuffer(buffer: ManagedBuffer): T {
       return changetype<T>(buffer)
     }
 
     fromString(str: string): void {
-      this.value.buffer = ElrondString.fromString(str)
+      this.value.buffer = ManagedBuffer.fromString(str)
     }
 
     fromHandle(handle: i32): T {
       return changetype<T>(handle)
     }
-  
+
     fromArgumentIndex(argIndex: i32): T {
-      const buffer = ElrondString.dummy().utils.fromArgumentIndex(argIndex)
+      const buffer = ManagedBuffer.dummy().utils.fromArgumentIndex(argIndex)
       return this.fromBuffer(buffer)
-    }
-  
-    fromStorage(key: ElrondString): T {
-      return this.fromBuffer(ElrondString.dummy().utils.fromStorage(key))
-    }
-  
-    fromBytes(bytes: Uint8Array): T {
-      return this.fromBuffer(ElrondString.dummy().utils.fromBytes(bytes))
     }
 
-    decodeTop(buffer: ElrondString): T {
+    fromStorage(key: ManagedBuffer): T {
+      return this.fromBuffer(ManagedBuffer.dummy().utils.fromStorage(key))
+    }
+
+    fromBytes(bytes: Uint8Array): T {
+      return this.fromBuffer(ManagedBuffer.dummy().utils.fromBytes(bytes))
+    }
+
+    decodeTop(buffer: ManagedBuffer): T {
       return this.fromBuffer(buffer)
     }
-  
+
   }
 }

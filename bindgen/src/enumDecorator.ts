@@ -8,7 +8,7 @@ import {
   Statement
 } from "assemblyscript/dist/assemblyscript.js";
 import {SimpleParser, TransformVisitor} from "visitor-as";
-import {addElrondWasmASImportToSourceIfMissing} from './utils/parseUtils.js'
+import {addMxSdkASImportToSourceIfMissing} from './utils/parseUtils.js'
 import {AbiEnumType} from "./utils/abi/abiEnumType.js";
 import {AbiEnumTypeVariant} from "./utils/abi/abiEnumTypeVariant.js";
 
@@ -34,9 +34,9 @@ export class EnumExporter extends TransformVisitor {
       this.statementsToDelete.push(node)
 
       this.newImports = [
-          "ElrondU8",
-          "ElrondString",
-          "ElrondUnsignedNumber",
+          "ManagedU8",
+          "ManagedBuffer",
+          "ManagedUnsignedNumber",
           "BigUint",
           "NestedEncodeOutput",
           "numberToBytes",
@@ -60,8 +60,8 @@ export class EnumExporter extends TransformVisitor {
           return ${className}.Utils.fromValue(this)
         }
         
-        get payloadSize(): ElrondU32 {
-          return ElrondU32.fromValue(1)
+        get payloadSize(): ManagedU32 {
+          return ManagedU32.fromValue(1)
         }
         
         get shouldBeInstantiatedOnHeap(): boolean {
@@ -153,7 +153,7 @@ export class EnumExporter extends TransformVisitor {
             return changetype<${className}>(this)
         }
 
-        storeAtBuffer(key: ElrondString): void {
+        storeAtBuffer(key: ManagedBuffer): void {
             BigUint.fromU64(this.value.toU64()).utils.storeAtBuffer(key)
         }
 
@@ -166,8 +166,8 @@ export class EnumExporter extends TransformVisitor {
             smallIntFinishUnsigned(<i64>this.value.value)
         }
 
-        encodeTop(): ElrondString {
-            return ElrondString.fromBytes(numberToBytes<u64>(this.value.toU64()))
+        encodeTop(): ManagedBuffer {
+            return ManagedBuffer.fromBytes(numberToBytes<u64>(this.value.toU64()))
         }
 
         encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -204,14 +204,14 @@ export class EnumExporter extends TransformVisitor {
         }
 
         fromValue(value: u32): ${className} {
-            return ElrondU8.fromValue(value)
+            return ManagedU8.fromValue(value)
         }
 
         fromHandle(handle: i32): ${className} {
-            throw new Error('TODO : error no handle (ElrondUXX)')
+            throw new Error('TODO : error no handle (ManagedUXX)')
         }
 
-        fromStorage(key: ElrondString): ${className} {
+        fromStorage(key: ManagedBuffer): ${className} {
             const bytes = getBytesFromStorage(key)
             return this.fromBytes(bytes)
         }
@@ -223,19 +223,19 @@ export class EnumExporter extends TransformVisitor {
         }
 
         fromArgumentIndex(index: i32): ${className} {
-          return this.fromRawValueToField(ElrondU8.dummy().utils.fromArgumentIndex(input).value);
+          return this.fromRawValueToField(ManagedU8.dummy().utils.fromArgumentIndex(input).value);
         }
 
-        decodeTop(buffer: ElrondString): ${className} {
-          return this.fromRawValueToField(ElrondU8.dummy().utils.decodeTop(buffer).value);
+        decodeTop(buffer: ManagedBuffer): ${className} {
+          return this.fromRawValueToField(ManagedU8.dummy().utils.decodeTop(buffer).value);
         }
 
         decodeNested(input: ManagedBufferNestedDecodeInput): ${className} {
-          return this.fromRawValueToField(ElrondU8.dummy().utils.decodeNested(input).value);
+          return this.fromRawValueToField(ManagedU8.dummy().utils.decodeNested(input).value);
         }
 
         fromBytes(bytes: Uint8Array): ${className} {
-          return this.fromRawValueToField(ElrondU8.dummy().utils.fromBytes(bytes).value);
+          return this.fromRawValueToField(ManagedU8.dummy().utils.fromBytes(bytes).value);
         }
       }`) as ClassDeclaration
 
@@ -272,7 +272,7 @@ export class EnumExporter extends TransformVisitor {
     }
 
     for (const newImport of this.newImports) {
-      addElrondWasmASImportToSourceIfMissing(source, newImport)
+      addMxSdkASImportToSourceIfMissing(source, newImport)
     }
 
     for (const statement of this.newTopLevelStatements) {

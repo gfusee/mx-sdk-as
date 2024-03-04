@@ -4,11 +4,11 @@ import {
     ArrayMapping,
     BigUint,
     ContractBase,
-    ElrondArray,
-    ElrondString,
-    ElrondU32,
-    ElrondU64,
-    ElrondU8,
+    ManagedArray,
+    ManagedBuffer,
+    ManagedU32,
+    ManagedU64,
+    ManagedU8,
     getContractInstance,
     ManagedAddress,
     Mapping,
@@ -18,7 +18,7 @@ import {
     UnorderedSetMapping,
     ESDTLocalRoleFlag,
     RandomnessSource
-} from "@gfusee/elrond-wasm-as"
+} from "@gfusee/mx-sdk-as"
 import { LotteryInfo } from "./lotteryInfo"
 import { Status } from "./status"
 
@@ -30,14 +30,14 @@ const MAX_TICKETS: u32 = 800
 abstract class LotteryContract extends ContractBase {
 
     start(
-        lotteryName: ElrondString,
+        lotteryName: ManagedBuffer,
         tokenIdentifier: TokenIdentifier,
         ticketPrice: BigUint,
-        optTotalTickets: Option<ElrondU32>,
-        optDeadline: Option<ElrondU64>,
-        optMaxEntriesPerUser: Option<ElrondU32>,
-        optPrizeDistribution: Option<ElrondArray<ElrondU8>>,
-        optWhitelist: Option<ElrondArray<ManagedAddress>>,
+        optTotalTickets: Option<ManagedU32>,
+        optDeadline: Option<ManagedU64>,
+        optMaxEntriesPerUser: Option<ManagedU32>,
+        optPrizeDistribution: Option<ManagedArray<ManagedU8>>,
+        optWhitelist: Option<ManagedArray<ManagedAddress>>,
         optBurnPercentage: OptionalValue<BigUint>
     ): void {
         this.startLottery(
@@ -54,14 +54,14 @@ abstract class LotteryContract extends ContractBase {
     }
 
     createLotteryPool(
-        lotteryName: ElrondString,
+        lotteryName: ManagedBuffer,
         tokenIdentifier: TokenIdentifier,
         ticketPrice: BigUint,
-        optTotalTickets: Option<ElrondU32>,
-        optDeadline: Option<ElrondU64>,
-        optMaxEntriesPerUser: Option<ElrondU32>,
-        optPrizeDistribution: Option<ElrondArray<ElrondU8>>,
-        optWhitelist: Option<ElrondArray<ManagedAddress>>,
+        optTotalTickets: Option<ManagedU32>,
+        optDeadline: Option<ManagedU64>,
+        optMaxEntriesPerUser: Option<ManagedU32>,
+        optPrizeDistribution: Option<ManagedArray<ManagedU8>>,
+        optWhitelist: Option<ManagedArray<ManagedAddress>>,
         optBurnPercentage: OptionalValue<BigUint>
     ): void {
         this.startLottery(
@@ -77,7 +77,7 @@ abstract class LotteryContract extends ContractBase {
         )
     }
 
-    buyTicket(lotteryName: ElrondString): void {
+    buyTicket(lotteryName: ManagedBuffer): void {
         const payment = this.callValue.singlePayment
 
         const status = this.status(lotteryName)
@@ -92,7 +92,7 @@ abstract class LotteryContract extends ContractBase {
         }
     }
 
-    determineWinner(lotteryName: ElrondString): void {
+    determineWinner(lotteryName: ManagedBuffer): void {
         const status = this.status(lotteryName)
 
         if (status == Status.Inactive) {
@@ -106,14 +106,14 @@ abstract class LotteryContract extends ContractBase {
     }
 
     @view
-    status(lotteryName: ElrondString): Status {
+    status(lotteryName: ManagedBuffer): Status {
         if (this.lotteryInfo(lotteryName).isEmpty()) {
             return Status.Inactive
         }
 
         const infos = this.lotteryInfo(lotteryName).get()
         const currentTime = this.blockchain.currentBlockTimestamp
-        if (currentTime > infos.deadline || infos.ticketsLeft == ElrondU32.zero()) {
+        if (currentTime > infos.deadline || infos.ticketsLeft == ManagedU32.zero()) {
             return Status.Ended
         }
 
@@ -122,20 +122,20 @@ abstract class LotteryContract extends ContractBase {
 
     @view
     getLotteryInfo(
-        lotteryName: ElrondString
+        lotteryName: ManagedBuffer
     ): LotteryInfo {
         return this.lotteryInfo(lotteryName).get()
     }
 
     private startLottery(
-        lotteryName: ElrondString,
+        lotteryName: ManagedBuffer,
         tokenIdentifier: TokenIdentifier,
         ticketPrice: BigUint,
-        optTotalTickets: Option<ElrondU32>,
-        optDeadline: Option<ElrondU64>,
-        optMaxEntriesPerUser: Option<ElrondU32>,
-        optPrizeDistribution: Option<ElrondArray<ElrondU8>>,
-        optWhitelist: Option<ElrondArray<ManagedAddress>>,
+        optTotalTickets: Option<ManagedU32>,
+        optDeadline: Option<ManagedU64>,
+        optMaxEntriesPerUser: Option<ManagedU32>,
+        optPrizeDistribution: Option<ManagedArray<ManagedU8>>,
+        optWhitelist: Option<ManagedArray<ManagedAddress>>,
         optBurnPercentage: OptionalValue<BigUint>
     ): void {
         this.require(
@@ -144,13 +144,13 @@ abstract class LotteryContract extends ContractBase {
         )
 
         const timestamp = this.blockchain.currentBlockTimestamp
-        const totalTickets = optTotalTickets.unwrapOr(ElrondU32.fromValue(MAX_TICKETS))
-        const deadline = optDeadline.unwrapOr(timestamp + ElrondU64.fromValue(THIRTY_DAYS_IN_SECONDS))
-        const maxEntriesPerUser = optMaxEntriesPerUser.unwrapOr(ElrondU32.fromValue(MAX_TICKETS))
+        const totalTickets = optTotalTickets.unwrapOr(ManagedU32.fromValue(MAX_TICKETS))
+        const deadline = optDeadline.unwrapOr(timestamp + ManagedU64.fromValue(THIRTY_DAYS_IN_SECONDS))
+        const maxEntriesPerUser = optMaxEntriesPerUser.unwrapOr(ManagedU32.fromValue(MAX_TICKETS))
         let prizeDistribution = optPrizeDistribution.unwrapOrNull()
         if (prizeDistribution === null) {
-            prizeDistribution = new ElrondArray<ElrondU8>()
-            prizeDistribution.push(ElrondU8.fromValue(PERCENTAGE_TOTAL as u8))
+            prizeDistribution = new ManagedArray<ManagedU8>()
+            prizeDistribution.push(ManagedU8.fromValue(PERCENTAGE_TOTAL as u8))
         }
 
         this.require(
@@ -169,12 +169,12 @@ abstract class LotteryContract extends ContractBase {
         )
 
         this.require(
-            totalTickets > ElrondU32.zero(),
+            totalTickets > ManagedU32.zero(),
             "Must have more than 0 tickets available!"
         )
 
         this.require(
-            totalTickets <= ElrondU32.fromValue(MAX_TICKETS),
+            totalTickets <= ManagedU32.fromValue(MAX_TICKETS),
             "Only 800 or less total tickets per lottery are allowed!"
         )
 
@@ -184,17 +184,17 @@ abstract class LotteryContract extends ContractBase {
         )
 
         this.require(
-            deadline <= timestamp + ElrondU64.fromValue(THIRTY_DAYS_IN_SECONDS),
+            deadline <= timestamp + ManagedU64.fromValue(THIRTY_DAYS_IN_SECONDS),
             "Deadline can't be later than 30 days from now!"
         )
 
         this.require(
-            maxEntriesPerUser > ElrondU32.zero(),
+            maxEntriesPerUser > ManagedU32.zero(),
             "Must have more than 0 max entries per user!"
         )
 
         this.require(
-            this.sumArray(prizeDistribution) == ElrondU32.fromValue(PERCENTAGE_TOTAL),
+            this.sumArray(prizeDistribution) == ManagedU32.fromValue(PERCENTAGE_TOTAL),
             "Prize distribution must add up to exactly 100(%)!"
         )
 
@@ -223,7 +223,7 @@ abstract class LotteryContract extends ContractBase {
             const whitelist = optWhitelist.unwrap()
             const mapping = this.lotteryWhitelist(lotteryName)
             const whitelistLength = whitelist.getLength()
-            for (let i = ElrondU32.zero(); i < whitelistLength; i++) {
+            for (let i = ManagedU32.zero(); i < whitelistLength; i++) {
                 const addr = whitelist.get(i)
                 mapping.insert(addr)
             }
@@ -243,7 +243,7 @@ abstract class LotteryContract extends ContractBase {
     }
 
     private updateAfterBuyTicket(
-        lotteryName: ElrondString,
+        lotteryName: ManagedBuffer,
         tokenIdentifier: TokenIdentifier,
         payment: BigUint
     ): void {
@@ -272,20 +272,20 @@ abstract class LotteryContract extends ContractBase {
 
         this.ticketHolder(lotteryName).push(caller)
 
-        entries += ElrondU32.fromValue(1)
-        info.ticketsLeft -= ElrondU32.fromValue(1)
+        entries += ManagedU32.fromValue(1)
+        info.ticketsLeft -= ManagedU32.fromValue(1)
         info.prizePool += info.ticketPrice
 
         entriesMapper.set(entries)
         infoMapper.set(info)
     }
 
-    private determinePrizes(lotteryName: ElrondString): void {
+    private determinePrizes(lotteryName: ManagedBuffer): void {
         const info = this.lotteryInfo(lotteryName).get()
         const ticketHoldersMapping = this.ticketHolder(lotteryName)
         const totalTickets = ticketHoldersMapping.getLength()
 
-        if (totalTickets == ElrondU32.zero()) {
+        if (totalTickets == ManagedU32.zero()) {
             return
         }
 
@@ -297,7 +297,7 @@ abstract class LotteryContract extends ContractBase {
             const roles = this.blockchain.getESDTLocalRoles(esdtTokenId)
 
             if (roles.hasRole(ESDTLocalRoleFlag.BURN)) {
-                this.send.esdtLocalBurn(esdtTokenId, ElrondU64.zero(), burnAmount)
+                this.send.esdtLocalBurn(esdtTokenId, ManagedU64.zero(), burnAmount)
             }
 
             info.prizePool -= burnAmount
@@ -306,7 +306,7 @@ abstract class LotteryContract extends ContractBase {
         // if there are less tickets than the distributed prize pool,
         // the 1st place gets the leftover, maybe could split between the remaining
         // but this is a rare case anyway and it's not worth the overhead
-        let totalWinningTickets: ElrondU32
+        let totalWinningTickets: ManagedU32
         const infoPrizeDistributionLength = info.prizeDistribution.getLength()
         if (totalTickets < infoPrizeDistributionLength) {
             totalWinningTickets = totalTickets
@@ -315,7 +315,7 @@ abstract class LotteryContract extends ContractBase {
         }
 
         const totalPrize = info.prizePool
-        const winningTickets = this.getDistinctRandom(ElrondU32.fromValue(1), totalTickets, totalWinningTickets)
+        const winningTickets = this.getDistinctRandom(ManagedU32.fromValue(1), totalTickets, totalWinningTickets)
 
         // distribute to the first place last. Laws of probability say that order doesn't matter.
         // this is done to mitigate the effects of BigUint division leading to "spare" prize money being left out at times
@@ -333,7 +333,7 @@ abstract class LotteryContract extends ContractBase {
                 .direct(
                     winningAddress,
                     info.tokenIdentifier,
-                    ElrondU64.zero(),
+                    ManagedU64.zero(),
                     prize
                 )
 
@@ -348,7 +348,7 @@ abstract class LotteryContract extends ContractBase {
             .direct(
                 firstPlaceWinner,
                 info.tokenIdentifier,
-                ElrondU64.zero(),
+                ManagedU64.zero(),
                 info.prizePool
             )
         }
@@ -356,40 +356,40 @@ abstract class LotteryContract extends ContractBase {
 
     /// does not check if max - min >= amount, that is the adder's job
     private getDistinctRandom(
-        min: ElrondU32,
-        max: ElrondU32,
-        amount: ElrondU32
-    ): ElrondArray<ElrondU32> {
+        min: ManagedU32,
+        max: ManagedU32,
+        amount: ManagedU32
+    ): ManagedArray<ManagedU32> {
         //TODO : use managed types
-        const result = new ElrondArray<ElrondU32>()
+        const result = new ManagedArray<ManagedU32>()
         const randNumbers = new Uint32Array(MAX_TICKETS)
 
         for (let i = min.value; i <= max.value; i++) {
             randNumbers[i - min.value] = i
         }
 
-        const totalNumbers = (max - min) + ElrondU32.fromValue(1)
+        const totalNumbers = (max - min) + ManagedU32.fromValue(1)
 
         for (let i: u32 = 0; i < amount.value; i++) {
-            const randIndex = RandomnessSource.nextU32InRange(ElrondU32.zero(), totalNumbers)
+            const randIndex = RandomnessSource.nextU32InRange(ManagedU32.zero(), totalNumbers)
             const swapTemp = randNumbers[i]
             randNumbers[i] = randNumbers[randIndex.value]
             randNumbers[randIndex.value] = swapTemp
         }
 
         for (let i = 0; i < randNumbers.length; i++) {
-            result.push(ElrondU32.fromValue(randNumbers[i]))
+            result.push(ManagedU32.fromValue(randNumbers[i]))
         }
 
         return result
     }
 
-    private clearStorage(lotteryName: ElrondString): void {
+    private clearStorage(lotteryName: ManagedBuffer): void {
         const ticketHolderMapping = this.ticketHolder(lotteryName)
 
         const ticketHolderMappingLength = ticketHolderMapping.getLength()
         // /!\ ArrayMapping starts at index 1
-        for (let i = ElrondU32.fromValue(1); i <= ticketHolderMappingLength; i++) {
+        for (let i = ManagedU32.fromValue(1); i <= ticketHolderMappingLength; i++) {
             const addr = ticketHolderMapping.get(i)
             this.numberOfEntriesForUser(lotteryName, addr).clear()
         }
@@ -404,21 +404,21 @@ abstract class LotteryContract extends ContractBase {
         return value * percentage / BigUint.fromU64(PERCENTAGE_TOTAL as u64)
     }
 
-    private sumArray(array: ElrondArray<ElrondU8>): ElrondU32 {
-        let result = ElrondU32.zero()
+    private sumArray(array: ManagedArray<ManagedU8>): ManagedU32 {
+        let result = ManagedU32.zero()
 
         const arrayLength = array.getLength().value as i32
         for (let i = 0; i < arrayLength; i++) {
-            result += ElrondU32.fromValue(array[i].value as u32)
+            result += ManagedU32.fromValue(array[i].value as u32)
         }
 
         return result
     }
 
-    abstract ticketHolder(lotteryName: ElrondString): ArrayMapping<ManagedAddress>
-    abstract lotteryInfo(lotteryName: ElrondString): Mapping<LotteryInfo>
-    abstract lotteryWhitelist(lotteryName: ElrondString): UnorderedSetMapping<ManagedAddress>
-    abstract numberOfEntriesForUser(lotteryName: ElrondString, caller: ManagedAddress): Mapping<ElrondU32>
-    abstract burnPercentageForLottery(lotteryName: ElrondString): Mapping<BigUint>
+    abstract ticketHolder(lotteryName: ManagedBuffer): ArrayMapping<ManagedAddress>
+    abstract lotteryInfo(lotteryName: ManagedBuffer): Mapping<LotteryInfo>
+    abstract lotteryWhitelist(lotteryName: ManagedBuffer): UnorderedSetMapping<ManagedAddress>
+    abstract numberOfEntriesForUser(lotteryName: ManagedBuffer, caller: ManagedAddress): Mapping<ManagedU32>
+    abstract burnPercentageForLottery(lotteryName: ManagedBuffer): Mapping<BigUint>
 
 }

@@ -7,7 +7,7 @@ import {
   Source
 } from "assemblyscript/dist/assemblyscript.js";
 import {SimpleParser, TransformVisitor} from "visitor-as";
-import {addElrondWasmASImportToSourceIfMissing} from './utils/parseUtils.js'
+import {addMxSdkASImportToSourceIfMissing} from './utils/parseUtils.js'
 
 export class CallableExporter extends TransformVisitor {
 
@@ -33,7 +33,7 @@ export class CallableExporter extends TransformVisitor {
     let body = `{
     const call = ContractCall.new${returnType.replace('ContractCall', '')}(
       this.address,
-      ElrondString.fromString("${ASTBuilder.build(node.name)}")
+      ManagedBuffer.fromString("${ASTBuilder.build(node.name)}")
     );
     `
 
@@ -63,7 +63,7 @@ export class CallableExporter extends TransformVisitor {
 
       this.newImports.push(
           ...[
-              "ElrondString"
+              "ManagedBuffer"
           ]
       )
 
@@ -80,7 +80,7 @@ export class CallableExporter extends TransformVisitor {
     const newSource = super.visitSource(source)
 
     for (const newImport of this.newImports) {
-      addElrondWasmASImportToSourceIfMissing(source, newImport)
+      addMxSdkASImportToSourceIfMissing(source, newImport)
     }
 
     return newSource

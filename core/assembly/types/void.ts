@@ -1,28 +1,28 @@
-import {ElrondString} from "./erdString"
+import {ManagedBuffer} from "./buffer"
 import {defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {ManagedUtils} from "./interfaces/managedUtils"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 
 @final @unmanaged
-export class ElrondVoid extends ManagedType {
+export class ManagedVoid extends ManagedType {
 
   constructor() {
     super();
-    return changetype<ElrondVoid>(0)
+    return changetype<ManagedVoid>(0)
   }
 
   get handle(): i32 {
     return changetype<i32>(this)
   }
 
-  get utils(): ElrondVoid.Utils {
-    return new ElrondVoid.Utils()
+  get utils(): ManagedVoid.Utils {
+    return new ManagedVoid.Utils()
   }
 
-  get payloadSize(): ElrondU32 {
-    return ElrondU32.fromValue(0)
+  get payloadSize(): ManagedU32 {
+    return ManagedU32.fromValue(0)
   }
 
   get shouldBeInstantiatedOnHeap(): boolean {
@@ -34,23 +34,23 @@ export class ElrondVoid extends ManagedType {
   }
 
   getHandle(): i32 {
-    throw new Error("No handle on ElrondVoid type")
+    throw new Error("No handle on ManagedVoid type")
   }
 
   write(bytes: Uint8Array): void {
     defaultBaseManagedTypeWriteImplementation()
   }
 
-  static dummy(): ElrondVoid {
-    return changetype<ElrondVoid>(0)
+  static dummy(): ManagedVoid {
+    return changetype<ManagedVoid>(0)
   }
 
 }
 
-export namespace ElrondVoid {
+export namespace ManagedVoid {
 
   @final @unmanaged
-  export class Utils extends ManagedUtils<ElrondVoid> {
+  export class Utils extends ManagedUtils<ManagedVoid> {
 
     constructor() {
       super()
@@ -58,11 +58,11 @@ export namespace ElrondVoid {
       return changetype<Utils>(0)
     }
 
-    get value(): ElrondVoid {
-      return changetype<ElrondVoid>(this)
+    get value(): ManagedVoid {
+      return changetype<ManagedVoid>(this)
     }
 
-    storeAtBuffer(key: ElrondString): void {
+    storeAtBuffer(key: ManagedBuffer): void {
       throw new Error("Cannot be stored")
     }
 
@@ -74,7 +74,7 @@ export namespace ElrondVoid {
 
     }
 
-    encodeTop(): ElrondString {
+    encodeTop(): ManagedBuffer {
       throw new Error("Cannot encode")
     }
 
@@ -94,35 +94,35 @@ export namespace ElrondVoid {
       throw new Error("Cannot convert as bytes")
     }
 
-    fromHandle(handle: i32): ElrondVoid {
+    fromHandle(handle: i32): ManagedVoid {
       return this.value
     }
 
-    fromStorage(key: ElrondString): ElrondVoid {
+    fromStorage(key: ManagedBuffer): ManagedVoid {
       return this.value
     }
 
-    fromArgumentIndex(index: i32): ElrondVoid {
+    fromArgumentIndex(index: i32): ManagedVoid {
       return this.value
     }
 
-    fromElrondString(buffer: ElrondString): ElrondVoid {
+    fromManagedBuffer(buffer: ManagedBuffer): ManagedVoid {
       return this.value
     }
 
-    fromBytes(bytes: Uint8Array): ElrondVoid {
+    fromBytes(bytes: Uint8Array): ManagedVoid {
       return this.value
     }
 
-    fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ElrondVoid {
+    fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ManagedVoid {
       throw new Error('Cannot use fromBytesReader')
     }
 
-    decodeTop(buffer: ElrondString): ElrondVoid {
+    decodeTop(buffer: ManagedBuffer): ManagedVoid {
       return this.value
     }
 
-    decodeNested(input: ManagedBufferNestedDecodeInput): ElrondVoid {
+    decodeNested(input: ManagedBufferNestedDecodeInput): ManagedVoid {
       return this.value
     }
 

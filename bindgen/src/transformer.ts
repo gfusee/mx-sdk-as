@@ -25,8 +25,8 @@ export default class Transformer extends Transform {
       // Filter for files
       let files = this.parser.sources.filter(s => {
         const isUserSource = (s.sourceKind == SourceKind.USER || s.sourceKind == SourceKind.USER_ENTRY)
-        const isElrondLib = s.internalPath.includes('elrond-wasm-as')
-        return (isUserSource || isElrondLib)
+        const isMxSdk = s.internalPath.includes('mx-sdk-as')
+        return (isUserSource || isMxSdk)
       });
       // Visit each file
       const contractExporter = new ContractExporter()
@@ -101,7 +101,7 @@ export default class Transformer extends Transform {
     }
 
     afterCompile(module: Module): void | Promise<void> {
-      const abiRelativePathEnvName = 'ELROND_WASM_ABI_FOLDER'
+      const abiRelativePathEnvName = 'MX_SDK_AS_ABI_FOLDER'
       const abiRelativePath = process.env[abiRelativePathEnvName] ?? 'build'
       this.writeFile(
           "release.abi.json",

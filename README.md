@@ -1,6 +1,6 @@
-# Elrond WASM AssemblyScript (Proof of concept)
+# MultiversX WASM AssemblyScript (Proof of concept)
 
-A proof of concept to make Elrond smart contracts in AssemblyScript.
+A proof of concept to make MultiversX smart contracts in AssemblyScript.
 
 ## ⚠️ Warning ⚠️
 
@@ -12,7 +12,7 @@ The aim of this repo is to make a proof of concept and ONLY a proof of concept. 
 
 ### Tutorials
 
-Two smart contracts tutorials are availables here : https://fusee.gitbook.io/elrond-wasm-as/.
+Two smart contracts tutorials are availables here : https://fusee.gitbook.io/mx-sdk-as/.
 
 They will give a good idea about what you can build with this framework.
 
@@ -26,7 +26,7 @@ AssemblyScript is nearly the same as Typescript, but there is still some differe
 
 If you only want to try writing smart contracts with this framework do the following steps :
 
-- Clone the following repo : https://github.com/gfusee/elrond-wasm-as-empty
+- Clone the following repo : https://github.com/gfusee/mx-sdk-as-empty
 - In order to compile the contract you should run the command `npm run build`
 
 And you're done ! The contract is compiled into the `build` folder.
@@ -60,8 +60,8 @@ In order to create a classes which is compatible with the framework you should a
 ```
 @struct
 export class Human {
-    name: ElrondString
-    age: ElrondU64
+    name: ManagedBuffer
+    age: ManagedU64
     wallet: ManagedAddress
 }
 ```
@@ -86,10 +86,10 @@ You should be aware of the four following limitations :
 
 ### Async calls
 
-Elrond team will soon change the asynchronous contracts calls system, hence I will not implement the current system.
+MultiversX team will soon change the asynchronous contracts calls system, hence I will not implement the current system.
 This leads to several limitations like no call to ESDT proxy (issuing tokens, managing roles)
 
-This feature will be my ultimate priority when Elrond team will implement the new async calls system.
+This feature will be my ultimate priority when MultiversX team will implement the new async calls system.
 
 ### Statics and generics
 
@@ -123,11 +123,11 @@ This issue is known by the AssemblyScript and should be fixed in the future : ht
 
 ### Garbage collector
 
-I did not succeed to run contracts with the AssemblyScript garbage collector, Elrond VM says "invalid contract code" and "unknown error" when trying to.
+I did not succeed to run contracts with the AssemblyScript garbage collector, MultiversX VM says "invalid contract code" and "unknown error" when trying to.
 
 ### VM calls
 
-Currently, I'm doing too much useless VM calls, especially when using `ElrondVec` with custom structs. This has been resolved in the branch `feature/update_deps` (not compiling yet I'm doing a BIG refactor about heap allocation)
+Currently, I'm doing too much useless VM calls, especially when using `Array` with custom structs. This has been resolved in the branch `feature/update_deps` (not compiling yet I'm doing a BIG refactor about heap allocation)
 
 ### Heap allocations
 

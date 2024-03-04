@@ -1,4 +1,4 @@
-import {ElrondU16} from "./numbers";
+import {ManagedU16} from "./numbers";
 
 export enum CodeMetadataFlag {
     DEFAULT = 0,
@@ -10,7 +10,7 @@ export enum CodeMetadataFlag {
 
 export class CodeMetadata {
 
-    value: ElrondU16
+    value: ManagedU16
 
     constructor(
         upgradeable: boolean,

@@ -1,9 +1,9 @@
 import {areBytesEquals, bytesToSize} from "../utils/bytes"
-import {ElrondString} from "./erdString"
+import {ManagedBuffer} from "./buffer"
 import {ManagedWrappedString} from "./managedWrappedString"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
 import {checkIfDebugBreakpointEnabled} from "../utils/env";
 import {defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
@@ -34,14 +34,14 @@ export class ManagedAddress extends ManagedWrappedString {
         defaultBaseManagedTypeWriteImplementation()
     }
 
-    static from(buffer: ElrondString): ManagedAddress {
+    static from(buffer: ManagedBuffer): ManagedAddress {
         return ManagedAddress.dummy().utils.fromBuffer(buffer)
     }
 
     static zero(): ManagedAddress {
         const bytes = new Uint8Array(ManagedAddress.ADDRESS_BYTES_LEN)
 
-        return ManagedAddress.from(ElrondString.fromBytes(bytes))
+        return ManagedAddress.from(ManagedBuffer.fromBytes(bytes))
     }
 
     static dummy(): ManagedAddress {
@@ -68,7 +68,7 @@ export namespace ManagedAddress {
             this.value.buffer.utils.finish()
         }
 
-        storeAtBuffer(key: ElrondString): void {
+        storeAtBuffer(key: ManagedBuffer): void {
             this.value.buffer.utils.storeAtBuffer(key)
         }
 
@@ -76,8 +76,8 @@ export namespace ManagedAddress {
             this.value.buffer.utils.signalError()
         }
 
-        encodeTop(): ElrondString {
-            const output = ElrondString.new()
+        encodeTop(): ManagedBuffer {
+            const output = ManagedBuffer.new()
             this.encodeNested(output);
 
             return output
@@ -101,12 +101,12 @@ export namespace ManagedAddress {
             return BaseManagedUtils.defaultToByteWriter<Utils, R>(this, retainedPtr, writer)
         }
 
-        fromBuffer(buffer: ElrondString): ManagedAddress {
+        fromBuffer(buffer: ManagedBuffer): ManagedAddress {
             return changetype<ManagedAddress>(buffer)
         }
 
         fromString(str: string): void {
-            this.value.buffer = ElrondString.fromString(str)
+            this.value.buffer = ManagedBuffer.fromString(str)
         }
 
         fromHandle(handle: i32): ManagedAddress {
@@ -114,31 +114,31 @@ export namespace ManagedAddress {
         }
 
         fromArgumentIndex(argIndex: i32): ManagedAddress {
-            const buffer = ElrondString.dummy().utils.fromArgumentIndex(argIndex)
+            const buffer = ManagedBuffer.dummy().utils.fromArgumentIndex(argIndex)
             return this.fromBuffer(buffer)
         }
 
-        fromStorage(key: ElrondString): ManagedAddress {
-            return this.fromBuffer(ElrondString.dummy().utils.fromStorage(key))
+        fromStorage(key: ManagedBuffer): ManagedAddress {
+            return this.fromBuffer(ManagedBuffer.dummy().utils.fromStorage(key))
         }
 
         fromBytes(bytes: Uint8Array): ManagedAddress {
-            return this.fromBuffer(ElrondString.dummy().utils.fromBytes(bytes))
+            return this.fromBuffer(ManagedBuffer.dummy().utils.fromBytes(bytes))
         }
 
         fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ManagedAddress {
             return BaseManagedUtils.defaultFromByteReader<ManagedAddress, Utils>(this, retainedPtr, reader)
         }
 
-        decodeTop(buffer: ElrondString): ManagedAddress {
+        decodeTop(buffer: ManagedBuffer): ManagedAddress {
             const bytes = new Uint8Array(ManagedAddress.ADDRESS_BYTES_LEN)
-            buffer.utils.loadSlice(ElrondU32.zero(), bytes)
+            buffer.utils.loadSlice(ManagedU32.zero(), bytes)
 
             return this.fromBytes(bytes)
         }
 
         decodeNested(input: ManagedBufferNestedDecodeInput): ManagedAddress {
-            return changetype<ManagedAddress>(input.readManagedBufferOfSize(ElrondU32.fromValue(ManagedAddress.ADDRESS_BYTES_LEN)))
+            return changetype<ManagedAddress>(input.readManagedBufferOfSize(ManagedU32.fromValue(ManagedAddress.ADDRESS_BYTES_LEN)))
         }
 
     }

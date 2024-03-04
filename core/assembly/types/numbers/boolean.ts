@@ -1,18 +1,18 @@
 import {defaultBaseManagedTypeWriteImplementation, ManagedType} from "../interfaces/managedType"
 import {BigUint} from "../bigUint";
 import {ManagedUtils} from "../interfaces/managedUtils";
-import {ElrondString} from "../erdString";
+import {ManagedBuffer} from "../buffer";
 import {checkIfDebugBreakpointEnabled, smallIntFinishUnsigned, smallIntGetUnsignedArgument} from "../../utils/env";
 import {numberToBytes, universalDecodeNumber} from "../../utils/math/number";
 import {NestedEncodeOutput} from "../interfaces/nestedEncodeOutput";
 import {bytesToSize} from "../../utils/bytes";
 import {getBytesFromStorage} from "../../utils/storage";
-import {ManagedBufferNestedDecodeInput} from "../managedBufferNestedDecodeInput";
-import {ElrondU32} from "./elrondu32";
-import {ElrondU8} from "./elrondu8";
+import {ManagedBufferNestedDecodeInput} from "../bufferNestedDecodeInput";
+import {ManagedU32} from "./u32";
+import {ManagedU8} from "./u8";
 
 @unmanaged
-export class ElrondBoolean extends ManagedType {
+export class ManagedBoolean extends ManagedType {
 
     get value(): boolean {
         const value = changetype<u32>(this) as u8 - 1
@@ -24,12 +24,12 @@ export class ElrondBoolean extends ManagedType {
         }
     }
 
-    get utils(): ElrondBoolean.Utils {
-        return ElrondBoolean.Utils.fromValue(this)
+    get utils(): ManagedBoolean.Utils {
+        return ManagedBoolean.Utils.fromValue(this)
     }
 
-    get payloadSize(): ElrondU32 {
-        return ElrondU32.fromValue(this.utils.sizeOf)
+    get payloadSize(): ManagedU32 {
+        return ManagedU32.fromValue(this.utils.sizeOf)
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
@@ -41,7 +41,7 @@ export class ElrondBoolean extends ManagedType {
     }
 
     getHandle(): i32 {
-        throw new Error('TODO getHandle (ElrondUXX)')
+        throw new Error('TODO getHandle (ManagedUXX)')
     }
 
     toU64(): u64 {
@@ -56,24 +56,24 @@ export class ElrondBoolean extends ManagedType {
         defaultBaseManagedTypeWriteImplementation()
     }
 
-    static fromBoolean(boolean: boolean): ElrondBoolean {
+    static fromBoolean(boolean: boolean): ManagedBoolean {
         if (boolean) {
-            return changetype<ElrondBoolean>(2) // 1 + 1
+            return changetype<ManagedBoolean>(2) // 1 + 1
         } else {
-            return changetype<ElrondBoolean>(1) // 0 + 1
+            return changetype<ManagedBoolean>(1) // 0 + 1
         }
     }
 
-    static false(): ElrondBoolean {
-        return ElrondBoolean.fromBoolean(false)
+    static false(): ManagedBoolean {
+        return ManagedBoolean.fromBoolean(false)
     }
 
-    static true(): ElrondBoolean {
-        return ElrondBoolean.fromBoolean(true)
+    static true(): ManagedBoolean {
+        return ManagedBoolean.fromBoolean(true)
     }
 
-    static dummy(): ElrondBoolean {
-        return ElrondBoolean.false()
+    static dummy(): ManagedBoolean {
+        return ManagedBoolean.false()
     }
 
     @operator("==")
@@ -87,29 +87,29 @@ export class ElrondBoolean extends ManagedType {
     }
 }
 
-export namespace ElrondBoolean {
+export namespace ManagedBoolean {
 
     @unmanaged
-    export class Utils extends ManagedUtils<ElrondBoolean> {
+    export class Utils extends ManagedUtils<ManagedBoolean> {
 
         get sizeOf(): i32 {
             return 1
         }
 
-        static fromValue(value: ElrondBoolean): Utils {
+        static fromValue(value: ManagedBoolean): Utils {
             return changetype<Utils>(value)
         }
 
-        get value(): ElrondBoolean {
-            return changetype<ElrondBoolean>(this)
+        get value(): ManagedBoolean {
+            return changetype<ManagedBoolean>(this)
         }
 
-        storeAtBuffer(key: ElrondString): void {
+        storeAtBuffer(key: ManagedBuffer): void {
             BigUint.fromU64(this.value.toU64()).utils.storeAtBuffer(key)
         }
 
         signalError(): void {
-            ElrondU8.fromValue(this.value.toU64()).utils.signalError()
+            ManagedU8.fromValue(this.value.toU64()).utils.signalError()
         }
 
         finish(): void {
@@ -117,8 +117,8 @@ export namespace ElrondBoolean {
             smallIntFinishUnsigned(<i64>this.value.value)
         }
 
-        encodeTop(): ElrondString {
-            return ElrondString.fromBytes(numberToBytes<u64>(this.value.toU64()))
+        encodeTop(): ManagedBuffer {
+            return ManagedBuffer.fromBytes(numberToBytes<u64>(this.value.toU64()))
         }
 
         encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -146,44 +146,44 @@ export namespace ElrondBoolean {
             return writer(retainedPtr, bytes)
         }
 
-        fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ElrondBoolean {
+        fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ManagedBoolean {
             const bytes = new Uint8Array(this.sizeOf)
             reader(retainedPtr, bytes)
             return this.fromBytes(bytes)
         }
 
-        fromHandle(handle: i32): ElrondBoolean {
-            throw new Error('TODO : error no handle (ElrondUXX)')
+        fromHandle(handle: i32): ManagedBoolean {
+            throw new Error('TODO : error no handle (ManagedUXX)')
         }
 
-        fromStorage(key: ElrondString): ElrondBoolean {
+        fromStorage(key: ManagedBuffer): ManagedBoolean {
             const bytes = getBytesFromStorage(key)
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): ElrondBoolean {
+        fromArgumentIndex(index: i32): ManagedBoolean {
             return this.fromValue(smallIntGetUnsignedArgument(index))
         }
 
-        fromValue(value: u64): ElrondBoolean {
+        fromValue(value: u64): ManagedBoolean {
             if (value == 0) {
-                return ElrondBoolean.false()
+                return ManagedBoolean.false()
             } else if (value == 1) {
-                return ElrondBoolean.true()
+                return ManagedBoolean.true()
             } else {
-                throw new Error('Cannot instantiate ElrondBoolean from given value')
+                throw new Error('Cannot instantiate ManagedBoolean from given value')
             }
         }
 
-        fromBytes(bytes: Uint8Array): ElrondBoolean {
+        fromBytes(bytes: Uint8Array): ManagedBoolean {
             return this.fromValue(universalDecodeNumber(bytes, false))
         }
 
-        decodeTop(buffer: ElrondString): ElrondBoolean {
+        decodeTop(buffer: ManagedBuffer): ManagedBoolean {
             return this.fromValue(buffer.utils.toU64().value)
         }
 
-        decodeNested(input: ManagedBufferNestedDecodeInput): ElrondBoolean {
+        decodeNested(input: ManagedBufferNestedDecodeInput): ManagedBoolean {
             const size: i32 = this.sizeOf
             const bytes = new Uint8Array(size)
             input.readInto(bytes)

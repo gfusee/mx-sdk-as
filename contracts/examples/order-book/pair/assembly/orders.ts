@@ -1,10 +1,10 @@
 //@ts-nocheck
 import {
-    BigUint, ElrondArray,
-    ElrondEvent,
-    ElrondString,
-    ElrondU32,
-    ElrondU64, getContractInstance,
+    BigUint, ManagedArray,
+    ManagedEvent,
+    ManagedBuffer,
+    ManagedU32,
+    ManagedU64, getContractInstance,
     getRetainedClosureValue,
     ManagedAddress,
     Mapping,
@@ -12,11 +12,11 @@ import {
     MultiValue3,
     MultiValue4,
     MultiValue5,
-    MultiValueElrondArray,
+    MultiValueManagedArray,
     releaseRetainedClosureValue,
     retainClosureValue,
     TokenIdentifier
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 import {
     DealConfig,
     FEE_PENALTY_INCREASE_EPOCHS,
@@ -33,29 +33,29 @@ import {
 } from "./common";
 import {ValidationModule} from "./validation";
 
-class OrderEvent extends ElrondEvent<MultiValue3<ManagedAddress, ElrondU64, OrderType>, Order> {}
-class CancelOrderEvent extends ElrondEvent<MultiValue4<ManagedAddress, ElrondU64, OrderType, ElrondU64>, ElrondString> {}
-class FreeOrderEvent extends ElrondEvent<MultiValue5<ManagedAddress, ElrondU64, OrderType, ElrondU64, ManagedAddress>, ElrondString> {}
-class MatchOrderEvent extends ElrondEvent<MultiValue5<ManagedAddress, ElrondU64, OrderType, ElrondU64, ManagedAddress>, ElrondString> {}
+class OrderEvent extends ManagedEvent<MultiValue3<ManagedAddress, ManagedU64, OrderType>, Order> {}
+class CancelOrderEvent extends ManagedEvent<MultiValue4<ManagedAddress, ManagedU64, OrderType, ManagedU64>, ManagedBuffer> {}
+class FreeOrderEvent extends ManagedEvent<MultiValue5<ManagedAddress, ManagedU64, OrderType, ManagedU64, ManagedAddress>, ManagedBuffer> {}
+class MatchOrderEvent extends ManagedEvent<MultiValue5<ManagedAddress, ManagedU64, OrderType, ManagedU64, ManagedAddress>, ManagedBuffer> {}
 
 @module
 export abstract class OrdersModule extends ValidationModule {
 
-    protected getAndIncreaseOrderIdCounter(): ElrondU64 {
+    protected getAndIncreaseOrderIdCounter(): ManagedU64 {
         const id = this.orderIdCounter().get()
-        this.orderIdCounter().set(id + ElrondU64.fromValue(1))
+        this.orderIdCounter().set(id + ManagedU64.fromValue(1))
 
         return id
     }
 
     @view
-    getOrderIdCounter(): ElrondU64 {
+    getOrderIdCounter(): ManagedU64 {
         return this.orderIdCounter().get()
     }
 
     @view
     getOrderById(
-        id: ElrondU64
+        id: ManagedU64
     ): Order {
         return this.orders(id).get()
     }
@@ -63,13 +63,13 @@ export abstract class OrdersModule extends ValidationModule {
     @view
     getAddressOrderIds(
         address: ManagedAddress
-    ): MultiValueElrondArray<ElrondU64> {
-        const ordersArray = new MultiValueElrondArray<ElrondU64>()
+    ): MultiValueManagedArray<ManagedU64> {
+        const ordersArray = new MultiValueManagedArray<ManagedU64>()
 
         const addressOrderIds = this.addressOrderIds(address).get()
         const addressOrderIdsLength = addressOrderIds.getLength()
 
-        for (let i = ElrondU32.zero(); i < addressOrderIdsLength; i++) {
+        for (let i = ManagedU32.zero(); i < addressOrderIdsLength; i++) {
             const order = addressOrderIds.get(i)
 
             if (!this.orders(order).isEmpty()) {
@@ -87,7 +87,7 @@ export abstract class OrdersModule extends ValidationModule {
     ): void {
         const caller = this.blockchain.caller
         const addressOrderIds = this.getAddressOrderIds(caller)
-        this.requireNotMaxSize(addressOrderIds.asElrondArray())
+        this.requireNotMaxSize(addressOrderIds.asManagedArray())
 
         const newOrderId = this.getAndIncreaseOrderIdCounter()
         const order = this.newOrder(
@@ -98,7 +98,7 @@ export abstract class OrdersModule extends ValidationModule {
         )
         this.orders(order.id).set(order)
 
-        const addressOrders = new ElrondArray<ElrondU64>()
+        const addressOrders = new ManagedArray<ManagedU64>()
         addressOrders.push(order.id)
         this.addressOrderIds(caller).set(addressOrders)
 
@@ -107,7 +107,7 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     protected matchOrdersHelper(
-        ordersIds: ElrondArray<ElrondU64>
+        ordersIds: ManagedArray<ManagedU64>
     ): void {
         const orders = this.loadOrders(ordersIds)
         this.require(
@@ -123,30 +123,30 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     protected cancelOrdersHelper(
-        orderIds: MultiValueElrondArray<ElrondU64>
+        orderIds: MultiValueManagedArray<ManagedU64>
     ): void {
         const caller = this.blockchain.caller
 
         const addressOrderIds = this.getAddressOrderIds(caller)
-        this.requireContainsAll(addressOrderIds.asElrondArray(), orderIds.asElrondArray())
+        this.requireContainsAll(addressOrderIds.asManagedArray(), orderIds.asManagedArray())
 
         const firstTokenIdentifier = this.firstTokenIdentifier
         const secondTokenIdentifier = this.secondTokenIdentifier
         const epoch = this.blockchain.currentBlockEpoch
 
-        const orderIdsNotEmpty = new MultiValueElrondArray<ElrondU64>()
+        const orderIdsNotEmpty = new MultiValueManagedArray<ManagedU64>()
 
-        for (let i = ElrondU32.zero(); i < orderIds.getLength(); i++) {
+        for (let i = ManagedU32.zero(); i < orderIds.getLength(); i++) {
             const order = orderIds.get(i)
             if (!this.orders(order).isEmpty()) {
                 orderIdsNotEmpty.push(order)
             }
         }
 
-        const orders = new ElrondArray<Order>()
-        const finalCallerOrders = new ElrondArray<ElrondU64>()
+        const orders = new ManagedArray<Order>()
+        const finalCallerOrders = new ManagedArray<ManagedU64>()
 
-        for (let i = ElrondU32.zero(); i < orderIdsNotEmpty.getLength(); i++) {
+        for (let i = ManagedU32.zero(); i < orderIdsNotEmpty.getLength(); i++) {
             const orderId = orderIdsNotEmpty.get(i)
             const order = this.cancelOrder(
                 orderId,
@@ -157,7 +157,7 @@ export abstract class OrdersModule extends ValidationModule {
             )
 
             let checkOrderToDelete = false
-            for (let i = ElrondU32.zero(); i < addressOrderIds.getLength(); i++) {
+            for (let i = ManagedU32.zero(); i < addressOrderIds.getLength(); i++) {
                 const checkOrder = addressOrderIds.get(i)
                 if (checkOrder == orderId) {
                     checkOrderToDelete = true
@@ -178,11 +178,11 @@ export abstract class OrdersModule extends ValidationModule {
         const caller = this.blockchain.caller
         const addressOrderIds = this.getAddressOrderIds(caller)
 
-        const orderIdsNotEmpty = new MultiValueElrondArray<ElrondU64>()
+        const orderIdsNotEmpty = new MultiValueManagedArray<ManagedU64>()
         retainClosureValue(orderIdsNotEmpty)
         addressOrderIds.forEach((order) => {
             const thisRef = getContractInstance<OrdersModule>()
-            const orderIdsNotEmptyRef = getRetainedClosureValue<ElrondArray<ElrondU64>>()
+            const orderIdsNotEmptyRef = getRetainedClosureValue<ManagedArray<ManagedU64>>()
             if (!thisRef.orders(order).isEmpty()) {
                 orderIdsNotEmptyRef.push(order)
             }
@@ -192,21 +192,21 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     protected freeOrdersHelper(
-        orderIds: ElrondArray<ElrondU64>
+        orderIds: ManagedArray<ManagedU64>
     ): void {
         const caller = this.blockchain.caller
         const addressOrderIds = this.getAddressOrderIds(caller)
-        this.requireContainsNone(addressOrderIds.asElrondArray(), orderIds)
+        this.requireContainsNone(addressOrderIds.asManagedArray(), orderIds)
 
         const firstTokenIdentifier = this.firstTokenIdentifier
         const secondTokenIdentifier = this.secondTokenIdentifier
         const epoch = this.blockchain.currentBlockEpoch
 
-        let orderIdsNotEmpty = new ElrondArray<ElrondU64>()
+        let orderIdsNotEmpty = new ManagedArray<ManagedU64>()
         retainClosureValue(orderIdsNotEmpty)
         orderIds.forEach((order) => {
             const thisRef = getContractInstance<OrdersModule>()
-            const orderIdsNotEmptyRef = getRetainedClosureValue<ElrondArray<ElrondU64>>()
+            const orderIdsNotEmptyRef = getRetainedClosureValue<ManagedArray<ManagedU64>>()
 
             if (!thisRef.orders(order).isEmpty()) {
                 orderIdsNotEmptyRef.push(order)
@@ -216,7 +216,7 @@ export abstract class OrdersModule extends ValidationModule {
         })
         releaseRetainedClosureValue()
 
-        const orders = new ElrondArray<Order>()
+        const orders = new ManagedArray<Order>()
         retainClosureValue(
             MultiValue5.from(
                 caller,
@@ -228,7 +228,7 @@ export abstract class OrdersModule extends ValidationModule {
         )
         orderIdsNotEmpty.forEach((orderId) => {
             const thisRef = getContractInstance<OrdersModule>()
-            const refs = getRetainedClosureValue<MultiValue5<ManagedAddress, TokenIdentifier, TokenIdentifier, ElrondU64, ElrondArray<Order>>>()
+            const refs = getRetainedClosureValue<MultiValue5<ManagedAddress, TokenIdentifier, TokenIdentifier, ManagedU64, ManagedArray<Order>>>()
             const callerRef = refs.a
             const firstTokenIdentifierRef = refs.b
             const secondTokenIdentifierRef = refs.c
@@ -252,11 +252,11 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private freeOrder(
-        orderId: ElrondU64,
+        orderId: ManagedU64,
         caller: ManagedAddress,
         firstTokenIdentifier: TokenIdentifier,
         secondTokenIdentifier: TokenIdentifier,
-        epoch: ElrondU64
+        epoch: ManagedU64
     ): Order {
         const order = this.orders(orderId).get()
 
@@ -267,14 +267,14 @@ export abstract class OrdersModule extends ValidationModule {
             tokenIdentifier = firstTokenIdentifier
         }
 
-        const penaltyCount = (epoch - order.createEpoch) / ElrondU64.fromValue(FEE_PENALTY_INCREASE_EPOCHS)
+        const penaltyCount = (epoch - order.createEpoch) / ManagedU64.fromValue(FEE_PENALTY_INCREASE_EPOCHS)
 
         this.require(
-            penaltyCount >= ElrondU64.fromValue(FREE_ORDER_FROM_STORAGE_MIN_PENALTIES),
+            penaltyCount >= ManagedU64.fromValue(FREE_ORDER_FROM_STORAGE_MIN_PENALTIES),
             "Too early to free order"
         )
 
-        const penaltyPercent: ElrondU64 = penaltyCount * ElrondU64.fromValue(FEE_PENALTY_INCREASE_PERCENT)
+        const penaltyPercent: ManagedU64 = penaltyCount * ManagedU64.fromValue(FEE_PENALTY_INCREASE_PERCENT)
         const penaltyAmount = this.ruleOfThree(
             penaltyPercent.toBigUint(),
             BigUint.fromU64(PERCENT_BASE_POINTS),
@@ -299,7 +299,7 @@ export abstract class OrdersModule extends ValidationModule {
         )
 
         this.orders(orderId).clear()
-        let transfers = new ElrondArray<Transfer>()
+        let transfers = new ManagedArray<Transfer>()
         transfers.push(creatorTransfer)
         transfers.push(callerTransfer)
         this.executeTransfers(transfers)
@@ -308,11 +308,11 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private cancelOrder(
-        orderId: ElrondU64,
+        orderId: ManagedU64,
         caller: ManagedAddress,
         firstTokenId: TokenIdentifier,
         secondTokenId: TokenIdentifier,
-        epoch: ElrondU64
+        epoch: ManagedU64
     ): Order {
         const order = this.orders(orderId).get()
 
@@ -324,8 +324,8 @@ export abstract class OrdersModule extends ValidationModule {
         }
 
 
-        const penaltyCount = (epoch - order.createEpoch) / ElrondU64.fromValue(FEE_PENALTY_INCREASE_EPOCHS)
-        const penaltyPercent: ElrondU64 = penaltyCount * ElrondU64.fromValue(FEE_PENALTY_INCREASE_PERCENT)
+        const penaltyCount = (epoch - order.createEpoch) / ManagedU64.fromValue(FEE_PENALTY_INCREASE_EPOCHS)
+        const penaltyPercent: ManagedU64 = penaltyCount * ManagedU64.fromValue(FEE_PENALTY_INCREASE_PERCENT)
         const penaltyAmount = this.ruleOfThree(
             penaltyPercent.toBigUint(),
             BigUint.fromU64(PERCENT_BASE_POINTS),
@@ -342,19 +342,19 @@ export abstract class OrdersModule extends ValidationModule {
         )
 
         this.orders(orderId).clear()
-        const transfers = ElrondArray.fromSingleItem(transfer)
+        const transfers = ManagedArray.fromSingleItem(transfer)
         this.executeTransfers(transfers)
 
         return order
     }
 
     private loadOrders(
-        orderIds: ElrondArray<ElrondU64>
-    ): ElrondArray<Order> {
-        const ordersArray = new ElrondArray<Order>()
+        orderIds: ManagedArray<ManagedU64>
+    ): ManagedArray<Order> {
+        const ordersArray = new ManagedArray<Order>()
 
         const orderIdsLength = orderIds.getLength()
-        for (let i = ElrondU32.zero(); i < orderIdsLength; i++) {
+        for (let i = ManagedU32.zero(); i < orderIdsLength; i++) {
             const order = orderIds.get(i)
             if (!this.orders(order).isEmpty()) {
                 ordersArray.push(this.orders(order).get())
@@ -365,9 +365,9 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private createTransfers(
-        orders: ElrondArray<Order>
-    ): ElrondArray<Transfer> {
-        const transfers = new ElrondArray<Transfer>()
+        orders: ManagedArray<Order>
+    ): ManagedArray<Transfer> {
+        const transfers = new ManagedArray<Transfer>()
         const firstTokenIdentifier = this.firstTokenIdentifier
         const secondTokenIdentifier = this.secondTokenIdentifier
 
@@ -418,16 +418,16 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private executeTransfers(
-        transfers: ElrondArray<Transfer>
+        transfers: ManagedArray<Transfer>
     ): void {
         const transfersLength = transfers.getLength()
-        for (let i = ElrondU32.zero(); i < transfersLength; i++) {
+        for (let i = ManagedU32.zero(); i < transfersLength; i++) {
             const transfer = transfers.get(i)
             if (transfer.payment.amount > BigUint.zero()) {
                 this.send.direct(
                     transfer.to,
                     transfer.payment.tokenIdentifier,
-                    ElrondU64.zero(),
+                    ManagedU64.zero(),
                     transfer.payment.amount
                 )
             }
@@ -435,7 +435,7 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private getOrdersSumUp(
-        orders: ElrondArray<Order>
+        orders: ManagedArray<Order>
     ): MultiValue2<BigUint, BigUint> {
         let amountPaid = BigUint.zero()
         let amountRequested = BigUint.zero()
@@ -458,14 +458,14 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private getOrdersWithType(
-        orders: ElrondArray<Order>,
+        orders: ManagedArray<Order>,
         orderType: OrderType
-    ): ElrondArray<Order> {
-        const ordersArray = new ElrondArray<Order>()
+    ): ManagedArray<Order> {
+        const ordersArray = new ManagedArray<Order>()
 
         let ordersLength = orders.getLength()
 
-        for (let i = ElrondU32.zero(); i < ordersLength; i++) {
+        for (let i = ManagedU32.zero(); i < ordersLength; i++) {
             const order = orders.get(i)
 
             if (order.orderType == orderType) {
@@ -477,12 +477,12 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private calculateTransfers(
-        orders: ElrondArray<Order>,
+        orders: ManagedArray<Order>,
         totalPaid: BigUint,
         tokenRequested: TokenIdentifier,
         leftover: BigUint
-    ): ElrondArray<Transfer> {
-        const transfers = new ElrondArray<Transfer>()
+    ): ManagedArray<Transfer> {
+        const transfers = new ManagedArray<Transfer>()
         const matchProviderTransfer = Transfer.new(
             this.blockchain.caller,
             Payment.new(
@@ -491,7 +491,7 @@ export abstract class OrdersModule extends ValidationModule {
             )
         )
 
-        for (let i = ElrondU32.zero(); i < orders.getLength(); i++) {
+        for (let i = ManagedU32.zero(); i < orders.getLength(); i++) {
             const order = orders.get(i)
             const matchProviderAmount = this.calculateFeeAmount(
                 order.outputAmount,
@@ -530,7 +530,7 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private clearOrders(
-        orderIds: ElrondArray<ElrondU64>
+        orderIds: ManagedArray<ManagedU64>
     ): void {
         orderIds.forEach((id) => {
             const thisRef = getContractInstance<OrdersModule>()
@@ -539,7 +539,7 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private emitMatchOrderEvents(
-        orders: ElrondArray<Order>
+        orders: ManagedArray<Order>
     ): void {
         const caller = this.blockchain.caller
         const epoch = this.blockchain.currentBlockEpoch
@@ -552,12 +552,12 @@ export abstract class OrdersModule extends ValidationModule {
         )
 
         orders.forEach((order) => {
-            const refs = getRetainedClosureValue<MultiValue2<ManagedAddress, ElrondU64>>()
+            const refs = getRetainedClosureValue<MultiValue2<ManagedAddress, ManagedU64>>()
             const callerRef = refs.a
             const epochRef = refs.b
 
             const event = new MatchOrderEvent(
-                ElrondString.fromString('match_order'),
+                ManagedBuffer.fromString('match_order'),
                 MultiValue5.from(
                     callerRef,
                     epochRef,
@@ -565,7 +565,7 @@ export abstract class OrdersModule extends ValidationModule {
                     order.id,
                     order.creator
                 ),
-                ElrondString.fromString('')
+                ManagedBuffer.fromString('')
             )
             event.emit()
 
@@ -576,7 +576,7 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private emitFreeOrderEvents(
-        orders: ElrondArray<Order>
+        orders: ManagedArray<Order>
     ): void {
         const caller = this.blockchain.caller
         const epoch = this.blockchain.currentBlockEpoch
@@ -589,12 +589,12 @@ export abstract class OrdersModule extends ValidationModule {
         )
 
         orders.forEach((order) => {
-            const refs = getRetainedClosureValue<MultiValue2<ManagedAddress, ElrondU64>>()
+            const refs = getRetainedClosureValue<MultiValue2<ManagedAddress, ManagedU64>>()
             const callerRef = refs.a
             const epochRef = refs.b
 
             const event = new FreeOrderEvent(
-                ElrondString.fromString('free_order'),
+                ManagedBuffer.fromString('free_order'),
                 MultiValue5.from(
                     callerRef,
                     epochRef,
@@ -602,7 +602,7 @@ export abstract class OrdersModule extends ValidationModule {
                     order.id,
                     order.creator
                 ),
-                ElrondString.fromString('')
+                ManagedBuffer.fromString('')
             )
             event.emit()
 
@@ -612,7 +612,7 @@ export abstract class OrdersModule extends ValidationModule {
     }
 
     private emitCancelOrderEvents(
-        orders: ElrondArray<Order>
+        orders: ManagedArray<Order>
     ): void {
         const caller = this.blockchain.caller
         const epoch = this.blockchain.currentBlockEpoch
@@ -625,19 +625,19 @@ export abstract class OrdersModule extends ValidationModule {
         )
 
         orders.forEach((order) => {
-            const refs = getRetainedClosureValue<MultiValue2<ManagedAddress, ElrondU64>>()
+            const refs = getRetainedClosureValue<MultiValue2<ManagedAddress, ManagedU64>>()
             const callerRef = refs.a
             const epochRef = refs.b
 
             const event = new CancelOrderEvent(
-                ElrondString.fromString('cancel_order'),
+                ManagedBuffer.fromString('cancel_order'),
                 MultiValue4.from(
                     callerRef,
                     epochRef,
                     order.orderType,
                     order.id
                 ),
-                ElrondString.fromString('')
+                ManagedBuffer.fromString('')
             )
             event.emit()
 
@@ -655,7 +655,7 @@ export abstract class OrdersModule extends ValidationModule {
 
 
         const event = new OrderEvent(
-            ElrondString.fromString('order'),
+            ManagedBuffer.fromString('order'),
             MultiValue3.from(
                 caller,
                 epoch,
@@ -666,8 +666,8 @@ export abstract class OrdersModule extends ValidationModule {
         event.emit()
     }
 
-    abstract orderIdCounter(): Mapping<ElrondU64>
-    abstract orders(id: ElrondU64): Mapping<Order>
-    abstract addressOrderIds(address: ManagedAddress): Mapping<ElrondArray<ElrondU64>>
+    abstract orderIdCounter(): Mapping<ManagedU64>
+    abstract orders(id: ManagedU64): Mapping<Order>
+    abstract addressOrderIds(address: ManagedAddress): Mapping<ManagedArray<ManagedU64>>
 
 }

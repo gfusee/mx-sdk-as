@@ -10,10 +10,10 @@ import {
     transferESDTNFTExecute,
     transferValue
 } from "../utils/env";
-import {BigUint, CodeMetadata, ElrondU32, MultiValue2} from "../types";
-import { ElrondArray } from "../types";
-import { ElrondU64 } from "../types";
-import { ElrondString } from "../types";
+import {BigUint, CodeMetadata, ManagedU32, MultiValue2} from "../types";
+import { ManagedArray } from "../types";
+import { ManagedU64 } from "../types";
+import { ManagedBuffer } from "../types";
 import { ManagedAddress } from "../types";
 import { TokenIdentifier } from "../types";
 import { bytesToSize } from "../utils/bytes";
@@ -40,7 +40,7 @@ export class SendWrapper {
 
         directMulti(
         to: ManagedAddress,
-        payments: ElrondArray<TokenPayment>
+        payments: ManagedArray<TokenPayment>
     ): void {
         __frameworkRetainClosureValue(new DirectValueRetainClosure(
             this,
@@ -57,7 +57,7 @@ export class SendWrapper {
     direct(
         to: ManagedAddress,
         token: TokenIdentifier,
-        nonce: ElrondU64,
+        nonce: ManagedU64,
         amount: BigUint
     ): void {
         if (token.isEgld()) {
@@ -71,9 +71,9 @@ export class SendWrapper {
                 token,
                 nonce,
                 amount,
-                ElrondU64.fromValue(0),
-                ElrondString.fromString(''),
-                ElrondArray.new<ElrondString>()
+                ManagedU64.fromValue(0),
+                ManagedBuffer.fromString(''),
+                ManagedArray.new<ManagedBuffer>()
             )
         }
     }
@@ -95,14 +95,14 @@ export class SendWrapper {
 
     esdtLocalBurn(
         token: TokenIdentifier,
-        nonce: ElrondU64,
+        nonce: ManagedU64,
         amount: BigUint
     ): void {
         const argBuffer = new ManagedArgBuffer()
         argBuffer.pushArg(token)
 
         let funcName: string
-        if (nonce == ElrondU64.zero()) {
+        if (nonce == ManagedU64.zero()) {
             funcName = BuiltIntFunctionNames.ESDT_LOCAL_BURN_FUNC_NAME
         } else {
             funcName = BuiltIntFunctionNames.ESDT_NFT_BURN_FUNC_NAME
@@ -113,21 +113,21 @@ export class SendWrapper {
 
         this.callLocalEsdtBuiltInFunction(
             (new Blockchain()).getGasLeft(),
-            ElrondString.fromString(funcName),
+            ManagedBuffer.fromString(funcName),
             argBuffer
         )
     }
 
     esdtLocalMint(
         token: TokenIdentifier,
-        nonce: ElrondU64,
+        nonce: ManagedU64,
         amount: BigUint
     ): void {
         const argBuffer = new ManagedArgBuffer()
         argBuffer.pushArg(token)
 
         let funcName: string
-        if (nonce == ElrondU64.zero()) {
+        if (nonce == ManagedU64.zero()) {
             funcName = BuiltIntFunctionNames.ESDT_LOCAL_MINT_FUNC_NAME
         } else {
             funcName = BuiltIntFunctionNames.ESDT_NFT_MINT_FUNC_NAME
@@ -138,18 +138,18 @@ export class SendWrapper {
 
         this.callLocalEsdtBuiltInFunction(
             (new Blockchain()).getGasLeft(),
-            ElrondString.fromString(funcName),
+            ManagedBuffer.fromString(funcName),
             argBuffer
         )
     }
 
     executeOnDestContext(
-        gas: ElrondU64,
+        gas: ManagedU64,
         to: ManagedAddress,
         amount: BigUint,
-        endpointName: ElrondString,
+        endpointName: ManagedBuffer,
         argBuffer: ManagedArgBuffer
-    ): ElrondArray<ElrondString> { //TODO : use MultiValueEncoded ?
+    ): ManagedArray<ManagedBuffer> { //TODO : use MultiValueEncoded ?
         const toBytes = to.utils.toBytes()
         const amountBytes = bytesToSize(amount.utils.toBytes(), 32)
         const endpointNameBytes = endpointName.utils.toBytes()
@@ -171,13 +171,13 @@ export class SendWrapper {
         const numReturnDataAfter = getNumReturnData()
         const resultsBytes = this.getReturnDataRange(numReturnDataBefore, numReturnDataAfter)
 
-        return ElrondArray.fromArrayOfBytes(resultsBytes)
+        return ManagedArray.fromArrayOfBytes(resultsBytes)
     }
 
     asyncCallRaw(
         to: ManagedAddress,
         amount: BigUint,
-        endpointName: ElrondString,
+        endpointName: ManagedBuffer,
         argBuffer: ManagedArgBuffer
     ): void {
         managedAsyncCall(
@@ -189,13 +189,13 @@ export class SendWrapper {
     }
 
     deployFromSourceContract(
-        gas: ElrondU64,
+        gas: ManagedU64,
         amount: BigUint,
         sourceContractAddress: ManagedAddress,
         codeMetadata: CodeMetadata,
         argBuffer: ManagedArgBuffer
-    ): MultiValue2<ManagedAddress, ElrondArray<ElrondString>> {
-        const codeMetadataHandle = ElrondString.fromBytes(codeMetadata.value.utils.toBytes()).getHandle()
+    ): MultiValue2<ManagedAddress, ManagedArray<ManagedBuffer>> {
+        const codeMetadataHandle = ManagedBuffer.fromBytes(codeMetadata.value.utils.toBytes()).getHandle()
         const newAddressHandle = Static.nextHandle()
         const resultHandle = Static.nextHandle()
 
@@ -209,8 +209,8 @@ export class SendWrapper {
             resultHandle
         )
 
-        const newManagedAddress = ManagedAddress.from(ElrondString.fromHandle(newAddressHandle))
-        const results = ElrondArray.fromBuffer<ElrondString>(ElrondString.fromHandle(resultHandle))
+        const newManagedAddress = ManagedAddress.from(ManagedBuffer.fromHandle(newAddressHandle))
+        const results = ManagedArray.fromBuffer<ManagedBuffer>(ManagedBuffer.fromHandle(resultHandle))
 
         return MultiValue2.from(
             newManagedAddress,
@@ -221,13 +221,13 @@ export class SendWrapper {
     private directEsdtWithGasLimit(
         to: ManagedAddress,
         token: TokenIdentifier,
-        nonce: ElrondU64,
+        nonce: ManagedU64,
         amount: BigUint,
-        gas: ElrondU64,
-        endpointName: ElrondString,
-        args: ElrondArray<ElrondString>
+        gas: ManagedU64,
+        endpointName: ManagedBuffer,
+        args: ManagedArray<ManagedBuffer>
     ): void {
-        if (nonce == ElrondU64.fromValue(0)) {
+        if (nonce == ManagedU64.fromValue(0)) {
             this.transfertEsdtExecute(
                 to,
                 token,
@@ -253,9 +253,9 @@ export class SendWrapper {
         to: ManagedAddress,
         token: TokenIdentifier,
         amount: BigUint,
-        gasLimit: ElrondU64,
-        endpointName: ElrondString,
-        args: ElrondArray<ElrondString>
+        gasLimit: ManagedU64,
+        endpointName: ManagedBuffer,
+        args: ManagedArray<ManagedBuffer>
     ): void {
         const amountBytes = bytesToSize(amount.utils.toBytes(), 32)
         const tokenBytes = token.utils.toBytes()
@@ -285,11 +285,11 @@ export class SendWrapper {
     private transfertEsdtNftExecute(
         to: ManagedAddress,
         token: TokenIdentifier,
-        nonce: ElrondU64,
+        nonce: ManagedU64,
         amount: BigUint,
-        gasLimit: ElrondU64,
-        endpointName: ElrondString,
-        args: ElrondArray<ElrondString>
+        gasLimit: ManagedU64,
+        endpointName: ManagedBuffer,
+        args: ManagedArray<ManagedBuffer>
     ): void {
         const amountBytes = bytesToSize(amount.utils.toBytes(), 32)
         const tokenBytes = token.utils.toBytes()
@@ -318,10 +318,10 @@ export class SendWrapper {
     }
 
     private callLocalEsdtBuiltInFunction(
-        gas: ElrondU64,
-        functionName: ElrondString,
+        gas: ManagedU64,
+        functionName: ManagedBuffer,
         argBuffer: ManagedArgBuffer
-    ): ElrondArray<ElrondString> {
+    ): ManagedArray<ManagedBuffer> {
         const scAddress = (new Blockchain()).scAddress //TODO : optimize by using a shared instance with cache of Blockchain
 
         const result = this.executeOnDestContext(

@@ -4,10 +4,10 @@ import {
     BigUint,
     ContractBase,
     TokenIdentifier,
-    ElrondU64,
+    ManagedU64,
     ManagedAddress,
     Mapping
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 import { Status } from "./status";
 
 @contract
@@ -15,11 +15,11 @@ abstract class CounterContract extends ContractBase {
 
     tokenIdentifier!: TokenIdentifier
     target!: BigUint
-    deadline!: ElrondU64
+    deadline!: ManagedU64
 
     constructor(
         target: BigUint,
-        deadline: ElrondU64,
+        deadline: ManagedU64,
         tokenIdentifier: TokenIdentifier
     ) {
         this.require(
@@ -72,7 +72,7 @@ abstract class CounterContract extends ContractBase {
     getCurrentFunds(): BigUint {
         const token = this.tokenIdentifier
 
-        return this.blockchain.getSCBalance(token, ElrondU64.fromValue(0))
+        return this.blockchain.getSCBalance(token, ManagedU64.fromValue(0))
     }
 
     claim(): void {
@@ -94,7 +94,7 @@ abstract class CounterContract extends ContractBase {
                     .direct(
                         caller,
                         tokenIdentifier,
-                        ElrondU64.fromValue(0),
+                        ManagedU64.fromValue(0),
                         scBalance
                     )
             }
@@ -108,7 +108,7 @@ abstract class CounterContract extends ContractBase {
                     .direct(
                         caller,
                         this.tokenIdentifier,
-                        ElrondU64.fromValue(0),
+                        ManagedU64.fromValue(0),
                         deposit
                     )
                 }
@@ -122,7 +122,7 @@ abstract class CounterContract extends ContractBase {
     }
 
     @view
-    getDeadline(): ElrondU64 {
+    getDeadline(): ManagedU64 {
         return this.deadline
     }
 
@@ -136,7 +136,7 @@ abstract class CounterContract extends ContractBase {
         return this.tokenIdentifier
     }
 
-    private getCurrentTime(): ElrondU64 {
+    private getCurrentTime(): ManagedU64 {
         return this.blockchain.currentBlockTimestamp
     }
 

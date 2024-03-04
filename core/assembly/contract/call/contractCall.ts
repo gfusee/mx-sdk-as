@@ -1,10 +1,10 @@
 import {
     BaseManagedType,
     BigUint,
-    ElrondArray,
-    ElrondString,
-    ElrondU32,
-    ElrondU64,
+    ManagedArray,
+    ManagedBuffer,
+    ManagedU32,
+    ManagedU64,
     ManagedAddress,
     TokenPayment
 } from "../../types";
@@ -23,16 +23,16 @@ export class ContractCall<T extends BaseManagedType> {
 
     static new<T extends BaseManagedType>(
         to: ManagedAddress,
-        endpointName: ElrondString
+        endpointName: ManagedBuffer
     ): ContractCall<T> {
-        const payments = ElrondArray.new<TokenPayment>()
+        const payments = ManagedArray.new<TokenPayment>()
         return ContractCall.newWithEsdtPayment<T>(to, endpointName, payments)
     }
 
     static newWithEsdtPayment<T extends BaseManagedType>(
         to: ManagedAddress,
-        endpointName: ElrondString,
-        payments: ElrondArray<TokenPayment>
+        endpointName: ManagedBuffer,
+        payments: ManagedArray<TokenPayment>
     ): ContractCall<T> {
         const argBuffer = new ManagedArgBuffer()
         const egldPayment = BigUint.zero()
@@ -44,8 +44,8 @@ export class ContractCall<T extends BaseManagedType> {
             egldPayment,
             payments,
             endpointName,
-            ElrondU64.fromValue(UNSPECIFIED_GAS_LIMIT),
-            ElrondU64.fromValue(UNSPECIFIED_GAS_LIMIT),
+            ManagedU64.fromValue(UNSPECIFIED_GAS_LIMIT),
+            ManagedU64.fromValue(UNSPECIFIED_GAS_LIMIT),
             argBuffer,
             successCallback,
             errorCallback
@@ -55,10 +55,10 @@ export class ContractCall<T extends BaseManagedType> {
     constructor(
        public to: ManagedAddress,
        public egldPayment: BigUint,
-       public payments: ElrondArray<TokenPayment>,
-       public endpointName: ElrondString,
-       public extraGasForCallback: ElrondU64,
-       public explicitGasLimit: ElrondU64,
+       public payments: ManagedArray<TokenPayment>,
+       public endpointName: ManagedBuffer,
+       public extraGasForCallback: ManagedU64,
+       public explicitGasLimit: ManagedU64,
        public argBuffer: ManagedArgBuffer,
        public successCallback: Uint8Array,
        public errorCallback: Uint8Array
@@ -67,7 +67,7 @@ export class ContractCall<T extends BaseManagedType> {
     withEgldTransfer(
         egldAmount: BigUint
     ): ContractCall {
-        this.payments = ElrondArray.new<TokenPayment>()
+        this.payments = ManagedArray.new<TokenPayment>()
         this.egldPayment = egldAmount
 
         return this
@@ -77,7 +77,7 @@ export class ContractCall<T extends BaseManagedType> {
         this.argBuffer.pushArg(arg)
     }
 
-    pushArgumentRaw(rawArg: ElrondString): void {
+    pushArgumentRaw(rawArg: ManagedBuffer): void {
         this.argBuffer.pushArgRaw(rawArg)
     }
 
@@ -94,8 +94,8 @@ export class ContractCall<T extends BaseManagedType> {
         )
 
         const dummy = BaseManagedType.dummy<T>()
-        if (dummy.payloadSize > ElrondU32.zero()) {
-            return result.get(result.getLength() - ElrondU32.fromValue(1)).utils.intoTop<T>()
+        if (dummy.payloadSize > ManagedU32.zero()) {
+            return result.get(result.getLength() - ManagedU32.fromValue(1)).utils.intoTop<T>()
         } else {
             return dummy
         }
@@ -104,9 +104,9 @@ export class ContractCall<T extends BaseManagedType> {
     private convertToEsdtTransferCall(): ContractCall<T> {
         const paymentsLength = this.payments.getLength()
 
-        if (paymentsLength == ElrondU32.zero()) {
+        if (paymentsLength == ManagedU32.zero()) {
             return this
-        } else if (paymentsLength == ElrondU32.fromValue(1)) {
+        } else if (paymentsLength == ManagedU32.fromValue(1)) {
             return this.convertSingleTransferEsdtCall()
         } else {
             return this.convertToMultiTransferEsdtCall()
@@ -114,12 +114,12 @@ export class ContractCall<T extends BaseManagedType> {
     }
 
     private convertSingleTransferEsdtCall(): ContractCall<T> {
-        const optFirstPayment = this.payments.tryGet(ElrondU32.fromValue(0))
+        const optFirstPayment = this.payments.tryGet(ManagedU32.fromValue(0))
         if (!optFirstPayment.isNull()) {
             const payment = optFirstPayment.unwrap()
 
-            if (payment.tokenNonce == ElrondU64.zero()) {
-                const noPayments = new ElrondArray<TokenPayment>()
+            if (payment.tokenNonce == ManagedU64.zero()) {
+                const noPayments = new ManagedArray<TokenPayment>()
 
                 //fungible ESDT
                 const newArgBuffer = new ManagedArgBuffer()
@@ -130,7 +130,7 @@ export class ContractCall<T extends BaseManagedType> {
                 }
 
                 const zero = BigUint.zero()
-                const endpointName = ElrondString.fromString(BuiltIntFunctionNames.ESDT_TRANSFER_FUNC_NAME)
+                const endpointName = ManagedBuffer.fromString(BuiltIntFunctionNames.ESDT_TRANSFER_FUNC_NAME)
 
                 return new ContractCall(
                     this.to,
@@ -144,7 +144,7 @@ export class ContractCall<T extends BaseManagedType> {
                     this.errorCallback
                 )
             } else {
-                const payments = new ElrondArray<TokenPayment>()
+                const payments = new ManagedArray<TokenPayment>()
 
                 const newArgBuffer = new ManagedArgBuffer()
                 newArgBuffer.pushArg(payment.tokenIdentifier)
@@ -157,7 +157,7 @@ export class ContractCall<T extends BaseManagedType> {
 
                 const recipientAddress = __CURRENT_CONTRACT!.blockchain.scAddress
                 const zero = BigUint.zero()
-                const endpointName = ElrondString.fromString(BuiltIntFunctionNames.ESDT_NFT_TRANSFER_FUNC_NAME)
+                const endpointName = ManagedBuffer.fromString(BuiltIntFunctionNames.ESDT_NFT_TRANSFER_FUNC_NAME)
 
                 return new ContractCall(
                     recipientAddress,
@@ -177,7 +177,7 @@ export class ContractCall<T extends BaseManagedType> {
     }
 
     private convertToMultiTransferEsdtCall(): ContractCall<T> {
-        const payments = ElrondArray.new<TokenPayment>()
+        const payments = ManagedArray.new<TokenPayment>()
 
         const newArgBuffer = new ManagedArgBuffer()
         newArgBuffer.pushArg(this.to)
@@ -199,7 +199,7 @@ export class ContractCall<T extends BaseManagedType> {
 
         const recipientAddress = __CURRENT_CONTRACT!.blockchain.scAddress
         const zero = BigUint.zero()
-        const endpointName = ElrondString.fromString(BuiltIntFunctionNames.ESDT_MULTI_TRANSFER_FUNC_NAME)
+        const endpointName = ManagedBuffer.fromString(BuiltIntFunctionNames.ESDT_MULTI_TRANSFER_FUNC_NAME)
 
         return new ContractCall(
             recipientAddress,

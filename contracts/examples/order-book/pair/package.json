@@ -18,6 +18,6 @@
     "assemblyscript": "^0.21.2",
     "ts-node": "^10.8.2",
     "typescript": "^4.8.4",
-    "@gfusee/elrond-wasm-as": "file:../../../.."
+    "@gfusee/mx-sdk-as": "file:../../../.."
   }
 }

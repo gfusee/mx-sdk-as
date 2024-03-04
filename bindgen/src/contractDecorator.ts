@@ -11,7 +11,7 @@ import {
 } from "assemblyscript/dist/assemblyscript.js"
 import {SimpleParser, TransformVisitor} from "visitor-as"
 import {isEntry} from "visitor-as/dist/utils.js"
-import {addElrondWasmASImportToSourceIfMissing} from "./utils/parseUtils.js"
+import {addMxSdkASImportToSourceIfMissing} from "./utils/parseUtils.js"
 import {AbiEndpoint} from "./utils/abi/abiEndpoint.js"
 import {AbiEndpointMutability} from "./utils/abi/abiEndpointMutability.js"
 import {AbiEndpointInput} from "./utils/abi/abiEndpointInput.js"
@@ -60,7 +60,7 @@ export class ContractExporter extends TransformVisitor {
         this.newMethods.push(
             `
             get ${name}(): ${typeName} {
-              return (new Mapping<${typeName}>(new StorageKey(ElrondString.fromString('${name}')))).get()
+              return (new Mapping<${typeName}>(new StorageKey(ManagedBuffer.fromString('${name}')))).get()
             }
             `
         )
@@ -68,7 +68,7 @@ export class ContractExporter extends TransformVisitor {
         this.newMethods.push(
             `
             set ${name}(value: ${typeName}): void {
-                (new Mapping<${typeName}>(new StorageKey(ElrondString.fromString('${name}')))).set(value)
+                (new Mapping<${typeName}>(new StorageKey(ManagedBuffer.fromString('${name}')))).set(value)
             }
             `
         )
@@ -248,7 +248,7 @@ export class ContractExporter extends TransformVisitor {
 
             node.flags &= ~CommonFlags.ABSTRACT
 
-            const requiredImports = ["ElrondString", "ArgumentApi", "ContractBase", "StorageKey", "BaseManagedType"].concat(this.newImports)
+            const requiredImports = ["ManagedBuffer", "ArgumentApi", "ContractBase", "StorageKey", "BaseManagedType"].concat(this.newImports)
 
             for (const requiredImport of requiredImports) {
                 this.newImports.push(requiredImport)
@@ -329,7 +329,7 @@ export class ContractExporter extends TransformVisitor {
         this.classSeen.range.source.statements.push(...this.exportedEndpoints.map((s) => SimpleParser.parseTopLevelStatement(s)))
 
         this.newImports.forEach((importToAdd) => {
-            addElrondWasmASImportToSourceIfMissing(this.classSeen.range.source, importToAdd)
+            addMxSdkASImportToSourceIfMissing(this.classSeen.range.source, importToAdd)
         })
     }
 
@@ -353,7 +353,7 @@ export class ContractExporter extends TransformVisitor {
         })
 
         let newBody = `
-      const key = new StorageKey(ElrondString.fromString('${storageName}'));
+      const key = new StorageKey(ManagedBuffer.fromString('${storageName}'));
       ${additionnalsKeysAppend}
       const result = instantiate<${returnTypeName}>(key);\n
       `
@@ -376,7 +376,7 @@ export class ContractExporter extends TransformVisitor {
         const newSource = super.visitSource(node)
 
         this.newImports.forEach((importToAdd) => {
-            addElrondWasmASImportToSourceIfMissing(newSource, importToAdd)
+            addMxSdkASImportToSourceIfMissing(newSource, importToAdd)
         })
 
         return newSource

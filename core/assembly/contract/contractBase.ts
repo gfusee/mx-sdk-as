@@ -1,4 +1,4 @@
-import { ElrondString } from "../types/erdString";
+import { ManagedBuffer } from "../types/buffer";
 import { ManagedType } from "../types/interfaces/managedType";
 import { Blockchain } from "./blockchain";
 import { CallValue } from "./callValue";
@@ -73,7 +73,7 @@ export class ContractBase {
     }
 
     panic(message: string): void {
-        this.panicTyped(ElrondString.fromString(message))
+        this.panicTyped(ManagedBuffer.fromString(message))
     }
 
     private panicTyped<T extends ManagedType>(value: T): void {

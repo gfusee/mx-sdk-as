@@ -3,7 +3,7 @@
 import {
     BigUint,
     ContractBase, ManagedAddress
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 import {AdderContract} from "./adderContract";
 
 @contract

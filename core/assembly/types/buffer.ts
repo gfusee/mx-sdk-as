@@ -18,28 +18,28 @@ import {
   mBufferStorageStore,
   Static
 } from "../utils/env"
-import {ElrondUnsignedNumber} from "./elrondUnsignedNumber"
+import {ManagedUnsignedNumber} from "./unsignedNumber"
 import {BaseManagedType, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {universalDecodeNumber} from "../utils/math/number";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32, ElrondU64} from "./numbers";
+import {ManagedU32, ManagedU64} from "./numbers";
 import {Option} from "./option"
 
 @unmanaged
-export class ElrondString extends ManagedType {
+export class ManagedBuffer extends ManagedType {
 
   get handle(): i32 {
     return changetype<i32>(this)
   }
 
-  get utils(): ElrondString.Utils {
-    return ElrondString.Utils.fromValue(this)
+  get utils(): ManagedBuffer.Utils {
+    return ManagedBuffer.Utils.fromValue(this)
   }
 
-  get payloadSize(): ElrondU32 {
-    return ElrondU32.fromValue(4)
+  get payloadSize(): ManagedU32 {
+    return ManagedU32.fromValue(4)
   }
 
   get shouldBeInstantiatedOnHeap(): boolean {
@@ -50,7 +50,7 @@ export class ElrondString extends ManagedType {
     return false
   }
 
-  append(value: ElrondString): void {
+  append(value: ManagedBuffer): void {
     mBufferAppend(this.handle, value.handle)
   }
 
@@ -66,9 +66,9 @@ export class ElrondString extends ManagedType {
     return this.utils.getBytesLength() == 0
   }
 
-  clone(): ElrondString {
+  clone(): ManagedBuffer {
     const resultHandle = mBufferNew()
-    const result = ElrondString.fromHandle(resultHandle)
+    const result = ManagedBuffer.fromHandle(resultHandle)
     result.append(this)
 
     return result
@@ -86,7 +86,7 @@ export class ElrondString extends ManagedType {
     return this.utils.toBytes()
   }
 
-  static new(): ElrondString {
+  static new(): ManagedBuffer {
     const handle = Static.nextHandle()
     const emptyBytes = new Uint8Array(0)
     mBufferSetBytes(
@@ -95,63 +95,63 @@ export class ElrondString extends ManagedType {
         emptyBytes.byteLength
     )
 
-    return ElrondString.fromHandle(handle)
+    return ManagedBuffer.fromHandle(handle)
   }
 
-  static dummy(): ElrondString {
-    return changetype<ElrondString>(0)
+  static dummy(): ManagedBuffer {
+    return changetype<ManagedBuffer>(0)
   }
 
-  static fromString(str: string): ElrondString {
+  static fromString(str: string): ManagedBuffer {
     const resultHandle = Static.nextHandle()
     const encoded = String.UTF8.encode(str)
     mBufferSetBytes(resultHandle, changetype<i32>(encoded), encoded.byteLength)
-    return ElrondString.fromHandle(resultHandle)
+    return ManagedBuffer.fromHandle(resultHandle)
   }
 
-  static fromBigUint(biguint: BigUint): ElrondString {
+  static fromBigUint(biguint: BigUint): ManagedBuffer {
     const handle = Static.nextHandle()
     mBufferFromBigIntUnsigned(handle, biguint.handle)
-    return ElrondString.fromHandle(handle)
+    return ManagedBuffer.fromHandle(handle)
   }
 
-  static fromHandle(handle: i32): ElrondString {
-    return (ElrondString.dummy()).utils.fromHandle(handle)
+  static fromHandle(handle: i32): ManagedBuffer {
+    return (ManagedBuffer.dummy()).utils.fromHandle(handle)
   }
 
-  static fromBytes(bytes: Uint8Array): ElrondString { //TODO : replace all '.utils.fromBytes' by this when possible
-    return ElrondString.dummy().utils.fromBytes(bytes)
+  static fromBytes(bytes: Uint8Array): ManagedBuffer { //TODO : replace all '.utils.fromBytes' by this when possible
+    return ManagedBuffer.dummy().utils.fromBytes(bytes)
   }
 
   @operator("==")
-  static equals(a: ElrondString, b: ElrondString): bool {
+  static equals(a: ManagedBuffer, b: ManagedBuffer): bool {
     return mBufferEq(a.getHandle(), b.getHandle()) > 0
   }
 
   @operator('!=')
-  static notEquals(a: ElrondString, b: ElrondString): bool {
-    return !ElrondString.equals(a, b)
+  static notEquals(a: ManagedBuffer, b: ManagedBuffer): bool {
+    return !ManagedBuffer.equals(a, b)
   }
 }
 
-export namespace ElrondString {
+export namespace ManagedBuffer {
 
   @final @unmanaged
-  export class Utils extends ManagedUtils<ElrondString> {
+  export class Utils extends ManagedUtils<ManagedBuffer> {
 
-    static fromValue(value: ElrondString): Utils {
+    static fromValue(value: ManagedBuffer): Utils {
       return changetype<Utils>(value.handle)
     }
 
-    get value(): ElrondString {
-      return changetype<ElrondString>(this)
+    get value(): ManagedBuffer {
+      return changetype<ManagedBuffer>(this)
     }
 
     finish(): void {
       mBufferFinish(this.value.getHandle())
     }
 
-    storeAtBuffer(key: ElrondString): void {
+    storeAtBuffer(key: ManagedBuffer): void {
       mBufferStorageStore(key.getHandle(), this.value.getHandle())
     }
 
@@ -159,14 +159,14 @@ export namespace ElrondString {
       managedSignalError(this.value.getHandle())
     }
 
-    encodeTop(): ElrondString {
+    encodeTop(): ManagedBuffer {
       return this.value.clone()
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
       const length = mBufferGetLength(this.value.getHandle());
 
-      (ElrondUnsignedNumber.fromValue<u32>(length as u32)).utils.encodeNested(output)
+      (ManagedUnsignedNumber.fromValue<u32>(length as u32)).utils.encodeNested(output)
       const thisBytes = this.toBytes()
       output.write(thisBytes)
     }
@@ -183,15 +183,15 @@ export namespace ElrondString {
       return bytes
     }
 
-    toBytesCheckLength(length: ElrondU32): Uint8Array { //TODO : this is a (temporary?) alternative to ManagedByteArray
-      if (ElrondU32.fromValue(this.getBytesLength()) != length) {
+    toBytesCheckLength(length: ManagedU32): Uint8Array { //TODO : this is a (temporary?) alternative to ManagedByteArray
+      if (ManagedU32.fromValue(this.getBytesLength()) != length) {
         throw new Error("invalid bytes length")
       }
 
       return this.toBytes()
     }
 
-    loadSlice(startPosition: ElrondU32, destSlice: Uint8Array): void {
+    loadSlice(startPosition: ManagedU32, destSlice: Uint8Array): void {
       const err = mBufferGetByteSlice(
         this.value.getHandle(),
         startPosition.value as i32,
@@ -204,8 +204,8 @@ export namespace ElrondString {
       }
     }
 
-    copySlice(startPosition: ElrondU32, sliceLength: ElrondU32): ElrondString {
-      const result = ElrondString.fromHandle(mBufferNew())
+    copySlice(startPosition: ManagedU32, sliceLength: ManagedU32): ManagedBuffer {
+      const result = ManagedBuffer.fromHandle(mBufferNew())
       const err = mBufferCopyByteSlice(
           this.value.handle,
           startPosition.value as i32,
@@ -230,11 +230,11 @@ export namespace ElrondString {
       )
 
       if (err !== 0) {
-        ElrondString.fromString('TODO').utils.signalError()
+        ManagedBuffer.fromString('TODO').utils.signalError()
       }
     }
 
-    toU64(): ElrondU64 {
+    toU64(): ManagedU64 {
       const length = this.getBytesLength() as u32
       const u64Size = sizeof<u64>() as u32
       if (length > u64Size) {
@@ -244,11 +244,11 @@ export namespace ElrondString {
       let bytes = new Uint8Array(length)
 
       this.loadSlice(
-          ElrondU32.zero(),
+          ManagedU32.zero(),
           bytes
       )
 
-      return ElrondU64.fromValue(
+      return ManagedU64.fromValue(
           universalDecodeNumber(
             bytes,
             false
@@ -270,23 +270,23 @@ export namespace ElrondString {
       return (BaseManagedType.dummy<T>()).utils.decodeTop(this.value)
     }
 
-    fromHandle(handle: i32): ElrondString {
-      return changetype<ElrondString>(handle)
+    fromHandle(handle: i32): ManagedBuffer {
+      return changetype<ManagedBuffer>(handle)
     }
 
-    fromArgumentIndex(argIndex: i32): ElrondString {
+    fromArgumentIndex(argIndex: i32): ManagedBuffer {
       const newHandle = Static.nextHandle()
       mBufferGetArgument(argIndex, newHandle)
       return this.fromHandle(newHandle)
     }
 
-    fromStorage(key: ElrondString): ElrondString {
+    fromStorage(key: ManagedBuffer): ManagedBuffer {
       const newHandle = Static.nextHandle()
       mBufferStorageLoad(key.getHandle(), newHandle)
       return this.fromHandle(newHandle)
     }
 
-    fromRandom(nrBytes: i32): ElrondString {
+    fromRandom(nrBytes: i32): ManagedBuffer {
       const handle = this.value.getHandle()
       if (handle == 0) {
         throw new Error("TODO : should not be called from dummy")
@@ -296,7 +296,7 @@ export namespace ElrondString {
       return this.value
     }
 
-    fromBytes(bytes: Uint8Array): ElrondString {
+    fromBytes(bytes: Uint8Array): ManagedBuffer {
       let ptr = changetype<i32>(bytes.buffer)
       const newHandle = Static.nextHandle()
       mBufferSetBytes(newHandle, ptr, bytes.byteLength)
@@ -304,19 +304,19 @@ export namespace ElrondString {
       return this.fromHandle(newHandle)
     }
 
-    fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ElrondString {
-      return BaseManagedUtils.defaultFromByteReader<ElrondString, Utils>(this, retainedPtr, reader)
+    fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ManagedBuffer {
+      return BaseManagedUtils.defaultFromByteReader<ManagedBuffer, Utils>(this, retainedPtr, reader)
     }
 
-    decodeTop(buffer: ElrondString): ElrondString {
-      const result = ElrondString.new()
+    decodeTop(buffer: ManagedBuffer): ManagedBuffer {
+      const result = ManagedBuffer.new()
       result.append(buffer)
 
       return result
     }
 
-    decodeNested(input: ManagedBufferNestedDecodeInput): ElrondString {
-      const size = ElrondU32.dummy().utils.decodeNested(input)
+    decodeNested(input: ManagedBufferNestedDecodeInput): ManagedBuffer {
+      const size = ManagedU32.dummy().utils.decodeNested(input)
 
       const buffer = input.readManagedBufferOfSize(size)
 

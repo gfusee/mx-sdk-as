@@ -1,23 +1,23 @@
 import { getBytesFromStorage } from "../utils/storage";
-import { ElrondString } from "./erdString";
+import { ManagedBuffer } from "./buffer";
 import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32, ElrondU8} from "./numbers";
+import {ManagedU32, ManagedU8} from "./numbers";
 import {BaseManagedUtils} from "./interfaces/managedUtils";
 import {Option} from "./option";
 
 @unmanaged
 export class OptionalValue<T extends ManagedType> extends BaseManagedType {
 
-    private _type!: ElrondU8 //TODO : optimize by removing this field
+    private _type!: ManagedU8 //TODO : optimize by removing this field
     private _value: T | null = null
 
-    get type(): ElrondU8 {
+    get type(): ManagedU8 {
         return this._type
     }
 
-    set type(type: ElrondU8) {
+    set type(type: ManagedU8) {
         this._bufferCache = null
         this._type = type
     }
@@ -35,8 +35,8 @@ export class OptionalValue<T extends ManagedType> extends BaseManagedType {
         return new OptionalValue.Utils<T>(this)
     }
 
-    get payloadSize(): ElrondU32 {
-        return ElrondU32.fromValue(4)
+    get payloadSize(): ManagedU32 {
+        return ManagedU32.fromValue(4)
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
@@ -55,14 +55,14 @@ export class OptionalValue<T extends ManagedType> extends BaseManagedType {
         if (this._bufferCache !== null) {
             return this._bufferCache!.getHandle()
         } else {
-            const buffer = ElrondString.new()
+            const buffer = ManagedBuffer.new()
             this.utils.encodeNested(buffer)
             this._bufferCache = buffer
             return buffer.getHandle()
         }
     }
 
-    private _bufferCache: ElrondString | null = null
+    private _bufferCache: ManagedBuffer | null = null
 
     isNull(): bool {
         return this.type.value == 0
@@ -72,7 +72,7 @@ export class OptionalValue<T extends ManagedType> extends BaseManagedType {
         if (this.value) {
             return this.value!
         } else {
-            ElrondString.fromString('cannot unwrap null')
+            ManagedBuffer.fromString('cannot unwrap null')
         }
 
         return this.value! //TODO : use never type
@@ -125,7 +125,7 @@ export namespace OptionalValue {
         }
 
         fromNull(): OptionalValue<T> {
-            this.value.type = ElrondU8.zero()
+            this.value.type = ManagedU8.zero()
             this.value.value = null
 
             return this.value
@@ -136,30 +136,30 @@ export namespace OptionalValue {
                 return this.fromNull()
             }
 
-            this.value.type = ElrondU8.fromValue(1)
+            this.value.type = ManagedU8.fromValue(1)
             this.value.value = value
 
             return this.value
         }
 
-        storeAtBuffer(key: ElrondString): void {
+        storeAtBuffer(key: ManagedBuffer): void {
             this.encodeTop().utils.storeAtBuffer(key)
         }
 
         signalError(): void { // TODO : better impl
-            ElrondString.fromString(this.toString()).utils.signalError()
+            ManagedBuffer.fromString(this.toString()).utils.signalError()
         }
 
         finish(): void {
             this.encodeTop().utils.finish()
         }
 
-        encodeTop(): ElrondString {
+        encodeTop(): ManagedBuffer {
             const value = this.value.unwrapOrNull()
             if (value) {
                 return value.utils.encodeTop()
             } else {
-                return ElrondString.new()
+                return ManagedBuffer.new()
             }
         }
 
@@ -186,18 +186,18 @@ export namespace OptionalValue {
             throw new Error('TODO : error no handle (optionalValue)')
         }
 
-        fromStorage(key: ElrondString): OptionalValue<T> {
+        fromStorage(key: ManagedBuffer): OptionalValue<T> {
             const bytes = getBytesFromStorage(key)
             return this.fromBytes(bytes)
         }
 
         fromArgumentIndex(index: i32): OptionalValue<T> {
-            const buffer = ElrondString.dummy().utils.fromArgumentIndex(index)
+            const buffer = ManagedBuffer.dummy().utils.fromArgumentIndex(index)
             return this.decodeTop(buffer)
         }
 
         fromBytes(bytes: Uint8Array): OptionalValue<T> {
-            const buffer = ElrondString.dummy().utils.fromBytes(bytes)
+            const buffer = ManagedBuffer.dummy().utils.fromBytes(bytes)
             return this.decodeTop(buffer)
         }
 
@@ -205,7 +205,7 @@ export namespace OptionalValue {
             return BaseManagedUtils.defaultFromByteReader<OptionalValue<T>, Utils<T>>(this, retainedPtr, reader)
         }
 
-        decodeTop(buffer: ElrondString): OptionalValue<T> {
+        decodeTop(buffer: ManagedBuffer): OptionalValue<T> {
             if (buffer.utils.getBytesLength() == 0) {
                 return this.fromNull()
             } else {
@@ -215,7 +215,7 @@ export namespace OptionalValue {
         }
 
         decodeNested(input: ManagedBufferNestedDecodeInput): OptionalValue<T> {
-            if (input.getRemainingLength() == ElrondU32.zero()) {
+            if (input.getRemainingLength() == ManagedU32.zero()) {
                 return this.fromNull()
             } else {
                 const value = BaseManagedType.dummy<T>().utils.decodeNested(input)

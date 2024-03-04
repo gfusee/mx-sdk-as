@@ -1,4 +1,4 @@
-import {ElrondString, ElrondU32, ManagedType, StorageKey} from "../../types";
+import {ManagedBuffer, ManagedU32, ManagedType, StorageKey} from "../../types";
 import {
     __frameworkGetRetainedClosureValue,
     __frameworkReleaseRetainedClosureValue,
@@ -23,7 +23,7 @@ export class UnorderedSetMapping<T extends ManagedType> extends BaseMapping {
     }
 
     getIndex(value: T): i32 {
-        const result = ElrondU32.dummy().utils.fromStorage(this.getItemIndexKey(value))
+        const result = ManagedU32.dummy().utils.fromStorage(this.getItemIndexKey(value))
 
         return result.value as i32
     }
@@ -37,7 +37,7 @@ export class UnorderedSetMapping<T extends ManagedType> extends BaseMapping {
             return false
         }
         this.arrayMapping.push(value)
-        this.setIndex(value, this.getLength() + ElrondU32.fromValue(1))
+        this.setIndex(value, this.getLength() + ManagedU32.fromValue(1))
 
         return true
     }
@@ -65,11 +65,11 @@ export class UnorderedSetMapping<T extends ManagedType> extends BaseMapping {
         this.arrayMapping.forEach(action)
     }
 
-    getLength(): ElrondU32 {
+    getLength(): ManagedU32 {
         return this.arrayMapping.getLength()
     }
 
-    private setIndex(value: T, index: ElrondU32): void {
+    private setIndex(value: T, index: ManagedU32): void {
         index.utils.storeAtBuffer(this.getItemIndexKey(value))
     }
 
@@ -77,9 +77,9 @@ export class UnorderedSetMapping<T extends ManagedType> extends BaseMapping {
         Static.EMPTY_BUFFER.utils.storeAtBuffer(this.getItemIndexKey(value))
     }
 
-    private getItemIndexKey(value: T): ElrondString { //TODO : optimize by returning ElrondString and no '.toString' use
+    private getItemIndexKey(value: T): ManagedBuffer { //TODO : optimize by returning ManagedBuffer and no '.toString' use
         const result = this.key.clone()
-        result.appendBuffer(ElrondString.fromString(UnorderedSetMapping.INDEX_SUFFIX))
+        result.appendBuffer(ManagedBuffer.fromString(UnorderedSetMapping.INDEX_SUFFIX))
         result.appendItem(value)
         return result.buffer
     }

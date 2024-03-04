@@ -1,8 +1,8 @@
 //@ts-nocheck
 
 import {
-    BigUint, ContractBase, ElrondString, ElrondU32, ElrondU64, ManagedAddress, Mapping, TokenIdentifier
-} from "@gfusee/elrond-wasm-as";
+    BigUint, ContractBase, ManagedBuffer, ManagedU32, ManagedU64, ManagedAddress, Mapping, TokenIdentifier
+} from "@gfusee/mx-sdk-as";
 import {DepositInfo} from "./deposit-info";
 
 const SECONDS_PER_ROUND: u64 = 6
@@ -12,7 +12,7 @@ abstract class DigitalCash extends ContractBase {
 
     fund(
         address: ManagedAddress,
-        valability: ElrondU64
+        valability: ManagedU64
     ): void {
         const payment = this.callValue.singlePayment
 
@@ -64,7 +64,7 @@ abstract class DigitalCash extends ContractBase {
 
     claim(
         address: ManagedAddress,
-        signature: ElrondString
+        signature: ManagedBuffer
     ): void {
         this.require(
             !this.deposit(address).isEmpty(),
@@ -84,7 +84,7 @@ abstract class DigitalCash extends ContractBase {
 
         this.require(
             this.crypto.verifyEd25519LegacyManaged(
-                ElrondU32.fromValue(32),
+                ManagedU32.fromValue(32),
                 key,
                 message,
                 signature
@@ -119,9 +119,9 @@ abstract class DigitalCash extends ContractBase {
     }
 
     private getExpirationRound(
-        valability: ElrondU64
-    ): ElrondU64 {
-        const valabilityRounds = valability / ElrondU64.fromValue(SECONDS_PER_ROUND)
+        valability: ManagedU64
+    ): ManagedU64 {
+        const valabilityRounds = valability / ManagedU64.fromValue(SECONDS_PER_ROUND)
         return this.blockchain.currentBlockRound + valabilityRounds
     }
 

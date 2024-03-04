@@ -1,8 +1,8 @@
 import { bigIntGetCallValue, bigIntGetESDTCallValue, bigIntGetESDTCallValueByIndex, getESDTTokenName, getESDTTokenNameByIndex, getESDTTokenNonce, getESDTTokenNonceByIndex, getNumESDTTransfers } from "../utils/env";
-import {BigUint, ElrondU32} from "../types";
-import { ElrondArray } from "../types";
-import { ElrondU64 } from "../types";
-import { ElrondString } from "../types";
+import {BigUint, ManagedU32} from "../types";
+import { ManagedArray } from "../types";
+import { ManagedU64 } from "../types";
+import { ManagedBuffer } from "../types";
 import { TokenIdentifier } from "../types";
 import { TokenPayment } from "../types";
 
@@ -11,7 +11,7 @@ export class CallValue {
     private _egldValueCache: BigUint | null = null
     private _singlePaymentCache: TokenPayment | null = null
     private _singleEsdtPaymentCache: TokenPayment | null = null
-    private _allEsdtPaymentsCache: ElrondArray<TokenPayment> | null = null
+    private _allEsdtPaymentsCache: ManagedArray<TokenPayment> | null = null
 
     get egldValue(): BigUint {
         if (this._egldValueCache) {
@@ -32,7 +32,7 @@ export class CallValue {
             if (this.getNumberOfEsdtTransfers() == 0) {
                 result = TokenPayment.new(
                     TokenIdentifier.egld(),
-                    ElrondU64.fromValue(0),
+                    ManagedU64.fromValue(0),
                     this.egldValue
                 )
             } else {
@@ -43,7 +43,7 @@ export class CallValue {
             return result
         }
 
-        
+
     }
 
     get singleEsdtPayment(): TokenPayment {
@@ -56,20 +56,20 @@ export class CallValue {
                 this.getSingleEsdtPaymentValue()
             )
             this._singleEsdtPaymentCache = payment
-    
+
             return payment
         }
-        
+
     }
 
-    get allEsdtPayments(): ElrondArray<TokenPayment> {
+    get allEsdtPayments(): ManagedArray<TokenPayment> {
         if (this._allEsdtPaymentsCache) {
             return this._allEsdtPaymentsCache!
         } else {
-            const numTransfers = ElrondU32.fromValue(this.getNumberOfEsdtTransfers())
-            const result = ElrondArray.new<TokenPayment>()
+            const numTransfers = ManagedU32.fromValue(this.getNumberOfEsdtTransfers())
+            const result = ManagedArray.new<TokenPayment>()
 
-            for (let i = ElrondU32.zero(); i < numTransfers; i++) {
+            for (let i = ManagedU32.zero(); i < numTransfers; i++) {
                 const payment = TokenPayment.new(
                     this.getEsdtPaymentTokenIdentifierByIndex(i),
                     this.getEsdtPaymentTokenNonceByIndex(i),
@@ -80,7 +80,7 @@ export class CallValue {
             }
 
             this._allEsdtPaymentsCache = result
-    
+
             return result
         }
     }
@@ -92,13 +92,13 @@ export class CallValue {
     private getSingleEsdtPaymentTokenIdentifier(): TokenIdentifier {
         const bytes = new Uint8Array(TokenIdentifier.MAX_POSSIBLE_TOKEN_IDENTIFIER_LENGTH)
         const identifierLength = getESDTTokenName(changetype<i32>(bytes.buffer))
-        const buffer = ElrondString.dummy().utils.fromBytes(bytes.slice(0, identifierLength))
+        const buffer = ManagedBuffer.dummy().utils.fromBytes(bytes.slice(0, identifierLength))
 
         return TokenIdentifier.fromBuffer(buffer)
     }
 
-    private getSingleEsdtPaymentTokenNonce(): ElrondU64 {
-        return ElrondU64.fromValue(getESDTTokenNonce() as u64)
+    private getSingleEsdtPaymentTokenNonce(): ManagedU64 {
+        return ManagedU64.fromValue(getESDTTokenNonce() as u64)
     }
 
     private getSingleEsdtPaymentValue(): BigUint {
@@ -107,19 +107,19 @@ export class CallValue {
         return value
     }
 
-    private getEsdtPaymentTokenIdentifierByIndex(index: ElrondU32): TokenIdentifier {
+    private getEsdtPaymentTokenIdentifierByIndex(index: ManagedU32): TokenIdentifier {
         const bytes = new Uint8Array(TokenIdentifier.MAX_POSSIBLE_TOKEN_IDENTIFIER_LENGTH)
         let identifierLength = getESDTTokenNameByIndex(changetype<i32>(bytes.buffer), index.value as i32)
-        let buffer = ElrondString.dummy().utils.fromBytes(bytes.slice(0, identifierLength))
+        let buffer = ManagedBuffer.dummy().utils.fromBytes(bytes.slice(0, identifierLength))
 
         return TokenIdentifier.fromBuffer(buffer)
     }
 
-    private getEsdtPaymentTokenNonceByIndex(index: ElrondU32): ElrondU64 {
-        return ElrondU64.fromValue(getESDTTokenNonceByIndex(index.value as i32) as u64)
+    private getEsdtPaymentTokenNonceByIndex(index: ManagedU32): ManagedU64 {
+        return ManagedU64.fromValue(getESDTTokenNonceByIndex(index.value as i32) as u64)
     }
 
-    private getEsdtPaymentValueByIndex(index: ElrondU32): BigUint {
+    private getEsdtPaymentValueByIndex(index: ManagedU32): BigUint {
         const value = BigUint.zero()
         bigIntGetESDTCallValueByIndex(value.getHandle(), index.value as i32)
         return value
