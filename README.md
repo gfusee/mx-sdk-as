@@ -12,7 +12,7 @@ The aim of this repo is to make a proof of concept and ONLY a proof of concept. 
 
 ### Tutorials
 
-Two smart contracts tutorials are availables here : https://fusee.gitbook.io/mx-sdk-as/.
+Two smart contracts tutorials are available here : https://fusee.gitbook.io/mx-sdk-as/.
 
 They will give a good idea about what you can build with this framework.
 
@@ -31,17 +31,15 @@ If you only want to try writing smart contracts with this framework do the follo
 
 And you're done ! The contract is compiled into the `build` folder.
 
-Feel free to check examples contracts inside the `contracts/examples` folder, these are reproduction of `elrond-wasm-rs` examples contracts.
+Feel free to check examples contracts inside the `contracts/examples` folder, these are reproduction of `mx-sdk-rs` examples contracts.
 
-#### Test the contract via mandos
+#### Test the contract via scenario
 
-If you installed erdpy via erdpy-up you only need to run `npm run mandos` in the root folder to execute mandos scenarios.
-
-If you have a custom installation of erdpy, here are the steps to execute mandos scenarios :
+If you have a standard installation of mxpy, the `run-scenarios` executable should be located in the `~/multiversx-sdk/vmtools` folder. Here are the steps to execute scenarios :
 
 - Compile the contract (steps above)
-- Find your `mandos-test` executable path inside your erdpy installation
-- Inside the root folder of the project, run the `<path to mandos-test> mandos` command
+- Find your `run-scenario` executable path inside your  custom installation of mxpy installation
+- Inside the root folder of the project, run the `<path to run> scenarios` command
 
 ## Documentation
 
@@ -121,18 +119,10 @@ myBiguints.forEach(biguint => {
 
 This issue is known by the AssemblyScript and should be fixed in the future : https://github.com/AssemblyScript/assemblyscript/issues/798
 
-### Garbage collector
-
-I did not succeed to run contracts with the AssemblyScript garbage collector, MultiversX VM says "invalid contract code" and "unknown error" when trying to.
-
-### VM calls
-
-Currently, I'm doing too much useless VM calls, especially when using `Array` with custom structs. This has been resolved in the branch `feature/update_deps` (not compiling yet I'm doing a BIG refactor about heap allocation)
-
 ### Heap allocations
 
 The biggest limitation of AssemblyScript I'm facing is that classes does not act as C structs, they are always allocated on the heap and this lead to big issues.
-I used a heavy workaround for some classes (ElrondString, BigUint, ...) but not for all classes because this take a lot of time to refactor all.
+I used a heavy workaround for some classes (ManagedBuffer, BigUint, ...) but not for all classes because this take a lot of time to refactor all.
 
 This issue is known by the AssemblyScript team : https://github.com/AssemblyScript/assemblyscript/issues/2254
 

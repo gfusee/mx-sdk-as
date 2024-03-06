@@ -1,105 +1,105 @@
 import {getContractPathByName} from "./utils/contractsPaths"
 import {execCustom} from "./utils/exec"
 
-async function runMandosTestAtPath(projectPath: string) {
-    let mandosExecutable: string = '$HOME/multiversx-sdk/vmtools/run-scenarios'
+async function runScenariosTestAtPath(projectPath: string) {
+    let runScenariosExecutable: string = '$HOME/multiversx-sdk/vmtools/run-scenarios'
 
     try {
         await execCustom('which run-scenarios')
-        mandosExecutable = 'run-scenarios'
+        runScenariosExecutable = 'run-scenarios'
     } catch (e) {}
 
     try {
-        const mandosResult = await execCustom(`${mandosExecutable} mandos`, {cwd: projectPath})
-        console.log(mandosResult.stdout)
+        const scenariosResult = await execCustom(`${runScenariosExecutable} scenarios`, {cwd: projectPath})
+        console.log(scenariosResult.stdout)
     } catch (e) {
         console.log(e)
         throw e
     }
 }
 
-describe('test if mandos tests pass', () => {
+describe('test if scenarios tests pass', () => {
     test('adder', async() => {
         const contractPath = getContractPathByName('adder')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('crowdfunding-esdt', async() => {
         const contractPath = getContractPathByName('crowdfunding-esdt')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('crypto-bubbles', async() => {
         const contractPath = getContractPathByName('crypto-bubbles')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('digital-cash', async() => {
         const contractPath = getContractPathByName('digital-cash')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('egld-esdt-swap', async() => {
         const contractPath = getContractPathByName('egld-esdt-swap')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('empty', async() => {
         const contractPath = getContractPathByName('empty')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('esdt-transfer-with-fee', async() => {
         const contractPath = getContractPathByName('esdt-transfer-with-fee')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('factorial', async() => {
         const contractPath = getContractPathByName('factorial')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('flip', async() => {
         const contractPath = getContractPathByName('flip')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('forwarder/adder', async() => {
         const contractPath = getContractPathByName('forwarder/adder')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('forwarder/lottery-esdt', async() => {
         const contractPath = getContractPathByName('forwarder/lottery-esdt')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('lottery-esdt', async() => {
         const contractPath = getContractPathByName('lottery-esdt')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('order-book/pair', async() => {
         const contractPath = getContractPathByName('order-book/pair')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 
     test('ping-pong-egld', async() => {
         const contractPath = getContractPathByName('ping-pong-egld')
 
-        await runMandosTestAtPath(contractPath)
+        await runScenariosTestAtPath(contractPath)
     })
 })
