@@ -2,12 +2,12 @@
 
 import {
     BigUint,
-    ElrondString,
-    ElrondU64,
+    ManagedBuffer,
+    ManagedU64,
     ManagedAddress,
     ManagedBufferNestedDecodeInput,
     TokenIdentifier
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 import {GlobalOperationModule} from "./global-operation-helper";
 
 export const MAX_ORDERS_PER_USER: u32 = 100;
@@ -66,12 +66,12 @@ export enum FeeConfigEnum {
 export class FeeConfig {
     feeType!: FeeConfigEnum
     fixedFee!: BigUint
-    percentFee!: ElrondU64
+    percentFee!: ManagedU64
 
     static new(
         feeType: FeeConfigEnum,
         fixedFee: BigUint,
-        percentFee: ElrondU64
+        percentFee: ManagedU64
     ): FeeConfig {
         const result = new FeeConfig()
         result.feeType = feeType
@@ -84,7 +84,7 @@ export class FeeConfig {
 
 @struct
 export class DealConfig {
-    matchProviderPercent!: ElrondU64
+    matchProviderPercent!: ManagedU64
 }
 
 @struct
@@ -97,25 +97,25 @@ export class OrderInputParams {
 
 @struct
 export class Order {
-    id!: ElrondU64
+    id!: ManagedU64
     creator!: ManagedAddress
     matchProvider!: ManagedAddress
     inputAmount!: BigUint
     outputAmount!: BigUint
     feeConfig!: FeeConfig
     dealConfig!: DealConfig
-    createEpoch!: ElrondU64
+    createEpoch!: ManagedU64
     orderType!: OrderType
 
     static new(
-        id: ElrondU64,
+        id: ManagedU64,
         creator: ManagedAddress,
         matchProvider: ManagedAddress,
         inputAmount: BigUint,
         outputAmount: BigUint,
         feeConfig: FeeConfig,
         dealConfig: DealConfig,
-        createEpoch: ElrondU64,
+        createEpoch: ManagedU64,
         orderType: OrderType,
     ): Order {
         const result = new Order()
@@ -140,7 +140,7 @@ export abstract class CommonModule extends GlobalOperationModule {
     secondTokenIdentifier!: TokenIdentifier
 
     protected newOrder(
-        id: ElrondU64,
+        id: ManagedU64,
         payment: Payment,
         params: OrderInputParams,
         orderType: OrderType

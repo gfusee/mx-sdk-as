@@ -1,7 +1,7 @@
-import { ElrondString } from "../types"
+import { ManagedBuffer } from "../types"
 import {checkIfDebugBreakpointEnabled, enableSecondDebugBreakpoint, storageLoad, storageLoadLength} from "./env"
 
-export function getBytesFromStorage(key: ElrondString): Uint8Array {
+export function getBytesFromStorage(key: ManagedBuffer): Uint8Array {
     const keyBytes = key.utils.toBytes()
     const keyBytesPtr = changetype<i32>(keyBytes.buffer)
     let storageLen = storageLoadLength(keyBytesPtr, keyBytes.byteLength)

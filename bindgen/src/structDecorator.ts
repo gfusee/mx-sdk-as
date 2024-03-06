@@ -8,7 +8,7 @@ import {
     Source
 } from "assemblyscript/dist/assemblyscript.js";
 import {SimpleParser, TransformVisitor} from "visitor-as";
-import {addElrondWasmASImportToSourceIfMissing} from "./utils/parseUtils.js";
+import {addMxSdkASImportToSourceIfMissing} from "./utils/parseUtils.js";
 import {AbiStructType} from "./utils/abi/abiStructType.js";
 import {AbiStructTypeField} from "./utils/abi/abiStructTypeField.js";
 
@@ -45,8 +45,8 @@ export class StructExporter extends TransformVisitor {
             this.fields = []
 
             const requiredImports = [
-                "ElrondString",
-                "ElrondU32",
+                "ManagedBuffer",
+                "ManagedU32",
                 "BaseManagedType",
                 "ManagedType",
                 "BaseManagedUtils",
@@ -126,9 +126,9 @@ export class StructExporter extends TransformVisitor {
             `
 
             const payloadSizeGetter = `
-        get payloadSize(): ElrondU32 {
+        get payloadSize(): ManagedU32 {
             ${payloadSizeSum} 
-            return ElrondU32.fromValue(size)
+            return ManagedU32.fromValue(size)
         }
       ` //TODO : cache payloadSize??
 
@@ -188,8 +188,8 @@ export class StructExporter extends TransformVisitor {
             `
 
             const encodeTopMethod = `
-      encodeTop(): ElrondString {
-        const output = ElrondString.new()
+      encodeTop(): ManagedBuffer {
+        const output = ManagedBuffer.new()
         this.encodeNested(output);
         return output;
       }
@@ -197,14 +197,14 @@ export class StructExporter extends TransformVisitor {
 
             const finishMethod = `
       finish(): void {
-        const output = ElrondString.new()
+        const output = ManagedBuffer.new()
         this.encodeNested(output);
         output.utils.finish();
       }
       `
 
             const storeAtBufferMethod = `
-      storeAtBuffer(key: ElrondString): void {
+      storeAtBuffer(key: ManagedBuffer): void {
         const buffer = this.encodeTop();
         buffer.utils.storeAtBuffer(key);
       }
@@ -274,7 +274,7 @@ export class StructExporter extends TransformVisitor {
             }
 
             const decodeTopMethod = `
-      decodeTop(buffer: ElrondString): ${className} {
+      decodeTop(buffer: ManagedBuffer): ${className} {
         ${decodeTopDefaultStatements}
         const input = new ManagedBufferNestedDecodeInput(buffer)
         return this.decodeNested(input);
@@ -283,14 +283,14 @@ export class StructExporter extends TransformVisitor {
 
             const fromHandleMethod = `
       fromHandle(handle: i32): void {
-        const buffer = ElrondString.dummy().utils.fromHandle(handle);
+        const buffer = ManagedBuffer.dummy().utils.fromHandle(handle);
         this.decodeTop(buffer);
       }
       `
 
             const fromStorageMethod = `
-      fromStorage(key: ElrondString): ${className} {
-        const buffer = ElrondString.dummy().utils.fromStorage(key);
+      fromStorage(key: ManagedBuffer): ${className} {
+        const buffer = ManagedBuffer.dummy().utils.fromStorage(key);
         const input = new ManagedBufferNestedDecodeInput(buffer);
         return this.decodeNested(input);
       }
@@ -298,7 +298,7 @@ export class StructExporter extends TransformVisitor {
 
             const fromArgumentIndexMethod = `
       fromArgumentIndex(argIndex: i32): ${className} {
-        const buffer = ElrondString.dummy().utils.fromArgumentIndex(argIndex);
+        const buffer = ManagedBuffer.dummy().utils.fromArgumentIndex(argIndex);
         const input = new ManagedBufferNestedDecodeInput(buffer);
         return this.decodeNested(input);
       }
@@ -380,7 +380,7 @@ export class StructExporter extends TransformVisitor {
       `
 
             const bufferCacheField = `
-      private __bufferCache: ElrondString | null = null;
+      private __bufferCache: ManagedBuffer | null = null;
       `
 
             const getHandleMethod = `
@@ -388,7 +388,7 @@ export class StructExporter extends TransformVisitor {
         if (this.__bufferCache) {
           return this.__bufferCache!.getHandle();
         } else {
-          const buffer = ElrondString.new();
+          const buffer = ManagedBuffer.new();
           this.utils.encodeNested(buffer);
           this.__bufferCache = buffer;
 
@@ -447,7 +447,7 @@ export class StructExporter extends TransformVisitor {
                 )
             })
 
-            if (!node.range.source.internalPath.includes('elrond-wasm-as')) {
+            if (!node.range.source.internalPath.includes('mx-sdk-as')) {
                 const abiStruct: { [key : string]: AbiStructType } = {};
                 abiStruct[className] = new AbiStructType(
                     abiStructFields
@@ -470,7 +470,7 @@ export class StructExporter extends TransformVisitor {
         const newSource = super.visitSource(source)
 
         for (const newImport of this.newImports) {
-            addElrondWasmASImportToSourceIfMissing(source, newImport)
+            addMxSdkASImportToSourceIfMissing(source, newImport)
         }
 
         return newSource

@@ -2,13 +2,13 @@
 
 import {
     BigUint,
-    ElrondArray,
-    ElrondString, ElrondU32,
-    ElrondU64, ManagedAddress, ManagedBufferNestedDecodeInput,
-    MultiValueElrondArray,
+    ManagedArray,
+    ManagedBuffer, ManagedU32,
+    ManagedU64, ManagedAddress, ManagedBufferNestedDecodeInput,
+    MultiValueManagedArray,
     MultiValueEncoded,
     TokenIdentifier
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 import {OrdersModule} from "./orders";
 import {FeeConfigEnum, OrderInputParams, OrderType} from "./common";
 
@@ -54,7 +54,7 @@ abstract class Pair extends OrdersModule {
     }
 
     matchOrders(
-        orderIds: ElrondArray<ElrondU64>
+        orderIds: ManagedArray<ManagedU64>
     ): void {
         this.requireGlobalOpNotOngoing()
         this.requireValidMatchInputOrderIds(orderIds)
@@ -63,7 +63,7 @@ abstract class Pair extends OrdersModule {
     }
 
     cancelOrders(
-        orderIds: MultiValueElrondArray<ElrondU64>
+        orderIds: MultiValueManagedArray<ManagedU64>
     ): void {
         this.requireGlobalOpNotOngoing()
         this.requireOrderIdsNotEmpty(orderIds)
@@ -77,12 +77,12 @@ abstract class Pair extends OrdersModule {
     }
 
     freeOrders(
-        orderIds: MultiValueElrondArray<ElrondU64>
+        orderIds: MultiValueManagedArray<ManagedU64>
     ): void {
         this.requireGlobalOpNotOngoing()
         this.requireOrderIdsNotEmpty(orderIds)
 
-        this.freeOrdersHelper(orderIds.asElrondArray())
+        this.freeOrdersHelper(orderIds.asManagedArray())
     }
 
 }

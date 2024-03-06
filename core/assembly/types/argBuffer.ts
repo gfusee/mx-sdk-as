@@ -1,10 +1,10 @@
-import {ElrondArray} from "./elrondArray"
-import {ElrondString} from "./erdString"
+import {ManagedArray} from "./managedArray"
+import {ManagedBuffer} from "./buffer"
 import {BaseManagedType, defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
 import {BaseManagedUtils} from "./interfaces/managedUtils"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 
 class ArgBuffer {
   constructor(
@@ -19,18 +19,18 @@ export class ManagedArgBuffer extends BaseManagedType {
 
   private __arrayPtr: i32
 
-  get array(): ElrondArray<ElrondString> {
+  get array(): ManagedArray<ManagedBuffer> {
     if (this.__arrayPtr == 0) {
-      const array = ElrondArray.new<ElrondString>()
+      const array = ManagedArray.new<ManagedBuffer>()
       this.__arrayPtr = changetype<i32>(array)
 
       return array
     } else {
-      return changetype<ElrondArray<ElrondString>>(this.__arrayPtr)
+      return changetype<ManagedArray<ManagedBuffer>>(this.__arrayPtr)
     }
   }
 
-  set array(value: ElrondArray<ElrondString>) {
+  set array(value: ManagedArray<ManagedBuffer>) {
     this.__array = value
   }
 
@@ -42,8 +42,8 @@ export class ManagedArgBuffer extends BaseManagedType {
     return true
   }
 
-  get payloadSize(): ElrondU32 {
-    return ElrondU32.fromValue(4)
+  get payloadSize(): ManagedU32 {
+    return ManagedU32.fromValue(4)
   }
 
   skipsReserialization(): boolean {
@@ -51,16 +51,16 @@ export class ManagedArgBuffer extends BaseManagedType {
   }
 
   getHandle(): i32 {
-    const buffer = ElrondString.new()
+    const buffer = ManagedBuffer.new()
     this.array.utils.encodeWithoutLength(buffer)
     return buffer.getHandle()
   }
 
-  getNumberOfArgs(): ElrondU32 {
+  getNumberOfArgs(): ManagedU32 {
     return this.array.getLength()
   }
 
-  pushArgRaw(arg: ElrondString): void {
+  pushArgRaw(arg: ManagedBuffer): void {
     this.array.push(arg)
   }
 
@@ -80,7 +80,7 @@ export class ManagedArgBuffer extends BaseManagedType {
     )
 
     const thisArrayLength = this.array.getLength()
-    for (let i = ElrondU32.zero(); i < thisArrayLength; i++) {
+    for (let i = ManagedU32.zero(); i < thisArrayLength; i++) {
       const item = this.array.get(i)
       const itemBytes = item.utils.toBytes()
 
@@ -128,13 +128,13 @@ export namespace ManagedArgBuffer {
     }
 
     fromArgumentIndex(index: i32): ManagedArgBuffer {
-      this.value.array = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.fromArgumentIndex(index)
+      this.value.array = BaseManagedType.dummy<ManagedArray<ManagedBuffer>>().utils.fromArgumentIndex(index)
 
       return this.value
     }
 
     fromHandle(handle: i32): ManagedArgBuffer {
-      this.value.array = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.fromHandle(handle)
+      this.value.array = BaseManagedType.dummy<ManagedArray<ManagedBuffer>>().utils.fromHandle(handle)
 
       return this.value
     }
@@ -151,7 +151,7 @@ export namespace ManagedArgBuffer {
       this.value.array.utils.signalError()
     }
 
-    storeAtBuffer(key: ElrondString): void {
+    storeAtBuffer(key: ManagedBuffer): void {
       this.value.array.utils.storeAtBuffer(key)
     }
 
@@ -163,7 +163,7 @@ export namespace ManagedArgBuffer {
       return BaseManagedUtils.defaultToByteWriter<Utils, R>(this, retainedPtr, writer)
     }
 
-    encodeTop(): ElrondString {
+    encodeTop(): ManagedBuffer {
       return this.value.array.utils.encodeTop()
     }
 
@@ -171,14 +171,14 @@ export namespace ManagedArgBuffer {
       this.value.array.utils.encodeNested(output)
     }
 
-    decodeTop(buffer: ElrondString): ManagedArgBuffer {
-      this.value.array = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.decodeTop(buffer)
+    decodeTop(buffer: ManagedBuffer): ManagedArgBuffer {
+      this.value.array = BaseManagedType.dummy<ManagedArray<ManagedBuffer>>().utils.decodeTop(buffer)
 
       return this.value
     }
 
     decodeNested(input: ManagedBufferNestedDecodeInput): ManagedArgBuffer {
-      this.value.array = BaseManagedType.dummy<ElrondArray<ElrondString>>().utils.decodeNested(input)
+      this.value.array = BaseManagedType.dummy<ManagedArray<ManagedBuffer>>().utils.decodeNested(input)
 
       return this.value
     }

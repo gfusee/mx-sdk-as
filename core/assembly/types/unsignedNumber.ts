@@ -6,26 +6,26 @@ import {
 import {numberToBytes, universalDecodeNumber} from "../utils/math/number"
 import { getBytesFromStorage } from "../utils/storage"
 import { BigUint } from "./bigUint"
-import { ElrondString } from "./erdString"
+import { ManagedBuffer } from "./buffer"
 import {defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import { ManagedUtils } from "./interfaces/managedUtils"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 
 @unmanaged
-export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
+export class ManagedUnsignedNumber<T extends Number> extends ManagedType {
 
     get value(): T {
         return changetype<u32>(this) as T
     }
 
-    get utils(): ElrondUnsignedNumber.Utils<T> {
-        return ElrondUnsignedNumber.Utils.fromValue(this)
+    get utils(): ManagedUnsignedNumber.Utils<T> {
+        return ManagedUnsignedNumber.Utils.fromValue(this)
     }
 
-    get payloadSize(): ElrondU32 {
-        return ElrondU32.fromValue(sizeof<T>())
+    get payloadSize(): ManagedU32 {
+        return ManagedU32.fromValue(sizeof<T>())
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
@@ -37,7 +37,7 @@ export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
     }
 
     getHandle(): i32 {
-        throw new Error('TODO getHandle (ElrondUXX)')
+        throw new Error('TODO getHandle (ManagedUXX)')
     }
 
     toU64(): u64 {
@@ -52,22 +52,22 @@ export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
         defaultBaseManagedTypeWriteImplementation()
     }
 
-    static fromValue<T extends Number>(value: T): ElrondUnsignedNumber<T> {
-        return changetype<ElrondUnsignedNumber<T>>(value as u32)
+    static fromValue<T extends Number>(value: T): ManagedUnsignedNumber<T> {
+        return changetype<ManagedUnsignedNumber<T>>(value as u32)
     }
 
-    static zero<T extends Number>(): ElrondUnsignedNumber<T> {
-        return ElrondUnsignedNumber.fromValue<T>(0 as T)
+    static zero<T extends Number>(): ManagedUnsignedNumber<T> {
+        return ManagedUnsignedNumber.fromValue<T>(0 as T)
     }
 
     @operator("+")
     __add(a: this): this {
-        return changetype<ElrondUnsignedNumber<T>>(this.value + a.value)
+        return changetype<ManagedUnsignedNumber<T>>(this.value + a.value)
     }
 
     @operator("-")
     __sub(a: this): this {
-        return changetype<ElrondUnsignedNumber<T>>(this.value - a.value)
+        return changetype<ManagedUnsignedNumber<T>>(this.value - a.value)
     }
 
     @operator("==")
@@ -102,25 +102,25 @@ export class ElrondUnsignedNumber<T extends Number> extends ManagedType {
 
     @operator.postfix("++")
     __increase(): this {
-        return this.__add(ElrondUnsignedNumber.fromValue<T>(1 as T))
+        return this.__add(ManagedUnsignedNumber.fromValue<T>(1 as T))
     }
 
 }
 
-export namespace ElrondUnsignedNumber {
+export namespace ManagedUnsignedNumber {
 
     @unmanaged
-    export class Utils<T extends Number> extends ManagedUtils<ElrondUnsignedNumber<T>> {
+    export class Utils<T extends Number> extends ManagedUtils<ManagedUnsignedNumber<T>> {
 
-        static fromValue<T extends Number>(value: ElrondUnsignedNumber<T>): Utils<T> {
+        static fromValue<T extends Number>(value: ManagedUnsignedNumber<T>): Utils<T> {
             return changetype<Utils<T>>(value)
         }
 
-        get value(): ElrondUnsignedNumber<T> {
-            return changetype<ElrondUnsignedNumber<T>>(this)
+        get value(): ManagedUnsignedNumber<T> {
+            return changetype<ManagedUnsignedNumber<T>>(this)
         }
 
-        storeAtBuffer(key: ElrondString): void {
+        storeAtBuffer(key: ManagedBuffer): void {
             BigUint.fromU64(this.value.toU64()).utils.storeAtBuffer(key)
         }
 
@@ -133,8 +133,8 @@ export namespace ElrondUnsignedNumber {
             smallIntFinishUnsigned(<i64>this.value.value)
         }
 
-        encodeTop(): ElrondString {
-            return ElrondString.fromBytes(numberToBytes(this.value.toU64()))
+        encodeTop(): ManagedBuffer {
+            return ManagedBuffer.fromBytes(numberToBytes(this.value.toU64()))
         }
 
         encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -162,51 +162,51 @@ export namespace ElrondUnsignedNumber {
             return writer(retainedPtr, bytes)
         }
 
-        fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ElrondUnsignedNumber<T> {
+        fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ManagedUnsignedNumber<T> {
             const bytes = new Uint8Array(sizeof<T>())
             reader(retainedPtr, bytes)
             return this.fromBytes(bytes)
         }
 
-        fromValue(value: T): ElrondUnsignedNumber<T> {
-            return ElrondUnsignedNumber.fromValue<T>(value)
+        fromValue(value: T): ManagedUnsignedNumber<T> {
+            return ManagedUnsignedNumber.fromValue<T>(value)
         }
 
-        fromHandle(handle: i32): ElrondUnsignedNumber<T> {
-            throw new Error('TODO : error no handle (ElrondUXX)')
+        fromHandle(handle: i32): ManagedUnsignedNumber<T> {
+            throw new Error('TODO : error no handle (ManagedUXX)')
         }
 
-        fromStorage(key: ElrondString): ElrondUnsignedNumber<T> {
+        fromStorage(key: ManagedBuffer): ManagedUnsignedNumber<T> {
             const bytes = getBytesFromStorage(key)
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): ElrondUnsignedNumber<T> {
+        fromArgumentIndex(index: i32): ManagedUnsignedNumber<T> {
             const value = smallIntGetUnsignedArgument(index)
 
-            return ElrondUnsignedNumber.fromValue<T>(value)
+            return ManagedUnsignedNumber.fromValue<T>(value)
         }
 
-        fromBytes(bytes: Uint8Array): ElrondUnsignedNumber<T> {
+        fromBytes(bytes: Uint8Array): ManagedUnsignedNumber<T> {
             const value = universalDecodeNumber(bytes, false)
 
-            return ElrondUnsignedNumber.fromValue<T>(value as T)
+            return ManagedUnsignedNumber.fromValue<T>(value as T)
         }
 
-        decodeTop(buffer: ElrondString): ElrondUnsignedNumber<T> {
+        decodeTop(buffer: ManagedBuffer): ManagedUnsignedNumber<T> {
             const value = buffer.utils.toU64().value
 
-            return ElrondUnsignedNumber.fromValue<T>(value)
+            return ManagedUnsignedNumber.fromValue<T>(value)
         }
 
-        decodeNested(input: ManagedBufferNestedDecodeInput): ElrondUnsignedNumber<T> {
+        decodeNested(input: ManagedBufferNestedDecodeInput): ManagedUnsignedNumber<T> {
             const size: i32 = sizeof<T>()
             const bytes = new Uint8Array(size)
             input.readInto(bytes)
 
             const result = universalDecodeNumber(bytes.slice(0, size), false) as T
 
-            return ElrondUnsignedNumber.fromValue<T>(result)
+            return ManagedUnsignedNumber.fromValue<T>(result)
         }
 
     }

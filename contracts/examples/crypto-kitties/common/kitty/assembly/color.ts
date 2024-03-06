@@ -1,17 +1,17 @@
-import {ElrondU8} from "@gfusee/elrond-wasm-as";
+import {ManagedU8} from "@gfusee/mx-sdk-as";
 import {Random} from "../../random/assembly"
 
 @struct
 export class Color {
 
-    r: ElrondU8
-    g: ElrondU8
-    b: ElrondU8
+    r: ManagedU8
+    g: ManagedU8
+    b: ManagedU8
 
     static new(
-        r: ElrondU8,
-        g: ElrondU8,
-        b: ElrondU8
+        r: ManagedU8,
+        g: ManagedU8,
+        b: ManagedU8
     ): Color {
         const result = new Color()
 
@@ -25,9 +25,9 @@ export class Color {
     static default(): Color {
         const result = new Color()
 
-        result.r = ElrondU8.zero()
-        result.g = ElrondU8.zero()
-        result.b = ElrondU8.zero()
+        result.r = ManagedU8.zero()
+        result.g = ManagedU8.zero()
+        result.b = ManagedU8.zero()
 
         return result
     }
@@ -42,8 +42,8 @@ export class Color {
 
     mixWith(
         otherColor: Color,
-        ratioFirst: ElrondU8,
-        rationSecond: ElrondU8
+        ratioFirst: ManagedU8,
+        rationSecond: ManagedU8
     ): Color {
 
         const r = ((this.r.value as u16 * ratioFirst.value as u16 + otherColor.r.value as u16 * rationSecond.value as u16)
@@ -56,9 +56,9 @@ export class Color {
             / 100) as u8
 
         return Color.new(
-            ElrondU8.fromValue(r),
-            ElrondU8.fromValue(g),
-            ElrondU8.fromValue(b)
+            ManagedU8.fromValue(r),
+            ManagedU8.fromValue(g),
+            ManagedU8.fromValue(b)
         )
 
     }

@@ -1,24 +1,24 @@
 
-import { ElrondString } from "./erdString";
+import { ManagedBuffer } from "./buffer";
 import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
-import {ElrondArray} from "./elrondArray";
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedArray} from "./managedArray";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 
 @unmanaged
 export abstract class MultiValue extends BaseManagedType {
 
-    items: ElrondArray<ElrondString>
+    items: ManagedArray<ManagedBuffer>
 
     protected constructor() {
         super()
 
-        this.items = new ElrondArray<ElrondString>()
+        this.items = new ManagedArray<ManagedBuffer>()
     }
 
-    private _bufferCache: ElrondString | null = null
+    private _bufferCache: ManagedBuffer | null = null
 
     skipsReserialization(): boolean {
         return false
@@ -34,8 +34,8 @@ export abstract class MultiValue extends BaseManagedType {
         }
     }
 
-    get payloadSize(): ElrondU32 {
-        return ElrondU32.fromValue(4)
+    get payloadSize(): ManagedU32 {
+        return ManagedU32.fromValue(4)
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
@@ -50,7 +50,7 @@ export abstract class MultiValue extends BaseManagedType {
         this.items.push(item.utils.encodeTop())
     }
 
-    protected getItem<T extends BaseManagedType>(index: ElrondU32): T {
+    protected getItem<T extends BaseManagedType>(index: ManagedU32): T {
         return this.items.get(index).utils.intoTop<T>()
     }
 
@@ -77,7 +77,7 @@ export class MultiValue1<A extends BaseManagedType> extends MultiValue {
     }
 
     get a(): A {
-        return this.getItem<A>(ElrondU32.fromValue(0))
+        return this.getItem<A>(ManagedU32.fromValue(0))
     }
 
     write(bytes: Uint8Array): void {
@@ -115,11 +115,11 @@ export class MultiValue2<A extends BaseManagedType, B extends BaseManagedType> e
     }
 
     get a(): A {
-        return this.getItem<A>(ElrondU32.fromValue(0))
+        return this.getItem<A>(ManagedU32.fromValue(0))
     }
 
     get b(): B {
-        return this.getItem<B>(ElrondU32.fromValue(1))
+        return this.getItem<B>(ManagedU32.fromValue(1))
     }
 
     write(bytes: Uint8Array): void {
@@ -160,15 +160,15 @@ export class MultiValue3<A extends BaseManagedType, B extends BaseManagedType, C
     }
 
     get a(): A {
-        return this.getItem<A>(ElrondU32.fromValue(0))
+        return this.getItem<A>(ManagedU32.fromValue(0))
     }
 
     get b(): B {
-        return this.getItem<B>(ElrondU32.fromValue(1))
+        return this.getItem<B>(ManagedU32.fromValue(1))
     }
 
     get c(): C {
-        return this.getItem<C>(ElrondU32.fromValue(2))
+        return this.getItem<C>(ManagedU32.fromValue(2))
     }
 
     write(bytes: Uint8Array): void {
@@ -212,19 +212,19 @@ export class MultiValue4<A extends BaseManagedType, B extends BaseManagedType, C
     }
 
     get a(): A {
-        return this.getItem<A>(ElrondU32.fromValue(0))
+        return this.getItem<A>(ManagedU32.fromValue(0))
     }
 
     get b(): B {
-        return this.getItem<B>(ElrondU32.fromValue(1))
+        return this.getItem<B>(ManagedU32.fromValue(1))
     }
 
     get c(): C {
-        return this.getItem<C>(ElrondU32.fromValue(2))
+        return this.getItem<C>(ManagedU32.fromValue(2))
     }
 
     get d(): D {
-        return this.getItem<D>(ElrondU32.fromValue(3))
+        return this.getItem<D>(ManagedU32.fromValue(3))
     }
 
     write(bytes: Uint8Array): void {
@@ -271,23 +271,23 @@ export class MultiValue5<A extends BaseManagedType, B extends BaseManagedType, C
     }
 
     get a(): A {
-        return this.getItem<A>(ElrondU32.fromValue(0))
+        return this.getItem<A>(ManagedU32.fromValue(0))
     }
 
     get b(): B {
-        return this.getItem<B>(ElrondU32.fromValue(1))
+        return this.getItem<B>(ManagedU32.fromValue(1))
     }
 
     get c(): C {
-        return this.getItem<C>(ElrondU32.fromValue(2))
+        return this.getItem<C>(ManagedU32.fromValue(2))
     }
 
     get d(): D {
-        return this.getItem<D>(ElrondU32.fromValue(3))
+        return this.getItem<D>(ManagedU32.fromValue(3))
     }
 
     get e(): E {
-        return this.getItem<E>(ElrondU32.fromValue(4))
+        return this.getItem<E>(ManagedU32.fromValue(4))
     }
 
     write(bytes: Uint8Array): void {
@@ -340,20 +340,20 @@ export namespace MultiValue {
             return this._value
         }
 
-        storeAtBuffer(key: ElrondString): void {
-            const buffer = ElrondString.new()
+        storeAtBuffer(key: ManagedBuffer): void {
+            const buffer = ManagedBuffer.new()
             this.encodeNested(buffer)
             buffer.utils.storeAtBuffer(key)
         }
 
         signalError(): void {
-            const buffer = ElrondString.new()
+            const buffer = ManagedBuffer.new()
             this.encodeNested(buffer)
             buffer.utils.signalError()
         }
 
-        encodeTop(): ElrondString {
-            const buffer = ElrondString.new()
+        encodeTop(): ManagedBuffer {
+            const buffer = ManagedBuffer.new()
             this.encodeNested(buffer)
 
             return buffer
@@ -364,7 +364,7 @@ export namespace MultiValue {
         }
 
         toString(): string {
-            const output = ElrondString.new()
+            const output = ManagedBuffer.new()
             this.encodeNested(output)
             return output.utils.toString()
         }
@@ -374,19 +374,19 @@ export namespace MultiValue {
         }
 
         finish(): void {
-            const output = ElrondString.new()
+            const output = ManagedBuffer.new()
             this.encodeNested(output)
             output.utils.finish()
         }
 
         fromHandle(handle: i32): T {
-            const buffer = ElrondString.fromHandle(handle)
+            const buffer = ManagedBuffer.fromHandle(handle)
 
             return this.decodeTop(buffer)
         }
 
         fromArgumentIndex(index: i32): T {
-            const buffer = ElrondString.dummy().utils.fromArgumentIndex(index)
+            const buffer = ManagedBuffer.dummy().utils.fromArgumentIndex(index)
 
             return this.decodeTop(buffer)
         }
@@ -399,7 +399,7 @@ export namespace MultiValue {
             return BaseManagedUtils.defaultFromByteReader<T, Utils<T>>(this, retainedPtr, reader)
         }
 
-        decodeTop(buffer: ElrondString): T {
+        decodeTop(buffer: ManagedBuffer): T {
             const input = new ManagedBufferNestedDecodeInput(buffer)
             return this.decodeNested(input)
         }

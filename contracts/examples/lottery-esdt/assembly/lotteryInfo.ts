@@ -1,24 +1,24 @@
 //@ts-nocheck
 
-import { BigUint, ElrondArray, ElrondU32, ElrondU64, ElrondU8, TokenIdentifier } from "@gfusee/elrond-wasm-as";
+import { BigUint, ManagedArray, ManagedU32, ManagedU64, ManagedU8, TokenIdentifier } from "@gfusee/mx-sdk-as";
 
 @struct
 export class LotteryInfo {
     tokenIdentifier!: TokenIdentifier
     ticketPrice!: BigUint
-    ticketsLeft!: ElrondU32
-    deadline!: ElrondU64
-    maxEntriesPerUser!: ElrondU32
-    prizeDistribution!: ElrondArray<ElrondU8>
+    ticketsLeft!: ManagedU32
+    deadline!: ManagedU64
+    maxEntriesPerUser!: ManagedU32
+    prizeDistribution!: ManagedArray<ManagedU8>
     prizePool!: BigUint
 
     static new(
         tokenIdentifier: TokenIdentifier,
         ticketPrice: BigUint,
-        ticketsLeft: ElrondU32,
-        deadline: ElrondU64,
-        maxEntriesPerUser: ElrondU32,
-        prizeDistribution: ElrondArray<ElrondU8>,
+        ticketsLeft: ManagedU32,
+        deadline: ManagedU64,
+        maxEntriesPerUser: ManagedU32,
+        prizeDistribution: ManagedArray<ManagedU8>,
         prizePool: BigUint,
     ): LotteryInfo {
         const result = new LotteryInfo()

@@ -4,17 +4,15 @@
   "description": "Flip smart contract",
   "main": "index.js",
   "scripts": {
-    "test": "npm run mandos",
     "asbuild:debug": "asc assembly/index.ts --target debug",
     "asbuild:release": "asc assembly/index.ts --target release",
     "asbuild": "npm run asbuild:release",
-    "build": "npm run asbuild",
-    "mandos": "$HOME/elrondsdk/vmtools/mandos-test mandos"
+    "build": "npm run asbuild"
   },
   "author": "Quentin Diebold",
   "license": "ISC",
   "devDependencies": {
-    "@gfusee/elrond-wasm-as": "file:../../..",
+    "@gfusee/mx-sdk-as": "file:../../..",
     "@types/node": "^18.0.3",
     "assemblyscript": "^0.21.2",
     "ts-node": "^10.8.2",

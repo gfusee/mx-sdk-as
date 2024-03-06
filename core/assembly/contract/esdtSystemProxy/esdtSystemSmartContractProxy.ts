@@ -1,4 +1,4 @@
-import {BigUint, ElrondString, ElrondVoid, ManagedAddress, TokenType} from "../../types";
+import {BigUint, ManagedBuffer, ManagedVoid, ManagedAddress, TokenType} from "../../types";
 import {FungibleTokenProperties, TokenProperties} from "./tokenProperties";
 import {ContractCall} from "../call/contractCall";
 
@@ -14,11 +14,11 @@ export class EsdtSystemSmartContractProxy {
 
     issueFungible(
         issueCost: BigUint,
-        tokenDisplayName: ElrondString,
-        tokenTicker: ElrondString,
+        tokenDisplayName: ManagedBuffer,
+        tokenTicker: ManagedBuffer,
         initialSupply: BigUint,
         properties: FungibleTokenProperties
-    ): ContractCall<ElrondVoid> {
+    ): ContractCall<ManagedVoid> {
         return this.issue(
             issueCost,
             TokenType.Fungible,
@@ -32,24 +32,24 @@ export class EsdtSystemSmartContractProxy {
     private issue(
         issueCost: BigUint,
         tokenType: TokenType,
-        tokenDisplayName: ElrondString,
-        tokenTicker: ElrondString,
+        tokenDisplayName: ManagedBuffer,
+        tokenTicker: ManagedBuffer,
         initialSupply: BigUint,
         properties: TokenProperties
-    ): ContractCall<ElrondVoid> {
+    ): ContractCall<ManagedVoid> {
         const esdtSystemScAddress = this.esdtSystemScAddress()
 
-        let endpointName: ElrondString
+        let endpointName: ManagedBuffer
         if (tokenType == TokenType.Fungible) {
-            endpointName = ElrondString.fromString(ISSUE_FUNGIBLE_ENDPOINT_NAME)
+            endpointName = ManagedBuffer.fromString(ISSUE_FUNGIBLE_ENDPOINT_NAME)
         } else if (tokenType == TokenType.NonFungible) {
-            endpointName = ElrondString.fromString(ISSUE_NON_FUNGIBLE_ENDPOINT_NAME)
+            endpointName = ManagedBuffer.fromString(ISSUE_NON_FUNGIBLE_ENDPOINT_NAME)
         } else if (tokenType == TokenType.SemiFungible) {
-            endpointName = ElrondString.fromString(ISSUE_SEMI_FUNGIBLE_ENDPOINT_NAME)
+            endpointName = ManagedBuffer.fromString(ISSUE_SEMI_FUNGIBLE_ENDPOINT_NAME)
         } else if (tokenType == TokenType.Meta) {
-            endpointName = ElrondString.fromString(REGISTER_META_ESDT_ENDPOINT_NAME)
+            endpointName = ManagedBuffer.fromString(REGISTER_META_ESDT_ENDPOINT_NAME)
         } else if (tokenType == TokenType.Invalid) {
-            endpointName = ElrondString.fromString('')
+            endpointName = ManagedBuffer.fromString('')
         } else {
             throw new Error('Unknown token type')
         }
@@ -72,46 +72,46 @@ export class EsdtSystemSmartContractProxy {
 
         setTokenProperty(
             contractCall,
-            ElrondString.fromString('canFreeze'),
+            ManagedBuffer.fromString('canFreeze'),
             properties.canFreeze
         )
         setTokenProperty(
             contractCall,
-            ElrondString.fromString('canWipe'),
+            ManagedBuffer.fromString('canWipe'),
             properties.canWipe
         )
         setTokenProperty(
             contractCall,
-            ElrondString.fromString('canPause'),
+            ManagedBuffer.fromString('canPause'),
             properties.canPause
         )
 
         if (tokenType == TokenType.Fungible) {
             setTokenProperty(
                 contractCall,
-                ElrondString.fromString('canMint'),
+                ManagedBuffer.fromString('canMint'),
                 properties.canMint
             )
             setTokenProperty(
                 contractCall,
-                ElrondString.fromString('canBurn'),
+                ManagedBuffer.fromString('canBurn'),
                 properties.canBurn
             )
         }
 
         setTokenProperty(
             contractCall,
-            ElrondString.fromString('canChangeOwner'),
+            ManagedBuffer.fromString('canChangeOwner'),
             properties.canChangeOwner
         )
         setTokenProperty(
             contractCall,
-            ElrondString.fromString('canUpgrade'),
+            ManagedBuffer.fromString('canUpgrade'),
             properties.canUpgrade
         )
         setTokenProperty(
             contractCall,
-            ElrondString.fromString('canAddSpecialRoles'),
+            ManagedBuffer.fromString('canAddSpecialRoles'),
             properties.canAddSpecialRoles
         )
 
@@ -119,7 +119,7 @@ export class EsdtSystemSmartContractProxy {
     }
 
     private esdtSystemScAddress(): ManagedAddress {
-        return ManagedAddress.from(ElrondString.fromString(ESDT_SYSTEM_SC_ADDRESS_BECH32))
+        return ManagedAddress.from(ManagedBuffer.fromString(ESDT_SYSTEM_SC_ADDRESS_BECH32))
     }
 
 }
@@ -127,15 +127,15 @@ export class EsdtSystemSmartContractProxy {
 const TRUE_BYTES: string = "true"
 const FALSE_BYTES: string = "false"
 
-function getBooleanName(b: boolean): ElrondString {
+function getBooleanName(b: boolean): ManagedBuffer {
     if (b) {
-        return ElrondString.fromString(TRUE_BYTES)
+        return ManagedBuffer.fromString(TRUE_BYTES)
     } else {
-        return ElrondString.fromString(FALSE_BYTES)
+        return ManagedBuffer.fromString(FALSE_BYTES)
     }
 }
 
-function setTokenProperty(contractCall: ContractCall, name: ElrondString, value: boolean): void {
+function setTokenProperty(contractCall: ContractCall, name: ManagedBuffer, value: boolean): void {
     contractCall.pushArgumentRaw(name)
     contractCall.pushArgumentRaw(getBooleanName(value))
 }

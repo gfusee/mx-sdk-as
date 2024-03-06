@@ -1,7 +1,7 @@
 import {checkIfDebugBreakpointEnabled, enableSecondDebugBreakpoint, validateTokenIdentifier} from "../utils/env"
-import { ElrondString } from "./erdString"
+import { ManagedBuffer } from "./buffer"
 import { ManagedWrappedString } from "./managedWrappedString"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
 import {defaultBaseManagedTypeWriteImplementation} from "./interfaces/managedType"
@@ -13,8 +13,8 @@ export class TokenIdentifier extends ManagedWrappedString {
     return TokenIdentifier.Utils.fromValue(this)
   }
 
-  private static egldRepresentation(): ElrondString {
-    return ElrondString.fromString('EGLD')
+  private static egldRepresentation(): ManagedBuffer {
+    return ManagedBuffer.fromString('EGLD')
   }
 
   skipsReserialization(): boolean {
@@ -38,10 +38,10 @@ export class TokenIdentifier extends ManagedWrappedString {
   }
 
   static fromString(str: string): TokenIdentifier {
-    return TokenIdentifier.fromBuffer(ElrondString.fromString(str))
+    return TokenIdentifier.fromBuffer(ManagedBuffer.fromString(str))
   }
 
-  static fromBuffer(buffer: ElrondString): TokenIdentifier {
+  static fromBuffer(buffer: ManagedBuffer): TokenIdentifier {
     return TokenIdentifier.dummy().utils.fromBuffer(buffer)
   }
 
@@ -73,7 +73,7 @@ export namespace TokenIdentifier {
       this.value.buffer.utils.finish()
     }
 
-    storeAtBuffer(key: ElrondString): void {
+    storeAtBuffer(key: ManagedBuffer): void {
       this.value.buffer.utils.storeAtBuffer(key)
     }
 
@@ -81,7 +81,7 @@ export namespace TokenIdentifier {
       this.value.buffer.utils.signalError()
     }
 
-    encodeTop(): ElrondString {
+    encodeTop(): ManagedBuffer {
       return this.value.buffer
     }
 
@@ -101,12 +101,12 @@ export namespace TokenIdentifier {
       return this.value.buffer.utils.toString()
     }
 
-    fromBuffer(buffer: ElrondString): TokenIdentifier {
+    fromBuffer(buffer: ManagedBuffer): TokenIdentifier {
       return changetype<TokenIdentifier>(buffer)
     }
 
     fromString(str: string): void {
-      this.value.buffer = ElrondString.fromString(str)
+      this.value.buffer = ManagedBuffer.fromString(str)
     }
 
     fromHandle(handle: i32): TokenIdentifier {
@@ -114,23 +114,23 @@ export namespace TokenIdentifier {
     }
 
     fromArgumentIndex(argIndex: i32): TokenIdentifier {
-      const buffer = ElrondString.dummy().utils.fromArgumentIndex(argIndex)
+      const buffer = ManagedBuffer.dummy().utils.fromArgumentIndex(argIndex)
       return this.fromBuffer(buffer)
     }
 
-    fromStorage(key: ElrondString): TokenIdentifier {
-      return this.fromBuffer(ElrondString.dummy().utils.fromStorage(key))
+    fromStorage(key: ManagedBuffer): TokenIdentifier {
+      return this.fromBuffer(ManagedBuffer.dummy().utils.fromStorage(key))
     }
 
     fromBytes(bytes: Uint8Array): TokenIdentifier {
-      return this.fromBuffer(ElrondString.dummy().utils.fromBytes(bytes))
+      return this.fromBuffer(ManagedBuffer.dummy().utils.fromBytes(bytes))
     }
 
     fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): TokenIdentifier {
       return BaseManagedUtils.defaultFromByteReader<TokenIdentifier, Utils>(this, retainedPtr, reader);
     }
 
-    decodeTop(buffer: ElrondString): TokenIdentifier {
+    decodeTop(buffer: ManagedBuffer): TokenIdentifier {
       return this.fromBuffer(buffer)
     }
 

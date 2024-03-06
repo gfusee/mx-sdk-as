@@ -3,15 +3,15 @@
 import {
     BigUint,
     ContractBase,
-    ElrondString,
-    ElrondU32,
-    ElrondU64, ManagedAddress,
+    ManagedBuffer,
+    ManagedU32,
+    ManagedU64, ManagedAddress,
     Mapping, MultiValueEncoded,
     Option,
     OptionalValue,
     TokenIdentifier,
     UserMapping
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 import {UserStatus} from "./userStatus";
 
 const PONG_ALL_LOW_GAS_LIMIT: u64 = 3000000
@@ -20,22 +20,22 @@ const PONG_ALL_LOW_GAS_LIMIT: u64 = 3000000
 abstract class PingPong extends ContractBase {
 
     pingAmount: BigUint
-    deadline: ElrondU64
-    activationTimestamp: ElrondU64
+    deadline: ManagedU64
+    activationTimestamp: ManagedU64
     maxFunds: Option<BigUint>
-    pongAllLastUser: ElrondU32
+    pongAllLastUser: ManagedU32
 
     constructor(
         pingAmount: BigUint,
-        durationInSeconds: ElrondU64,
-        optActivationTimestamp: Option<ElrondU64>,
+        durationInSeconds: ManagedU64,
+        optActivationTimestamp: Option<ManagedU64>,
         maxFunds: OptionalValue<BigUint>
     ) {
         super()
 
         this.pingAmount = pingAmount
 
-        let activationTimestamp: ElrondU64
+        let activationTimestamp: ManagedU64
         if (optActivationTimestamp.isNull()) {
             activationTimestamp = this.blockchain.currentBlockTimestamp
         } else {
@@ -72,7 +72,7 @@ abstract class PingPong extends ContractBase {
             this.require(
                 this.blockchain.getSCBalance(
                     TokenIdentifier.egld(),
-                    ElrondU64.zero()
+                    ManagedU64.zero()
                 ) + payment <= maxFunds,
                 "smart contract full"
             )
@@ -106,7 +106,7 @@ abstract class PingPong extends ContractBase {
         }
     }
 
-    pongAll(): ElrondString {
+    pongAll(): ManagedBuffer {
         this.require(
             this.blockchain.currentBlockTimestamp >= this.deadline,
             "can't withdraw before deadline"
@@ -114,20 +114,20 @@ abstract class PingPong extends ContractBase {
 
         const numUsers = this.user().getUserCount()
         let pongAllLastUser = this.pongAllLastUser
-        const pongAllGasLimit = ElrondU64.fromValue(PONG_ALL_LOW_GAS_LIMIT)
+        const pongAllGasLimit = ManagedU64.fromValue(PONG_ALL_LOW_GAS_LIMIT)
         while (true) {
             if (pongAllLastUser >= numUsers) {
-                pongAllLastUser = ElrondU32.zero()
+                pongAllLastUser = ManagedU32.zero()
                 this.pongAllLastUser = pongAllLastUser
-                return ElrondString.fromString("completed")
+                return ManagedBuffer.fromString("completed")
             }
 
             if (this.blockchain.getGasLeft() < pongAllGasLimit) {
                 this.pongAllLastUser = pongAllLastUser
-                return ElrondString.fromString("interrupted")
+                return ManagedBuffer.fromString("interrupted")
             }
 
-            pongAllLastUser += ElrondU32.fromValue(1)
+            pongAllLastUser += ManagedU32.fromValue(1)
 
             this.pongByUserId(pongAllLastUser)
         }
@@ -144,12 +144,12 @@ abstract class PingPong extends ContractBase {
     }
 
     @view
-    getDeadline(): ElrondU64 {
+    getDeadline(): ManagedU64 {
         return this.deadline
     }
 
     @view
-    getActivationTimestamp(): ElrondU64 {
+    getActivationTimestamp(): ManagedU64 {
         return this.activationTimestamp
     }
 
@@ -159,16 +159,16 @@ abstract class PingPong extends ContractBase {
     }
 
     @view
-    getUserStatus(userId: ElrondU32): UserStatus {
+    getUserStatus(userId: ManagedU32): UserStatus {
         return this.userStatus(userId).get()
     }
 
     @view
-    getPongAllLastUser(): ElrondU32 {
+    getPongAllLastUser(): ManagedU32 {
         return this.pongAllLastUser
     }
 
-    private pongByUserId(userId: ElrondU32): string | null {
+    private pongByUserId(userId: ManagedU32): string | null {
         const userStatus = this.userStatus(userId).get()
 
         if (userStatus == UserStatus.New) {
@@ -195,6 +195,6 @@ abstract class PingPong extends ContractBase {
     }
 
     abstract user(): UserMapping
-    abstract userStatus(id: ElrondU32): Mapping<UserStatus>
+    abstract userStatus(id: ManagedU32): Mapping<UserStatus>
 
 }

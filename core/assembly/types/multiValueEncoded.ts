@@ -1,32 +1,32 @@
 import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils";
-import {ElrondString} from "./erdString";
+import {ManagedBuffer} from "./buffer";
 import {
     __frameworkGetRetainedClosureValue,
     __frameworkReleaseRetainedClosureValue,
     __frameworkRetainClosureValue,
     getNumArguments
 } from "../utils/env";
-import {ElrondArray} from "./elrondArray";
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedArray} from "./managedArray";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 
 @unmanaged
 export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
 
-    __rawBuffer: ElrondArray<ElrondString> | null = null
+    __rawBuffer: ManagedArray<ManagedBuffer> | null = null
 
-    get rawBuffer(): ElrondArray<ElrondString> {
+    get rawBuffer(): ManagedArray<ManagedBuffer> {
         if (this.__rawBuffer) {
             return this.__rawBuffer!
         } else {
-            this.__rawBuffer = new ElrondArray<ElrondString>()
+            this.__rawBuffer = new ManagedArray<ManagedBuffer>()
             return this.__rawBuffer!
         }
     }
 
-    set rawBuffer(value: ElrondArray<ElrondString>) {
+    set rawBuffer(value: ManagedArray<ManagedBuffer>) {
         this.__rawBuffer = value
     }
 
@@ -34,8 +34,8 @@ export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
         return new MultiValueEncoded.Utils<T>(this);
     }
 
-    get payloadSize(): ElrondU32 {
-        return ElrondU32.fromValue(4)
+    get payloadSize(): ManagedU32 {
+        return ManagedU32.fromValue(4)
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
@@ -54,10 +54,10 @@ export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
         this.rawBuffer.push(item.utils.encodeTop())
     }
 
-    toElrondArray(): ElrondArray<T> {
-        const result = new ElrondArray<T>()
+    toManagedArray(): ManagedArray<T> {
+        const result = new ManagedArray<T>()
         const rawBufferLength = this.rawBuffer.getLength()
-        for (let i = ElrondU32.zero(); i < rawBufferLength; i++) {
+        for (let i = ManagedU32.zero(); i < rawBufferLength; i++) {
             const item = this.rawBuffer.get(i)
             const newValue = BaseManagedType.dummy<T>().utils.decodeTop(item)
             result.push(newValue)
@@ -70,7 +70,7 @@ export class MultiValueEncoded<T extends ManagedType> extends BaseManagedType {
         defaultBaseManagedTypeWriteImplementation()
     }
 
-    static fromArray<T extends BaseManagedType>(array: ElrondArray<ElrondString>): MultiValueEncoded<T> {
+    static fromArray<T extends BaseManagedType>(array: ManagedArray<ManagedBuffer>): MultiValueEncoded<T> {
         const result = new MultiValueEncoded<T>()
 
         result.__rawBuffer = array
@@ -95,7 +95,7 @@ export namespace MultiValueEncoded {
             return this._value
         }
 
-        storeAtBuffer(key: ElrondString): void {
+        storeAtBuffer(key: ManagedBuffer): void {
             this.value.rawBuffer.utils.storeAtBuffer(key)
         }
 
@@ -124,7 +124,7 @@ export namespace MultiValueEncoded {
         }
 
         fromHandle(handle: i32): MultiValueEncoded<T> {
-            this.value.rawBuffer = ElrondArray.fromBuffer<ElrondString>(ElrondString.fromHandle(handle))
+            this.value.rawBuffer = ManagedArray.fromBuffer<ManagedBuffer>(ManagedBuffer.fromHandle(handle))
 
             return this
         }
@@ -132,14 +132,14 @@ export namespace MultiValueEncoded {
         fromArgumentIndex(index: i32): MultiValueEncoded<T> {
             const numberOfArguments = getNumArguments()
             for (let i = index; i < numberOfArguments; i++) {
-                const newRawBuffer = ElrondString.dummy().utils.fromArgumentIndex(i)
+                const newRawBuffer = ManagedBuffer.dummy().utils.fromArgumentIndex(i)
                 this.value.rawBuffer.push(newRawBuffer)
             }
 
             return this.value
         }
 
-        encodeTop(): ElrondString {
+        encodeTop(): ManagedBuffer {
             return this.value.rawBuffer.utils.encodeTop()
         }
 
@@ -147,14 +147,14 @@ export namespace MultiValueEncoded {
             this.value.rawBuffer.utils.encodeNested(output)
         }
 
-        decodeTop(buffer: ElrondString): MultiValueEncoded<T> {
-            this.value.rawBuffer = ElrondArray.dummy<ElrondString>().utils.decodeTop(buffer)
+        decodeTop(buffer: ManagedBuffer): MultiValueEncoded<T> {
+            this.value.rawBuffer = ManagedArray.dummy<ManagedBuffer>().utils.decodeTop(buffer)
 
             return this.value
         }
 
         decodeNested(input: ManagedBufferNestedDecodeInput): MultiValueEncoded<T> {
-            this.value.rawBuffer = ElrondArray.dummy<ElrondString>().utils.decodeNested(input)
+            this.value.rawBuffer = ManagedArray.dummy<ManagedBuffer>().utils.decodeNested(input)
 
             return this.value
         }

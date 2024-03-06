@@ -3,12 +3,12 @@
 import {
     BigUint,
     ContractBase,
-    ElrondU8,
-    ElrondU64,
+    ManagedU8,
+    ManagedU64,
     Mapping,
     TokenIdentifier,
     RandomnessSource, ManagedAddress
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 
 import {Flip} from "./flip";
 
@@ -18,16 +18,16 @@ const HUNDRED_PERCENT: u64 = 10_000
 abstract class FlipContract extends ContractBase {
 
     constructor(
-        ownerPercentFees: ElrondU64,
-        bountyPercentFees: ElrondU64,
-        minimumBlockBounty: ElrondU64
+        ownerPercentFees: ManagedU64,
+        bountyPercentFees: ManagedU64,
+        minimumBlockBounty: ManagedU64
     ) {
         super()
         this.ownerPercentFees().set(ownerPercentFees)
         this.bountyPercentFees().set(bountyPercentFees)
 
         this.require(
-            minimumBlockBounty > ElrondU64.zero(),
+            minimumBlockBounty > ManagedU64.zero(),
             "minimumBlockBounty is zero"
         )
 
@@ -80,9 +80,9 @@ abstract class FlipContract extends ContractBase {
             "too much bet"
         )
 
-        const lastFlipId = this.lastFlipId().isEmpty() ? ElrondU64.zero() : this.lastFlipId().get()
+        const lastFlipId = this.lastFlipId().isEmpty() ? ManagedU64.zero() : this.lastFlipId().get()
 
-        const flipId = lastFlipId + ElrondU64.fromValue(1)
+        const flipId = lastFlipId + ManagedU64.fromValue(1)
 
         const flip = Flip.new(
             flipId,
@@ -116,8 +116,8 @@ abstract class FlipContract extends ContractBase {
         bountyAddress: ManagedAddress,
         flip: Flip
     ): void {
-        const randomNumber = RandomnessSource.nextU8InRange(ElrondU8.fromValue(0), ElrondU8.fromValue(2))
-        const isWin = randomNumber == ElrondU8.fromValue(1)
+        const randomNumber = RandomnessSource.nextU8InRange(ManagedU8.fromValue(0), ManagedU8.fromValue(2))
+        const isWin = randomNumber == ManagedU8.fromValue(1)
 
         this.send
             .direct(
@@ -173,7 +173,7 @@ abstract class FlipContract extends ContractBase {
         let bountyFlipId = lastBountyFlipId
 
         while (bountyFlipId < lastFlipId) {
-            const flipId = bountyFlipId + ElrondU64.fromValue(1)
+            const flipId = bountyFlipId + ManagedU64.fromValue(1)
 
             if (this.flipForId(flipId).isEmpty()) {
                 break
@@ -190,7 +190,7 @@ abstract class FlipContract extends ContractBase {
                 flip
             )
 
-            bountyFlipId = bountyFlipId + ElrondU64.fromValue(1)
+            bountyFlipId = bountyFlipId + ManagedU64.fromValue(1)
         }
 
         this.require(
@@ -218,7 +218,7 @@ abstract class FlipContract extends ContractBase {
     @onlyOwner
     withdrawReserve(
         tokenIdentifier: TokenIdentifier,
-        nonce: ElrondU64,
+        nonce: ManagedU64,
         amount: BigUint
     ): void {
         const owner = this.blockchain.caller
@@ -243,7 +243,7 @@ abstract class FlipContract extends ContractBase {
     @onlyOwner
     setMaximumBet(
         tokenIdentifier: TokenIdentifier,
-        nonce: ElrondU64,
+        nonce: ManagedU64,
         amount: BigUint
     ): void {
         this.require(
@@ -257,11 +257,11 @@ abstract class FlipContract extends ContractBase {
     @onlyOwner
     setMaximumBetPercent(
         tokenIdentifier: TokenIdentifier,
-        nonce: ElrondU64,
-        percent: ElrondU64
+        nonce: ManagedU64,
+        percent: ManagedU64
     ): void {
         this.require(
-            percent > ElrondU64.zero(),
+            percent > ManagedU64.zero(),
             "percent zero"
         )
 
@@ -270,41 +270,41 @@ abstract class FlipContract extends ContractBase {
 
     @onlyOwner
     setMinimumBlockBounty(
-        minimumBlockBounty: ElrondU64
+        minimumBlockBounty: ManagedU64
     ): void {
         this.require(
-            minimumBlockBounty > ElrondU64.zero(),
+            minimumBlockBounty > ManagedU64.zero(),
             "minimum block bounty zero"
         )
 
         this.minimumBlockBounty().set(minimumBlockBounty)
     }
 
-    abstract ownerPercentFees(): Mapping<ElrondU64>
+    abstract ownerPercentFees(): Mapping<ManagedU64>
 
-    abstract bountyPercentFees(): Mapping<ElrondU64>
+    abstract bountyPercentFees(): Mapping<ManagedU64>
 
     abstract maximumBet(
         tokenIdentifier: TokenIdentifier,
-        tokenNonce: ElrondU64
+        tokenNonce: ManagedU64
     ): Mapping<BigUint>
 
     abstract maximumBetPercent(
         tokenIdentifier: TokenIdentifier,
-        tokenNonce: ElrondU64
-    ): Mapping<ElrondU64>
+        tokenNonce: ManagedU64
+    ): Mapping<ManagedU64>
 
-    abstract minimumBlockBounty(): Mapping<ElrondU64>
+    abstract minimumBlockBounty(): Mapping<ManagedU64>
 
     abstract tokenReserve(
         tokenIdentifier: TokenIdentifier,
-        tokenNonce: ElrondU64
+        tokenNonce: ManagedU64
     ): Mapping<BigUint>
 
-    abstract flipForId(id: ElrondU64): Mapping<Flip>
+    abstract flipForId(id: ManagedU64): Mapping<Flip>
 
-    abstract lastFlipId(): Mapping<ElrondU64>
+    abstract lastFlipId(): Mapping<ManagedU64>
 
-    abstract lastBountyFlipId(): Mapping<ElrondU64>
+    abstract lastBountyFlipId(): Mapping<ManagedU64>
 
 }

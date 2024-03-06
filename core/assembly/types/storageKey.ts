@@ -1,4 +1,4 @@
-import {ElrondString} from "./erdString";
+import {ManagedBuffer} from "./buffer";
 import {BaseManagedType, ManagedType} from "./interfaces/managedType";
 import {checkIfDebugBreakpointEnabled} from "../utils/env";
 
@@ -6,14 +6,14 @@ import {checkIfDebugBreakpointEnabled} from "../utils/env";
 export class StorageKey { //TODO : allocate on the stack
 
     constructor(
-        public buffer: ElrondString
+        public buffer: ManagedBuffer
     ) {}
 
     clone(): StorageKey {
         return new StorageKey(this.buffer.clone())
     }
 
-    appendBuffer(buffer: ElrondString): void {
+    appendBuffer(buffer: ManagedBuffer): void {
         this.buffer.append(buffer)
     }
 

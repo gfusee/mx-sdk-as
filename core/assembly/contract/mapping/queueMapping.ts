@@ -1,4 +1,4 @@
-import {ManagedType, ElrondString, ElrondU32, Option, StorageKey} from "../../types";
+import {ManagedType, ManagedBuffer, ManagedU32, Option, StorageKey} from "../../types";
 import { BaseMapping } from "./baseMapping";
 import { Mapping } from "./mapping";
 import {enableDebugBreakpoint} from "../../utils/env"
@@ -18,7 +18,7 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
     ) {
         super(key)
 
-        const infoKey = this.buildNameKey(ElrondString.fromString(INFO_IDENTIFIER))
+        const infoKey = this.buildNameKey(ManagedBuffer.fromString(INFO_IDENTIFIER))
         this.infoMapping = (new Mapping<QueueMappingInfo>(infoKey))
     }
 
@@ -26,14 +26,14 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
         return this.getInfo().length.value == 0
     }
 
-    getLength(): ElrondU32 {
+    getLength(): ManagedU32 {
         return this.getInfo().length
     }
 
-    pushBackNodeId(elt: T): ElrondU32 {
+    pushBackNodeId(elt: T): ManagedU32 {
         const info = this.getInfo()
         const newNodeId = info.generateNewNodeId()
-        let previous = ElrondU32.fromValue(NULL_ENTRY)
+        let previous = ManagedU32.fromValue(NULL_ENTRY)
         if (info.length.value == 0) {
             info.front = newNodeId
         } else {
@@ -48,18 +48,18 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
             newNodeId,
             QueueMappingNode.new(
                 previous,
-                ElrondU32.fromValue(NULL_ENTRY)
+                ManagedU32.fromValue(NULL_ENTRY)
             )
         )
 
         info.back = newNodeId
         this.setValue(newNodeId, elt)
-        info.length += ElrondU32.fromValue(1)
+        info.length += ManagedU32.fromValue(1)
         this.setInfo(info)
         return newNodeId
     }
 
-    removeByNodeId(nodeId: ElrondU32): Option<T> {
+    removeByNodeId(nodeId: ManagedU32): Option<T> {
         if (nodeId.value == NULL_ENTRY) {
             return Option.null<T>()
         }
@@ -86,8 +86,8 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
         this.clearNode(nodeId)
         const removedValue = this.getValue(nodeId)
         this.clearValue(nodeId)
-        info.length -= ElrondU32.fromValue(1)
-        info.newItem = ElrondU32.zero()
+        info.length -= ManagedU32.fromValue(1)
+        info.newItem = ManagedU32.zero()
         this.setInfo(info)
         return Option.withValue(removedValue)
     }
@@ -106,7 +106,7 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
     clear(): void {
         const info = this.getInfo()
         let nodeId = info.front
-        while (nodeId != ElrondU32.fromValue(NULL_ENTRY)) {
+        while (nodeId != ManagedU32.fromValue(NULL_ENTRY)) {
             const node = this.getNode(nodeId)
             const nodeMapping = this.getNodeMapping(nodeId)
             nodeMapping.clear()
@@ -119,7 +119,7 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
         this.clearInfo()
     }
 
-    getValue(nodeId: ElrondU32): T {
+    getValue(nodeId: ManagedU32): T {
         const mapping = this.getValueMapping(nodeId)
         return mapping.get()
     }
@@ -128,12 +128,12 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
         return new QueueMappingIterator<T>(this)
     }
 
-    private setValue(nodeId: ElrondU32, value: T): void {
+    private setValue(nodeId: ManagedU32, value: T): void {
         const mapping = this.getValueMapping(nodeId)
         mapping.set(value)
     }
 
-    private clearValue(nodeId: ElrondU32): void {
+    private clearValue(nodeId: ManagedU32): void {
         const mapping = this.getValueMapping(nodeId)
         mapping.clear()
     }
@@ -147,47 +147,47 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
     }
 
     private setInfo(value: QueueMappingInfo): void {
-        if (value.length === ElrondU32.zero()) { // imitates the "impl EncodeDefault for QueueMapperInfo" in mx-sdk-rs
+        if (value.length === ManagedU32.zero()) { // imitates the "impl EncodeDefault for QueueMapperInfo" in mx-sdk-rs
             this.infoMapping.clear()
         } else {
             this.infoMapping.set(value)
         }
     }
 
-    getNode(nodeId: ElrondU32): QueueMappingNode {
+    getNode(nodeId: ManagedU32): QueueMappingNode {
         const nodeMapping = this.getNodeMapping(nodeId)
 
         return nodeMapping.get()
     }
 
-    private setNode(nodeId: ElrondU32, item: QueueMappingNode): void {
+    private setNode(nodeId: ManagedU32, item: QueueMappingNode): void {
         const nodeMapping = this.getNodeMapping(nodeId)
         nodeMapping.set(item)
     }
 
-    private clearNode(nodeId: ElrondU32): void {
+    private clearNode(nodeId: ManagedU32): void {
         const nodeMapping = this.getNodeMapping(nodeId)
         nodeMapping.clear()
     }
 
-    private buildNameKey(name: ElrondString): StorageKey {
+    private buildNameKey(name: ManagedBuffer): StorageKey {
         const nameKey = this.key.clone()
         nameKey.appendBuffer(name)
 
         return nameKey
     }
 
-    private getNodeMapping(nodeId: ElrondU32): Mapping<QueueMappingNode> {
-        const key = this.buildNodeIdNamedKey(ElrondString.fromString(NODE_IDENTIFIER), nodeId)
+    private getNodeMapping(nodeId: ManagedU32): Mapping<QueueMappingNode> {
+        const key = this.buildNodeIdNamedKey(ManagedBuffer.fromString(NODE_IDENTIFIER), nodeId)
         return new Mapping<QueueMappingNode>(key)
     }
 
-    private getValueMapping(nodeId: ElrondU32): Mapping<T> {
-        const key = this.buildNodeIdNamedKey(ElrondString.fromString(VALUE_IDENTIFIER), nodeId)
+    private getValueMapping(nodeId: ManagedU32): Mapping<T> {
+        const key = this.buildNodeIdNamedKey(ManagedBuffer.fromString(VALUE_IDENTIFIER), nodeId)
         return new Mapping<T>(key)
     }
 
-    private buildNodeIdNamedKey(name: ElrondString, nodeId: ElrondU32): StorageKey {
+    private buildNodeIdNamedKey(name: ManagedBuffer, nodeId: ManagedU32): StorageKey {
         const namedKey = this.key.clone()
         namedKey.appendBuffer(name)
         namedKey.appendItem(nodeId)
@@ -200,32 +200,32 @@ export class QueueMapping<T extends ManagedType> extends BaseMapping {
 @struct
 @defaultDecode
 export class QueueMappingInfo {
-    length!: ElrondU32
-    front!: ElrondU32
-    back!: ElrondU32
-    newItem!: ElrondU32
+    length!: ManagedU32
+    front!: ManagedU32
+    back!: ManagedU32
+    newItem!: ManagedU32
 
-    generateNewNodeId(): ElrondU32 {
-        this.newItem += ElrondU32.fromValue(1)
+    generateNewNodeId(): ManagedU32 {
+        this.newItem += ManagedU32.fromValue(1)
         return this.newItem
     }
 
     topDecodeInstantiateDefaultsValues(): void {
-        this.length = ElrondU32.zero()
-        this.front = ElrondU32.zero()
-        this.back = ElrondU32.zero()
-        this.newItem = ElrondU32.zero()
+        this.length = ManagedU32.zero()
+        this.front = ManagedU32.zero()
+        this.back = ManagedU32.zero()
+        this.newItem = ManagedU32.zero()
     }
 }
 
 @struct
 export class QueueMappingNode {
-    previous!: ElrondU32
-    next!: ElrondU32
+    previous!: ManagedU32
+    next!: ManagedU32
 
     static new(
-        previous: ElrondU32,
-        next: ElrondU32
+        previous: ManagedU32,
+        next: ManagedU32
     ): QueueMappingNode {
         const result = new QueueMappingNode()
         result.previous = previous
@@ -237,7 +237,7 @@ export class QueueMappingNode {
 
 export class QueueMappingIterator<T extends ManagedType> {
 
-    private nodeId: ElrondU32
+    private nodeId: ManagedU32
 
     constructor(
         private queue: QueueMapping<T>

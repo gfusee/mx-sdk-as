@@ -16,12 +16,12 @@ import {
   mBufferToBigIntUnsigned,
   Static
 } from "../utils/env"
-import {ElrondString} from "./erdString"
+import {ManagedBuffer} from "./buffer"
 import {BaseManagedType, defaultBaseManagedTypeWriteImplementation, ManagedType} from "./interfaces/managedType"
 import {BaseManagedUtils, ManagedUtils} from "./interfaces/managedUtils"
-import {ManagedBufferNestedDecodeInput} from "./managedBufferNestedDecodeInput";
+import {ManagedBufferNestedDecodeInput} from "./bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./interfaces/nestedEncodeOutput";
-import {ElrondU32} from "./numbers";
+import {ManagedU32} from "./numbers";
 
 @final @unmanaged
 export class BigUint extends ManagedType {
@@ -55,8 +55,8 @@ export class BigUint extends ManagedType {
     defaultBaseManagedTypeWriteImplementation()
   }
 
-  get payloadSize(): ElrondU32 {
-    return ElrondU32.fromValue(4)
+  get payloadSize(): ManagedU32 {
+    return ManagedU32.fromValue(4)
   }
 
   get shouldBeInstantiatedOnHeap(): boolean {
@@ -91,8 +91,8 @@ export class BigUint extends ManagedType {
     return result
   }
 
-  static fromElrondString(value: ElrondString): BigUint {
-    return BigUint.dummy().utils.fromElrondString(value)
+  static fromManagedBuffer(value: ManagedBuffer): BigUint {
+    return BigUint.dummy().utils.fromManagedBuffer(value)
   }
 
   @operator("+")
@@ -180,13 +180,13 @@ export namespace BigUint {
       return changetype<BigUint>(this)
     }
 
-    storeAtBuffer(key: ElrondString): void {
-      let valueBuffer = ElrondString.fromBigUint(this.value)
+    storeAtBuffer(key: ManagedBuffer): void {
+      let valueBuffer = ManagedBuffer.fromBigUint(this.value)
       valueBuffer.utils.storeAtBuffer(key)
     }
 
     signalError(): void {
-      const buffer = this.toElrondString()
+      const buffer = this.toManagedBuffer()
       buffer.utils.signalError()
     }
 
@@ -194,27 +194,27 @@ export namespace BigUint {
       bigIntFinishUnsigned(this.value.getHandle())
     }
 
-    encodeTop(): ElrondString {
-      return ElrondString.fromBigUint(this.value)
+    encodeTop(): ManagedBuffer {
+      return ManagedBuffer.fromBigUint(this.value)
     }
 
     encodeNested<T extends NestedEncodeOutput>(output: T): void {
       const length = bigIntUnsignedByteLength(this.value.getHandle());
-      (ElrondU32.fromValue(length)).utils.encodeNested(output)
+      (ManagedU32.fromValue(length)).utils.encodeNested(output)
       output.write(this.toBytes())
     }
 
     toString(): string {
       let handle = Static.nextHandle()
       bigIntToString(this.value.getHandle(), handle)
-      return ElrondString.fromHandle(handle).utils.toString()
+      return ManagedBuffer.fromHandle(handle).utils.toString()
     }
 
-    toElrondString(): ElrondString {
+    toManagedBuffer(): ManagedBuffer {
       const resultHandle = Static.nextHandle()
       bigIntToString(this.value.getHandle(), resultHandle)
 
-      return ElrondString.fromHandle(resultHandle)
+      return ManagedBuffer.fromHandle(resultHandle)
     }
 
     toBytes(): Uint8Array {
@@ -233,9 +233,9 @@ export namespace BigUint {
       return BigUint.fromHandle(handle)
     }
 
-    fromStorage(key: ElrondString): void {
-      const buffer = ElrondString.dummy().utils.fromStorage(key)
-      this.fromElrondString(buffer)
+    fromStorage(key: ManagedBuffer): void {
+      const buffer = ManagedBuffer.dummy().utils.fromStorage(key)
+      this.fromManagedBuffer(buffer)
     }
 
     fromArgumentIndex(index: i32): BigUint {
@@ -245,7 +245,7 @@ export namespace BigUint {
       return this.fromHandle(newHandle)
     }
 
-    fromElrondString(buffer: ElrondString): BigUint {
+    fromManagedBuffer(buffer: ManagedBuffer): BigUint {
       const result = BigUint.zero()
       mBufferToBigIntUnsigned(buffer.getHandle(), result.getHandle())
 
@@ -260,8 +260,8 @@ export namespace BigUint {
       return BaseManagedUtils.defaultFromByteReader<BigUint, Utils>(this, retainedPtr, reader)
     }
 
-    decodeTop(buffer: ElrondString): BigUint {
-      return this.fromElrondString(buffer)
+    decodeTop(buffer: ManagedBuffer): BigUint {
+      return this.fromManagedBuffer(buffer)
     }
 
     decodeNested(input: ManagedBufferNestedDecodeInput): BigUint {

@@ -1,4 +1,4 @@
-import {ElrondString, ManagedAddress} from "../../types";
+import {ManagedBuffer, ManagedAddress} from "../../types";
 
 export function u8ArrayToU32(array: Uint8Array): u32 {
     for (let i = 4; i < array.length; i++) {

@@ -1,9 +1,9 @@
-import {ElrondU32} from "../../types";
+import {ManagedU32} from "../../types";
 
 export class TokenProperties {
 
     constructor(
-       public numberOfDecimals: ElrondU32,
+       public numberOfDecimals: ManagedU32,
        public canFreeze: boolean,
        public canWipe: boolean,
        public canPause: boolean,

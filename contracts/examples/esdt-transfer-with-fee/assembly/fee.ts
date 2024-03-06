@@ -2,12 +2,12 @@
 
 import {
     BaseManagedType,
-    ElrondString,
-    ElrondU32, ManagedBufferNestedDecodeInput, MultiValue,
+    ManagedBuffer,
+    ManagedU32, ManagedBufferNestedDecodeInput, MultiValue,
     MultiValue1,
     MultiValue2,
     OptionalValue, TokenPayment
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 
 export const PERCENTAGE_DIVISOR: u32 = 10000
 
@@ -19,13 +19,13 @@ export enum FeeType {
 }
 
 @unmanaged
-export class AbstractFee extends MultiValue2<FeeType, OptionalValue<ElrondString>> {
+export class AbstractFee extends MultiValue2<FeeType, OptionalValue<ManagedBuffer>> {
 
     private constructor() {
         super();
     }
 
-    static from(type: FeeType, value: OptionalValue<ElrondString>): AbstractFee {
+    static from(type: FeeType, value: OptionalValue<ManagedBuffer>): AbstractFee {
         const result = new AbstractFee()
         result.pushItem(type)
         result.pushItem(value)
@@ -45,7 +45,7 @@ export class AbstractFee extends MultiValue2<FeeType, OptionalValue<ElrondString
         if (this.type == FeeType.Unset) {
             return FeeUnset.new()
         } else {
-            ElrondString.fromString("Wrong type").utils.signalError()
+            ManagedBuffer.fromString("Wrong type").utils.signalError()
         }
     }
 
@@ -55,14 +55,14 @@ export class AbstractFee extends MultiValue2<FeeType, OptionalValue<ElrondString
 
             return FeeExactValue.from(value)
         } else {
-            ElrondString.fromString("Wrong type").utils.signalError()
+            ManagedBuffer.fromString("Wrong type").utils.signalError()
             throw ''
         }
     }
 
     intoPercentage(): FeePercentage {
         if (this.type == FeeType.Percentage) {
-            const percentage = this.b.value!.utils.intoTop<ElrondU32>()
+            const percentage = this.b.value!.utils.intoTop<ManagedU32>()
 
             return FeePercentage.from(percentage)
         } else {
@@ -71,19 +71,19 @@ export class AbstractFee extends MultiValue2<FeeType, OptionalValue<ElrondString
     }
 
     decodeNested(input: ManagedBufferNestedDecodeInput): AbstractFee {
-        if (input.getRemainingLength() === ElrondU32.zero()) {
+        if (input.getRemainingLength() === ManagedU32.zero()) {
             this.pushItem(FeeType.Unset)
         } else {
             const a = FeeType.dummy().utils.decodeNested(input)
 
             this.pushItem(a)
 
-            let item: OptionalValue<ElrondString> = OptionalValue.null<ElrondString>()
+            let item: OptionalValue<ManagedBuffer> = OptionalValue.null<ManagedBuffer>()
             if (a == FeeType.ExactValue) {
                 const secondItem = BaseManagedType.dummy<TokenPayment>().utils.decodeNested(input)
                 item = OptionalValue.withValue(secondItem.utils.encodeTop()) // TODO : optimization
             } else if (a == FeeType.Percentage) {
-                const secondItem = BaseManagedType.dummy<ElrondU32>().utils.decodeNested(input)
+                const secondItem = BaseManagedType.dummy<ManagedU32>().utils.decodeNested(input)
                 item = OptionalValue.withValue(secondItem.utils.encodeTop()) // TODO : optimization
             }
 
@@ -133,9 +133,9 @@ export class FeeExactValue extends MultiValue2<FeeType, TokenPayment> {
 }
 
 @unmanaged
-export class FeePercentage extends MultiValue2<FeeType, ElrondU32> {
+export class FeePercentage extends MultiValue2<FeeType, ManagedU32> {
 
-    static from(percentage: ElrondU32): FeePercentage {
+    static from(percentage: ManagedU32): FeePercentage {
         const result = new FeePercentage()
 
         result.pushItem(FeeType.Percentage)
@@ -147,7 +147,7 @@ export class FeePercentage extends MultiValue2<FeeType, ElrondU32> {
         return this.a
     }
 
-    get percentage(): ElrondU32 {
+    get percentage(): ManagedU32 {
         return this.b
     }
 

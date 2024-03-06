@@ -3,18 +3,18 @@
 import {
     BigUint,
     ContractBase,
-    ElrondEvent,
-    ElrondString,
+    ManagedEvent,
+    ManagedBuffer,
     ManagedAddress,
     Mapping,
     MultiValue1,
     MultiValue2
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 
-class TopUpEvent extends ElrondEvent<MultiValue1<ManagedAddress>, BigUint> {}
-class WithdrawEvent extends ElrondEvent<MultiValue1<ManagedAddress>, BigUint> {}
-class PlayerJoinsGameEvent extends ElrondEvent<MultiValue2<BigUint, ManagedAddress>, BigUint> {}
-class RewardWinnerEvent extends ElrondEvent<MultiValue2<BigUint, ManagedAddress>, BigUint> {}
+class TopUpEvent extends ManagedEvent<MultiValue1<ManagedAddress>, BigUint> {}
+class WithdrawEvent extends ManagedEvent<MultiValue1<ManagedAddress>, BigUint> {}
+class PlayerJoinsGameEvent extends ManagedEvent<MultiValue2<BigUint, ManagedAddress>, BigUint> {}
+class RewardWinnerEvent extends ManagedEvent<MultiValue2<BigUint, ManagedAddress>, BigUint> {}
 
 @contract
 abstract class CryptoBubbles extends ContractBase {
@@ -27,7 +27,7 @@ abstract class CryptoBubbles extends ContractBase {
         this.playerBalance(caller).set(oldPlayerBalance + payment)
 
         const event = new TopUpEvent(
-            ElrondString.fromString('top_up'),
+            ManagedBuffer.fromString('top_up'),
             MultiValue1.from(caller),
             payment
         )
@@ -63,7 +63,7 @@ abstract class CryptoBubbles extends ContractBase {
         this.playerBalance(winner).set(oldPlayerBalance + prize)
 
         const event = new RewardWinnerEvent(
-            ElrondString.fromString('reward_winner'),
+            ManagedBuffer.fromString('reward_winner'),
             MultiValue2.from(
                 gameIndex,
                 winner
@@ -103,7 +103,7 @@ abstract class CryptoBubbles extends ContractBase {
         this.send.directEgld(player, amount)
 
         const event = new WithdrawEvent(
-            ElrondString.fromString("withdraw"),
+            ManagedBuffer.fromString("withdraw"),
             MultiValue1.from(player),
             amount
         )
@@ -124,7 +124,7 @@ abstract class CryptoBubbles extends ContractBase {
         this.playerBalance(player).set(oldPlayerBalance - bet)
 
         const event = new PlayerJoinsGameEvent(
-            ElrondString.fromString('player_joins_game'),
+            ManagedBuffer.fromString('player_joins_game'),
             MultiValue2.from(
                 gameIndex,
                 player

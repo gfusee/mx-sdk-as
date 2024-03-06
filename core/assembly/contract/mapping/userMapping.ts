@@ -1,5 +1,5 @@
 import {BaseMapping} from "./baseMapping";
-import {ElrondArray, ElrondString, ElrondU32, ManagedAddress, Option, StorageKey} from "../../types";
+import {ManagedArray, ManagedBuffer, ManagedU32, ManagedAddress, Option, StorageKey} from "../../types";
 import {Mapping} from "./mapping";
 
 const ADDRESS_TO_ID_SUFFIX = "_address_to_id"
@@ -11,9 +11,9 @@ export class UserMapping extends BaseMapping {
 
     private getUserIdKey(
         address: ManagedAddress
-    ): ElrondString {
+    ): ManagedBuffer {
         const userIdKey = this.key.clone()
-        userIdKey.appendBuffer(ElrondString.fromString(ADDRESS_TO_ID_SUFFIX))
+        userIdKey.appendBuffer(ManagedBuffer.fromString(ADDRESS_TO_ID_SUFFIX))
         userIdKey.appendItem(address)
 
         const result = userIdKey.buffer
@@ -24,10 +24,10 @@ export class UserMapping extends BaseMapping {
     }
 
     private getUserAddressKey(
-        id: ElrondU32
-    ): ElrondString {
+        id: ManagedU32
+    ): ManagedBuffer {
         const userAddressKey = this.key.clone()
-        userAddressKey.appendBuffer(ElrondString.fromString(ID_TO_ADDRESS_SUFFIX))
+        userAddressKey.appendBuffer(ManagedBuffer.fromString(ID_TO_ADDRESS_SUFFIX))
         userAddressKey.appendItem(id)
 
         const result = userAddressKey.buffer
@@ -37,9 +37,9 @@ export class UserMapping extends BaseMapping {
         return result
     }
 
-    private getUserCountKey(): ElrondString {
+    private getUserCountKey(): ManagedBuffer {
         const userCountKey = this.key.clone()
-        userCountKey.appendBuffer(ElrondString.fromString(COUNT_SUFFIX))
+        userCountKey.appendBuffer(ManagedBuffer.fromString(COUNT_SUFFIX))
 
         const result = userCountKey.buffer
 
@@ -50,9 +50,9 @@ export class UserMapping extends BaseMapping {
 
     getUserId(
         address: ManagedAddress
-    ): ElrondU32 {
+    ): ManagedU32 {
         const storageKey = new StorageKey(this.getUserIdKey(address))
-        const mapping = new Mapping<ElrondU32>(storageKey)
+        const mapping = new Mapping<ManagedU32>(storageKey)
         const result = mapping.get()
 
         heap.free(changetype<i32>(storageKey))
@@ -63,10 +63,10 @@ export class UserMapping extends BaseMapping {
 
     private setUserId(
         address: ManagedAddress,
-        id: ElrondU32
+        id: ManagedU32
     ): void {
         const key = new StorageKey(this.getUserIdKey(address))
-        const mapping = new Mapping<ElrondU32>(key)
+        const mapping = new Mapping<ManagedU32>(key)
         mapping.set(id)
 
         heap.free(changetype<i32>(key))
@@ -74,7 +74,7 @@ export class UserMapping extends BaseMapping {
     }
 
     getUserAddress(
-        id: ElrondU32
+        id: ManagedU32
     ): Option<ManagedAddress> {
         const key = new StorageKey(this.getUserAddressKey(id))
 
@@ -93,7 +93,7 @@ export class UserMapping extends BaseMapping {
     }
 
     getUserAddressUnchecked(
-        id: ElrondU32
+        id: ManagedU32
     ): Option<ManagedAddress> {
         const key = new StorageKey(this.getUserAddressKey(id))
 
@@ -107,7 +107,7 @@ export class UserMapping extends BaseMapping {
     }
 
     getUserAddressOrZero(
-        id: ElrondU32
+        id: ManagedU32
     ): ManagedAddress {
         const key = new StorageKey(this.getUserAddressKey(id))
 
@@ -126,7 +126,7 @@ export class UserMapping extends BaseMapping {
     }
 
     private setUserAddress(
-        id: ElrondU32,
+        id: ManagedU32,
         address: ManagedAddress
     ): void {
         const key = new StorageKey(this.getUserAddressKey(id))
@@ -139,9 +139,9 @@ export class UserMapping extends BaseMapping {
         heap.free(changetype<i32>(mapping))
     }
 
-    getUserCount(): ElrondU32 {
+    getUserCount(): ManagedU32 {
         const key = new StorageKey(this.getUserCountKey())
-        const mapping = new Mapping<ElrondU32>(key)
+        const mapping = new Mapping<ManagedU32>(key)
         const result = mapping.get()
 
         heap.free(changetype<i32>(key))
@@ -151,10 +151,10 @@ export class UserMapping extends BaseMapping {
     }
 
     private setUserCount(
-        userCount: ElrondU32
+        userCount: ManagedU32
     ): void {
         const key = new StorageKey(this.getUserCountKey())
-        const mapping = new Mapping<ElrondU32>(key)
+        const mapping = new Mapping<ManagedU32>(key)
         mapping.set(userCount)
 
         heap.free(changetype<i32>(key))
@@ -163,12 +163,12 @@ export class UserMapping extends BaseMapping {
 
     getOrCreateUser(
         address: ManagedAddress
-    ): ElrondU32 {
+    ): ManagedU32 {
         let userId = this.getUserId(address)
 
-        if (userId == ElrondU32.zero()) {
+        if (userId == ManagedU32.zero()) {
             let userCount = this.getUserCount()
-            userCount += ElrondU32.fromValue(1)
+            userCount += ManagedU32.fromValue(1)
             this.setUserCount(userCount)
             userId = userCount
             this.setUserId(address, userId)
@@ -178,10 +178,10 @@ export class UserMapping extends BaseMapping {
         return userId
     }
 
-    getAllAddresses(): ElrondArray<ManagedAddress> {
+    getAllAddresses(): ManagedArray<ManagedAddress> {
         const userCount = this.getUserCount()
-        const result = ElrondArray.new<ManagedAddress>()
-        for (let i = ElrondU32.fromValue(1); i <= userCount; i++) {
+        const result = ManagedArray.new<ManagedAddress>()
+        for (let i = ManagedU32.fromValue(1); i <= userCount; i++) {
             result.push(this.getUserAddressOrZero(i))
         }
 

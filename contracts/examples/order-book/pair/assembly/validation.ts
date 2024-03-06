@@ -11,25 +11,25 @@ import {
 } from "./common";
 import {
     BigUint,
-    ElrondArray,
-    ElrondU32,
-    ElrondU64, getContractInstance,
+    ManagedArray,
+    ManagedU32,
+    ManagedU64, getContractInstance,
     getRetainedClosureValue,
-    ManagedAddress, MultiValueElrondArray,
+    ManagedAddress, MultiValueManagedArray,
     retainClosureValue
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 import {OrdersModule} from "./orders";
 
 @module
 export abstract class ValidationModule extends CommonModule {
 
     protected requireMatchProviderEmptyOrCaller(
-        orders: ElrondArray<Order>
+        orders: ManagedArray<Order>
     ): void {
         const caller = this.blockchain.caller
 
         const ordersLength = orders.getLength()
-        for (let i = ElrondU32.zero(); i < ordersLength; i++) {
+        for (let i = ManagedU32.zero(); i < ordersLength; i++) {
             const order = orders.get(i)
 
             if (order.matchProvider != ManagedAddress.zero()) {
@@ -42,15 +42,15 @@ export abstract class ValidationModule extends CommonModule {
     }
 
     protected requireContainsAll(
-        vecBase: ElrondArray<ElrondU64>,
-        items: ElrondArray<ElrondU64>
+        vecBase: ManagedArray<ManagedU64>,
+        items: ManagedArray<ManagedU64>
     ): void {
         const itemsLength = items.getLength()
-        for (let i = ElrondU32.zero(); i < itemsLength; i++) {
+        for (let i = ManagedU32.zero(); i < itemsLength; i++) {
             const item = items.get(i)
             let checkItem = false
             const vecBaseLength = vecBase.getLength()
-            for (let i = ElrondU32.zero(); i < vecBaseLength; i++) {
+            for (let i = ManagedU32.zero(); i < vecBaseLength; i++) {
                 const base = vecBase.get(i)
                 if (item == base) {
                     checkItem = true
@@ -66,15 +66,15 @@ export abstract class ValidationModule extends CommonModule {
     }
 
     protected requireContainsNone(
-        vecBase: ElrondArray<ElrondU64>,
-        items: ElrondArray<ElrondU64>
+        vecBase: ManagedArray<ManagedU64>,
+        items: ManagedArray<ManagedU64>
     ): void {
         retainClosureValue(vecBase)
         items.forEach((item) => {
             const thisRef = getContractInstance<OrdersModule>()
-            const vecBaseRef = getRetainedClosureValue<ElrondArray<ElrondU64>>()
+            const vecBaseRef = getRetainedClosureValue<ManagedArray<ManagedU64>>()
             let checkItem = false
-            for (let i = ElrondU32.zero(); i < vecBaseRef.getLength(); i++) {
+            for (let i = ManagedU32.zero(); i < vecBaseRef.getLength(); i++) {
                 const base = vecBaseRef.get(i)
                 if (item == base) {
                     checkItem = true
@@ -90,10 +90,10 @@ export abstract class ValidationModule extends CommonModule {
     }
 
     protected requireNotMaxSize(
-        addressOrderIds: ElrondArray<ElrondU64>
+        addressOrderIds: ManagedArray<ManagedU64>
     ): void {
         this.require(
-            addressOrderIds.getLength() < ElrondU32.fromValue(MAX_ORDERS_PER_USER),
+            addressOrderIds.getLength() < ManagedU32.fromValue(MAX_ORDERS_PER_USER),
             "Cannot place more orders"
         )
     }
@@ -120,7 +120,7 @@ export abstract class ValidationModule extends CommonModule {
                 FeeConfig.new(
                     FeeConfigEnum.Percent,
                     BigUint.zero(),
-                    ElrondU64.fromValue(FEE_PENALTY_INCREASE_PERCENT)
+                    ManagedU64.fromValue(FEE_PENALTY_INCREASE_PERCENT)
                 )
             ) != BigUint.zero(),
             "Penalty increase amount cannot be zero"
@@ -146,7 +146,7 @@ export abstract class ValidationModule extends CommonModule {
             )
         } else if (params.feeConfig.feeType == FeeConfigEnum.Percent) {
             this.require(
-                params.feeConfig.percentFee < ElrondU64.fromValue(PERCENT_BASE_POINTS),
+                params.feeConfig.percentFee < ManagedU64.fromValue(PERCENT_BASE_POINTS),
                 "Percent value above maximum value"
             )
         }
@@ -166,7 +166,7 @@ export abstract class ValidationModule extends CommonModule {
         params: OrderInputParams
     ): void {
         this.require(
-            params.dealConfig.matchProviderPercent < ElrondU64.fromValue(PERCENT_BASE_POINTS),
+            params.dealConfig.matchProviderPercent < ManagedU64.fromValue(PERCENT_BASE_POINTS),
             "Bad deal config"
         )
     }
@@ -200,16 +200,16 @@ export abstract class ValidationModule extends CommonModule {
     }
 
     protected requireValidMatchInputOrderIds(
-        orderIds: ElrondArray<ElrondU64>
+        orderIds: ManagedArray<ManagedU64>
     ): void {
         this.require(
-            orderIds.getLength() >= ElrondU32.fromValue(2),
+            orderIds.getLength() >= ManagedU32.fromValue(2),
             "Should be at least two order ids"
         )
     }
 
     protected requireOrderIdsNotEmpty(
-        orderIds: MultiValueElrondArray<ElrondU64>
+        orderIds: MultiValueManagedArray<ManagedU64>
     ): void {
         this.require(
             !orderIds.isEmpty(),

@@ -12,41 +12,41 @@ import {
     getOwnerAddress,
     getSCAddress, managedGetBlockRandomSeed, Static, isSmartContract
 } from "../utils/env";
-import {BigUint, ElrondString, ElrondU64, ESDTLocalRole, ManagedAddress, TokenIdentifier} from "../types";
+import {BigUint, ManagedBuffer, ManagedU64, ESDTLocalRole, ManagedAddress, TokenIdentifier} from "../types";
 
 export class Blockchain {
 
-    get currentBlockTimestamp(): ElrondU64 {
+    get currentBlockTimestamp(): ManagedU64 {
         const timestampRaw = getBlockTimestamp();
-        return ElrondU64.fromValue(timestampRaw as u64);
+        return ManagedU64.fromValue(timestampRaw as u64);
     }
 
-    get currentBlockRound(): ElrondU64 {
+    get currentBlockRound(): ManagedU64 {
         const blockRoundRaw = getBlockRound()
-        return ElrondU64.fromValue(blockRoundRaw as u64)
+        return ManagedU64.fromValue(blockRoundRaw as u64)
     }
 
-    get currentBlockEpoch(): ElrondU64 {
+    get currentBlockEpoch(): ManagedU64 {
         const blockEpochRaw = getBlockEpoch()
-        return ElrondU64.fromValue(blockEpochRaw as u64)
+        return ManagedU64.fromValue(blockEpochRaw as u64)
     }
 
-    get currentBlockNonce(): ElrondU64 {
+    get currentBlockNonce(): ManagedU64 {
         const blockNonceRaw = getBlockNonce()
-        return ElrondU64.fromValue(blockNonceRaw as u64)
+        return ManagedU64.fromValue(blockNonceRaw as u64)
     }
 
-    get currentBlockRandomSeed(): ElrondString {
+    get currentBlockRandomSeed(): ManagedBuffer {
         const handle = Static.nextHandle()
         managedGetBlockRandomSeed(handle)
-        return ElrondString.fromHandle(handle)
+        return ManagedBuffer.fromHandle(handle)
     }
 
-    get txHash(): ElrondString {
+    get txHash(): ManagedBuffer {
         const txHashBytes = new Uint8Array(32)
         getOriginalTxHash(changetype<i32>(txHashBytes.buffer))
 
-        return ElrondString.dummy().utils.fromBytes(txHashBytes)
+        return ManagedBuffer.dummy().utils.fromBytes(txHashBytes)
     }
 
     get caller(): ManagedAddress {
@@ -68,7 +68,7 @@ export class Blockchain {
         return ManagedAddress.dummy().utils.fromBytes(addressBytes)
     }
 
-    getSCBalance(tokenIdentifier: TokenIdentifier, nonce: ElrondU64): BigUint {
+    getSCBalance(tokenIdentifier: TokenIdentifier, nonce: ManagedU64): BigUint {
         if (tokenIdentifier.isEgld()) {
             return this.getEGLDBalance(
                 this.scAddress
@@ -111,7 +111,7 @@ export class Blockchain {
     getESDTBalance(
         address: ManagedAddress,
         tokenIdentifier: TokenIdentifier,
-        nonce: ElrondU64
+        nonce: ManagedU64
     ): BigUint {
         const result = BigUint.zero()
 
@@ -133,8 +133,8 @@ export class Blockchain {
         return new ESDTLocalRole(getESDTLocalRoles(tokenIdentifier.getHandle()))
     }
 
-    getGasLeft(): ElrondU64 {
-        return ElrondU64.fromValue(getGasLeft() as u64)
+    getGasLeft(): ManagedU64 {
+        return ManagedU64.fromValue(getGasLeft() as u64)
     }
 
     assertCallerIsContractOwner(): void {

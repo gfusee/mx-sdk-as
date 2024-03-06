@@ -1,4 +1,4 @@
-import {ElrondString} from "../../types"
+import {ManagedBuffer} from "../../types"
 import { ManagedType } from "../../types"
 import { Static } from "../../utils/env"
 import { BaseMapping } from "./baseMapping"
@@ -7,7 +7,7 @@ import { BaseMapping } from "./baseMapping"
 export class Mapping<T extends ManagedType> extends BaseMapping { //TODO : Make all methods statics to avoid heap allocation
 
     get(): T {
-        const buffer = (ElrondString.dummy()).utils.fromStorage(this.key.buffer);
+        const buffer = (ManagedBuffer.dummy()).utils.fromStorage(this.key.buffer);
         return buffer.utils.intoTop<T>()
     }
 
@@ -20,7 +20,7 @@ export class Mapping<T extends ManagedType> extends BaseMapping { //TODO : Make 
     }
 
     isEmpty(): boolean {
-        return ElrondString.dummy().utils.fromStorage(this.key.buffer).isEmpty()
+        return ManagedBuffer.dummy().utils.fromStorage(this.key.buffer).isEmpty()
     }
 
 }

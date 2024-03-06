@@ -5,7 +5,7 @@ import {
     ContractBase,
     ManagedAddress, MapMapping, Option,
     TokenIdentifier, ManagedArgsBuffer
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 
 @struct
 class TokenIdPair {

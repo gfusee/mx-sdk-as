@@ -1,25 +1,25 @@
 //@ts-nocheck
 import {
     ContractBase,
-    ElrondBoolean
-} from "@gfusee/elrond-wasm-as";
+    ManagedBoolean
+} from "@gfusee/mx-sdk-as";
 import {OrderInputParams} from "./common";
 
 @module
 export abstract class GlobalOperationModule extends ContractBase {
 
-    globalOperationOngoing!: ElrondBoolean
+    globalOperationOngoing!: ManagedBoolean
 
     @onlyOwner
     startGlobalOperation(): void {
         this.requireGlobalOpNotOngoing()
-        this.globalOperationOngoing = ElrondBoolean.true()
+        this.globalOperationOngoing = ManagedBoolean.true()
     }
 
     @onlyOwner
     stopGlobalOperation(): void {
         this.requireGlobalOpOngoing()
-        this.globalOperationOngoing = ElrondBoolean.false()
+        this.globalOperationOngoing = ManagedBoolean.false()
     }
 
     protected requireGlobalOpOngoing(): void {

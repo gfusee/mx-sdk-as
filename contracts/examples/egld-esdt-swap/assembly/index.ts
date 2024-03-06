@@ -3,27 +3,27 @@
 import {
     BigUint,
     ContractBase,
-    ElrondEvent,
-    ElrondString, ElrondU32,
+    ManagedEvent,
+    ManagedBuffer, ManagedU32,
     ManagedAddress,
     Mapping,
     MultiValue2,
     TokenIdentifier,
-    FungibleTokenProperties, ElrondU64,
-    ElrondBoolean
-} from "@gfusee/elrond-wasm-as";
+    FungibleTokenProperties, ManagedU64,
+    ManagedBoolean
+} from "@gfusee/mx-sdk-as";
 
 const EGLD_NUMBER_OF_DECIMALS: u32 = 18;
 
-class IssueStartedEvent extends ElrondEvent<MultiValue2<ManagedAddress, ElrondString>, BigUint> {}
+class IssueStartedEvent extends ManagedEvent<MultiValue2<ManagedAddress, ManagedBuffer>, BigUint> {}
 
 @contract
 abstract class EgldEsdtSwap extends ContractBase {
 
-    // TODO : implement elrond-wasm-rs modules or something similar
-    paused!: ElrondBoolean
+    // TODO : implement mx-sdk-rs modules or something similar
+    paused!: ManagedBoolean
 
-    isPaused(): ElrondBoolean {
+    isPaused(): ManagedBoolean {
         return this.paused
     }
 
@@ -42,7 +42,7 @@ abstract class EgldEsdtSwap extends ContractBase {
         const wrappedEgldTokenId = this.wrappedEgldTokenId().get()
         this.send.esdtLocalMint(
             wrappedEgldTokenId,
-            ElrondU64.zero(),
+            ManagedU64.zero(),
             paymentAmount
         )
 
@@ -50,7 +50,7 @@ abstract class EgldEsdtSwap extends ContractBase {
         this.send.direct(
             caller,
             wrappedEgldTokenId,
-            ElrondU64.zero(),
+            ManagedU64.zero(),
             paymentAmount
         )
     }
@@ -77,7 +77,7 @@ abstract class EgldEsdtSwap extends ContractBase {
         this.send
             .esdtLocalBurn(
                 wrappedEgldTokenId,
-                ElrondU64.zero(),
+                ManagedU64.zero(),
                 payment.amount
             )
 
@@ -91,7 +91,7 @@ abstract class EgldEsdtSwap extends ContractBase {
     getLockedEgldBalance(): BigUint {
         return this.blockchain.getSCBalance(
             TokenIdentifier.egld(),
-            ElrondU64.zero()
+            ManagedU64.zero()
         )
     }
 

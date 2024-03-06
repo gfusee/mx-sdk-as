@@ -1,5 +1,5 @@
 import {Color} from "./color";
-import {ElrondU8} from "@gfusee/elrond-wasm-as";
+import {ManagedU8} from "@gfusee/mx-sdk-as";
 import {Random} from "../../random/assembly"
 
 @struct
@@ -7,12 +7,12 @@ export class KittyGenes {
 
     furColor: Color
     eyeColor: Color
-    meowPower: ElrondU8 // the higher the value, the louder the cat
+    meowPower: ManagedU8 // the higher the value, the louder the cat
 
     static new(
         furColor: Color,
         eyeColor: Color,
-        meowPower: ElrondU8
+        meowPower: ManagedU8
     ): KittyGenes {
         const result = new KittyGenes()
 
@@ -28,7 +28,7 @@ export class KittyGenes {
 
         result.furColor = Color.default()
         result.eyeColor = Color.default()
-        result.meowPower = ElrondU8.zero()
+        result.meowPower = ManagedU8.zero()
 
         return result
     }

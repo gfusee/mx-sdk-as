@@ -1,8 +1,8 @@
-import {ElrondString} from "../erdString"
-import {ManagedBufferNestedDecodeInput} from "../managedBufferNestedDecodeInput";
+import {ManagedBuffer} from "../buffer"
+import {ManagedBufferNestedDecodeInput} from "../bufferNestedDecodeInput";
 import {NestedEncodeOutput} from "./nestedEncodeOutput";
 import {BaseManagedType, ManagedType} from "./managedType";
-import {ElrondU32} from "../numbers";
+import {ManagedU32} from "../numbers";
 import {checkIfDebugBreakpointEnabled, checkIfSecondDebugBreakpointEnabled} from "../../utils/env";
 
 @unmanaged
@@ -15,11 +15,11 @@ export abstract class IManagedUtils {
 
     abstract fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): this
 
-    abstract storeAtBuffer(key: ElrondString): void //TODO : Use StorageKey when not allocated on heap
+    abstract storeAtBuffer(key: ManagedBuffer): void //TODO : Use StorageKey when not allocated on heap
 
     abstract signalError(): void
 
-    abstract encodeTop(): ElrondString // TODO : optimize by using TopEncodeOutput like in rust
+    abstract encodeTop(): ManagedBuffer // TODO : optimize by using TopEncodeOutput like in rust
 
     abstract encodeNested<T extends NestedEncodeOutput>(output: T): void
 
@@ -31,7 +31,7 @@ export abstract class IManagedUtils {
 
     abstract fromArgumentIndex(index: i32): BaseManagedType
 
-    abstract decodeTop(buffer: ElrondString): BaseManagedType // TODO : optimize by using TopDecodeInput like in rust
+    abstract decodeTop(buffer: ManagedBuffer): BaseManagedType // TODO : optimize by using TopDecodeInput like in rust
 
     abstract decodeNested(input: ManagedBufferNestedDecodeInput): BaseManagedType //TODO : use generic NestedDecodeInput
 }
@@ -42,16 +42,16 @@ export abstract class BaseManagedUtils<T extends BaseManagedType> extends IManag
     //Method overriding have strange behaviors when working with changetype and generics, so we use default static methods
 
     static defaultToByteWriter<T extends IManagedUtils, R>(utils: T, retainedPtr: i32[], writer: (retainedPtr: i32[], bytes: Uint8Array) => R): R {
-        return ElrondU32.fromValue(utils.value.getHandle()).utils.toByteWriter<R>(retainedPtr, writer)
+        return ManagedU32.fromValue(utils.value.getHandle()).utils.toByteWriter<R>(retainedPtr, writer)
     }
 
     static defaultFromByteReader<M extends BaseManagedType, T extends BaseManagedUtils<M>>(utils: T, retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): M {
-        const handle = ElrondU32.dummy().utils.fromByteReader(retainedPtr, reader)
+        const handle = ManagedU32.dummy().utils.fromByteReader(retainedPtr, reader)
         return utils.fromHandle(handle.value)
     }
 
     static defaultFromBytes<T extends BaseManagedType>(utils: BaseManagedUtils<T>, bytes: Uint8Array): T {
-        const buffer = ElrondString.fromBytes(bytes)
+        const buffer = ManagedBuffer.fromBytes(bytes)
         return utils.fromHandle(buffer.getHandle())
     }
 
@@ -67,7 +67,7 @@ export abstract class BaseManagedUtils<T extends BaseManagedType> extends IManag
 
     abstract fromArgumentIndex(index: i32): T
 
-    abstract decodeTop(buffer: ElrondString): T // TODO : optimize by using TopDecodeInput like in rust
+    abstract decodeTop(buffer: ManagedBuffer): T // TODO : optimize by using TopDecodeInput like in rust
 
     abstract decodeNested(input: ManagedBufferNestedDecodeInput): T //TODO : use generic NestedDecodeInput
 

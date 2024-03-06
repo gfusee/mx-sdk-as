@@ -5,15 +5,15 @@ import { KittyGenes } from '../../common/kitty/assembly/kittyGenes'
 import { Random } from '../../common/random/assembly/index'
 import {
     BigUint,
-    ContractBase, ElrondEvent, ElrondString,
-    ElrondU16,
-    ElrondU32,
+    ContractBase, ManagedEvent, ManagedBuffer,
+    ManagedU16,
+    ManagedU32,
     ManagedAddress,
     Mapping, MultiValue3,
     OptionalValue
-} from "@gfusee/elrond-wasm-as";
+} from "@gfusee/mx-sdk-as";
 
-class TransferEvent extends ElrondEvent<MultiValue3<ManagedAddress, ManagedAddress, ElrondU32>, ElrondString> {} //TODO : ElrondVoid ?
+class TransferEvent extends ManagedEvent<MultiValue3<ManagedAddress, ManagedAddress, ManagedU32>, ManagedBuffer> {} //TODO : ManagedVoid ?
 
 @contract
 abstract class KittyOwnership extends ContractBase {
@@ -43,7 +43,7 @@ abstract class KittyOwnership extends ContractBase {
 
     approveSiring(
         address: ManagedAddress,
-        kittyId: ElrondU32
+        kittyId: ManagedU32
     ): void {
         this.require(
             this.isValidId(kittyId),
@@ -65,8 +65,8 @@ abstract class KittyOwnership extends ContractBase {
     }
 
     breedWith(
-        matronId: ElrondU32,
-        sireId: ElrondU32
+        matronId: ManagedU32,
+        sireId: ManagedU32
     ): void {
         this.require(
             this.isValidId(matronId),
@@ -140,12 +140,12 @@ abstract class KittyOwnership extends ContractBase {
     }
 
     private createNewKitty(
-        matronId: ElrondU32,
-        sireId: ElrondU32,
-        generation: ElrondU16,
+        matronId: ManagedU32,
+        sireId: ManagedU32,
+        generation: ManagedU16,
         genes: KittyGenes,
         owner: ManagedAddress
-    ): ElrondU32 {
+    ): ManagedU32 {
         let totalKitties = this.totalKitties().get()
         const newKittyId = totalKitties
         const kitty = Kitty.new(
@@ -156,7 +156,7 @@ abstract class KittyOwnership extends ContractBase {
             generation
         )
 
-        totalKitties += ElrondU32.fromValue(1)
+        totalKitties += ManagedU32.fromValue(1)
         this.totalKitties().set(totalKitties)
         this.kitty(newKittyId).set(kitty)
 
@@ -172,18 +172,18 @@ abstract class KittyOwnership extends ContractBase {
     private performTransfer(
         from: ManagedAddress,
         to: ManagedAddress,
-        kittyId: ElrondU32
+        kittyId: ManagedU32
     ): void {
         if (from == to) {
             return
         }
 
         let numberOwnedTo = this.numberOwnedKitties(to).get()
-        numberOwnedTo += ElrondU32.fromValue(1)
+        numberOwnedTo += ManagedU32.fromValue(1)
 
         if (!from.isZero()) {
             let numberOwnedFrom = this.numberOwnedKitties(from).get()
-            numberOwnedFrom -= ElrondU32.fromValue(1)
+            numberOwnedFrom -= ManagedU32.fromValue(1)
 
             this.numberOwnedKitties(from).set(numberOwnedFrom)
             this.sireAllowedAddress(kittyId).clear()
@@ -201,8 +201,8 @@ abstract class KittyOwnership extends ContractBase {
     }
 
     private breed(
-        matronId: ElrondU32,
-        sireId: ElrondU32
+        matronId: ManagedU32,
+        sireId: ManagedU32
     ): void {
         const matron = this.kitty(matronId).get()
         const sire = this.kitty(sireId).get()
@@ -225,14 +225,14 @@ abstract class KittyOwnership extends ContractBase {
     }
 
     private isValidId(
-        kittyId: ElrondU32
+        kittyId: ManagedU32
     ): boolean {
-        return kittyId != ElrondU32.zero() && kittyId < this.totalKitties().get()
+        return kittyId != ManagedU32.zero() && kittyId < this.totalKitties().get()
     }
 
     private isSiringPermitted(
-        matronId: ElrondU32,
-        sireId: ElrondU32
+        matronId: ManagedU32,
+        sireId: ManagedU32
     ): boolean {
         const sireOwner = this.owner(sireId).get()
         const matronOwner = this.owner(matronId).get()
@@ -242,12 +242,12 @@ abstract class KittyOwnership extends ContractBase {
     }
 
     private isKittyReadyToBread(kitty: Kitty): boolean {
-        return kitty.siringWithId == ElrondU32.zero() && kitty.cooldownEnd < this.blockchain.currentBlockTimestamp
+        return kitty.siringWithId == ManagedU32.zero() && kitty.cooldownEnd < this.blockchain.currentBlockTimestamp
     }
 
     private isValidMatingPair(
-        matronId: ElrondU32,
-        sireId: ElrondU32
+        matronId: ManagedU32,
+        sireId: ManagedU32
     ): boolean {
         const matron = this.kitty(matronId).get()
         const sire = this.kitty(sireId).get()
@@ -266,7 +266,7 @@ abstract class KittyOwnership extends ContractBase {
         }
 
         // for gen zero kitties
-        if (sire.matronId == ElrondU32.zero() || matron.matronId == ElrondU32.zero()) {
+        if (sire.matronId == ManagedU32.zero() || matron.matronId == ManagedU32.zero()) {
             return true;
         }
 
@@ -283,7 +283,7 @@ abstract class KittyOwnership extends ContractBase {
     }
 
     private getSireAllowedAddressOrDefault(
-        kittyId: ElrondU32
+        kittyId: ManagedU32
     ): ManagedAddress {
         if (this.sireAllowedAddress(kittyId).isEmpty()) {
             return ManagedAddress.zero()
@@ -295,16 +295,16 @@ abstract class KittyOwnership extends ContractBase {
     private transferEvent(
         from: ManagedAddress,
         to: ManagedAddress,
-        tokenId: ElrondU32
+        tokenId: ManagedU32
     ): void {
         const event = new TransferEvent(
-            ElrondString.fromString("transfer"),
+            ManagedBuffer.fromString("transfer"),
             MultiValue3.from(
                 from,
                 to,
                 tokenId
             ),
-            ElrondString.fromString("")
+            ManagedBuffer.fromString("")
         )
 
         event.emit()
@@ -312,13 +312,13 @@ abstract class KittyOwnership extends ContractBase {
         heap.free(changetype<i32>(event))
     }
 
-    abstract totalKitties(): Mapping<ElrondU32>
+    abstract totalKitties(): Mapping<ManagedU32>
     abstract birthFee(): Mapping<BigUint>
-    abstract kitty(id: ElrondU32): Mapping<Kitty>
-    abstract numberOwnedKitties(address: ManagedAddress): Mapping<ElrondU32>
-    abstract sireAllowedAddress(kittyId: ElrondU32): Mapping<ManagedAddress>
-    abstract approvedAddress(kittyId: ElrondU32): Mapping<ManagedAddress>
-    abstract owner(kittyId: ElrondU32): Mapping<ManagedAddress>
+    abstract kitty(id: ManagedU32): Mapping<Kitty>
+    abstract numberOwnedKitties(address: ManagedAddress): Mapping<ManagedU32>
+    abstract sireAllowedAddress(kittyId: ManagedU32): Mapping<ManagedAddress>
+    abstract approvedAddress(kittyId: ManagedU32): Mapping<ManagedAddress>
+    abstract owner(kittyId: ManagedU32): Mapping<ManagedAddress>
 
     abstract geneScienceContractAddress(): Mapping<ManagedAddress>
     abstract kittyAuctionContractAddress(): Mapping<ManagedAddress>

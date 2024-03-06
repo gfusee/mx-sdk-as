@@ -1,35 +1,28 @@
-import {BaseManagedType, defaultBaseManagedTypeWriteImplementation} from "../interfaces/managedType"
+import {defaultBaseManagedTypeWriteImplementation, ManagedType} from "../interfaces/managedType"
 import {BigUint} from "../bigUint";
-import {ElrondString} from "../erdString";
+import {ManagedUtils} from "../interfaces/managedUtils";
+import {ManagedBuffer} from "../buffer";
 import {checkIfDebugBreakpointEnabled, smallIntFinishUnsigned, smallIntGetUnsignedArgument} from "../../utils/env";
 import {numberToBytes, universalDecodeNumber} from "../../utils/math/number";
 import {NestedEncodeOutput} from "../interfaces/nestedEncodeOutput";
 import {bytesToSize} from "../../utils/bytes";
 import {getBytesFromStorage} from "../../utils/storage";
-import {ManagedBufferNestedDecodeInput} from "../managedBufferNestedDecodeInput";
-import {ElrondU32} from "./elrondu32";
-import {BaseManagedUtils} from "../interfaces/managedUtils";
-import {ElrondU8} from "./elrondu8";
+import {ManagedBufferNestedDecodeInput} from "../bufferNestedDecodeInput";
+import {ManagedU32} from "./u32";
 
 @unmanaged
-export class ElrondU64 extends BaseManagedType {
+export class ManagedU16 extends ManagedType {
 
-    // Notes : assigning changetype<XXX>(0) in a class property is considered the same as null
-    // To avoid it we applied +1 transformation to the given value
-    // PS : this class is instable due to overflows, this is temporary
-
-    private __value: u64
-
-    get value(): u64 {
-        return this.__value
+    get value(): u16 {
+        return changetype<u32>(this) as u16 - 1
     }
 
-    get utils(): ElrondU64.Utils {
-        return new ElrondU64.Utils(this)
+    get utils(): ManagedU16.Utils {
+        return ManagedU16.Utils.fromValue(this)
     }
 
-    get payloadSize(): ElrondU32 {
-        return ElrondU32.fromValue(this.utils.sizeOf)
+    get payloadSize(): ManagedU32 {
+        return ManagedU32.fromValue(this.utils.sizeOf)
     }
 
     get shouldBeInstantiatedOnHeap(): boolean {
@@ -41,11 +34,11 @@ export class ElrondU64 extends BaseManagedType {
     }
 
     getHandle(): i32 {
-        throw new Error('TODO getHandle (ElrondUXX)')
+        throw new Error('TODO getHandle (ManagedUXX)')
     }
 
     toU64(): u64 {
-        return this.value
+        return this.value as u64
     }
 
     toBigUint(): BigUint {
@@ -56,44 +49,41 @@ export class ElrondU64 extends BaseManagedType {
         defaultBaseManagedTypeWriteImplementation()
     }
 
-    static fromValue(value: u64): ElrondU64 {
-        const result = new ElrondU64()
-        result.__value = value
-
-        return result
+    static fromValue(value: u16): ManagedU16 {
+        return changetype<ManagedU16>(value as u32 + 1)
     }
 
-    static zero(): ElrondU64 {
-        return ElrondU64.fromValue(0)
+    static zero(): ManagedU16 {
+        return ManagedU16.fromValue(0)
     }
 
-    static dummy(): ElrondU64 {
-        return changetype<ElrondU64>(0)
+    static dummy(): ManagedU16 {
+        return ManagedU16.zero()
     }
 
     @operator("+")
     __add(a: this): this {
-        return ElrondU64.fromValue(this.value + a.value)
+        return ManagedU16.fromValue(this.value + a.value)
     }
 
     @operator("-")
     __sub(a: this): this {
-        return ElrondU64.fromValue(this.value - a.value)
+        return ManagedU16.fromValue(this.value - a.value)
     }
 
     @operator("*")
     __mul(a: this): this {
-        return ElrondU64.fromValue(this.value * a.value)
+        return ManagedU16.fromValue(this.value * a.value)
     }
 
     @operator("/")
     __div(a: this): this {
-        return ElrondU64.fromValue(this.value / a.value)
+        return ManagedU16.fromValue(this.value / a.value)
     }
 
     @operator("%")
     __mod(a: this): this {
-        return ElrondU32.fromValue(this.value % a.value)
+        return ManagedU32.fromValue(this.value % a.value)
     }
 
     @operator("==")
@@ -128,28 +118,28 @@ export class ElrondU64 extends BaseManagedType {
 
     @operator.postfix("++")
     __increase(): this {
-        return this.__add(ElrondU64.fromValue(1))
+        return this.__add(ManagedU16.fromValue(1))
     }
 }
 
-export namespace ElrondU64 {
+export namespace ManagedU16 {
 
     @unmanaged
-    export class Utils extends BaseManagedUtils<ElrondU64> {
-
-        constructor(public _value: ElrondU64) {
-            super();
-        }
-
-        get value(): ElrondU64 {
-            return this._value
-        }
+    export class Utils extends ManagedUtils<ManagedU16> {
 
         get sizeOf(): i32 {
-            return 8
+            return 2
         }
 
-        storeAtBuffer(key: ElrondString): void {
+        static fromValue(value: ManagedU16): Utils {
+            return changetype<Utils>(value)
+        }
+
+        get value(): ManagedU16 {
+            return changetype<ManagedU16>(this)
+        }
+
+        storeAtBuffer(key: ManagedBuffer): void {
             BigUint.fromU64(this.value.toU64()).utils.storeAtBuffer(key)
         }
 
@@ -162,8 +152,8 @@ export namespace ElrondU64 {
             smallIntFinishUnsigned(<i64>this.value.value)
         }
 
-        encodeTop(): ElrondString {
-            return ElrondString.fromBytes(numberToBytes<u64>(this.value.toU64()))
+        encodeTop(): ManagedBuffer {
+            return ManagedBuffer.fromBytes(numberToBytes<u64>(this.value.toU64()))
         }
 
         encodeNested<T extends NestedEncodeOutput>(output: T): void {
@@ -191,51 +181,51 @@ export namespace ElrondU64 {
             return writer(retainedPtr, bytes)
         }
 
-        fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ElrondU64 {
+        fromByteReader(retainedPtr: i32[], reader: (retainedPtr: i32[], bytes: Uint8Array) => void): ManagedU16 {
             const bytes = new Uint8Array(this.sizeOf)
             reader(retainedPtr, bytes)
             return this.fromBytes(bytes)
         }
 
-        fromValue(value: T): ElrondU64 {
-            return ElrondU64.fromValue(value)
+        fromValue(value: u32): ManagedU16 {
+            return ManagedU16.fromValue(value)
         }
 
-        fromHandle(handle: i32): ElrondU64 {
-            throw new Error('TODO : error no handle (ElrondUXX)')
+        fromHandle(handle: i32): ManagedU16 {
+            throw new Error('TODO : error no handle (ManagedUXX)')
         }
 
-        fromStorage(key: ElrondString): ElrondU64 {
+        fromStorage(key: ManagedBuffer): ManagedU16 {
             const bytes = getBytesFromStorage(key)
             return this.fromBytes(bytes)
         }
 
-        fromArgumentIndex(index: i32): ElrondU64 {
+        fromArgumentIndex(index: i32): ManagedU16 {
             const value = smallIntGetUnsignedArgument(index)
 
-            return ElrondU64.fromValue(value)
+            return ManagedU16.fromValue(value)
         }
 
-        fromBytes(bytes: Uint8Array): ElrondU64 {
+        fromBytes(bytes: Uint8Array): ManagedU16 {
             const value = universalDecodeNumber(bytes, false)
 
-            return ElrondU64.fromValue(value)
+            return ManagedU16.fromValue(value as u16)
         }
 
-        decodeTop(buffer: ElrondString): ElrondU64 {
+        decodeTop(buffer: ManagedBuffer): ManagedU16 {
             const value = buffer.utils.toU64().value
 
-            return ElrondU64.fromValue(value)
+            return ManagedU16.fromValue(value as u16)
         }
 
-        decodeNested(input: ManagedBufferNestedDecodeInput): ElrondU64 {
+        decodeNested(input: ManagedBufferNestedDecodeInput): ManagedU16 {
             const size: i32 = this.sizeOf
             const bytes = new Uint8Array(size)
             input.readInto(bytes)
 
-            const result = universalDecodeNumber(bytes.slice(0, size), false) as u64
+            const result = universalDecodeNumber(bytes.slice(0, size), false) as u32
 
-            return ElrondU64.fromValue(result)
+            return ManagedU16.fromValue(result as u16)
         }
 
     }

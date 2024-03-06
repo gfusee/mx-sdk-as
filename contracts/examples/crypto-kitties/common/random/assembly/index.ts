@@ -1,4 +1,4 @@
-import {ElrondString, ElrondU32, ElrondU8} from "@gfusee/elrond-wasm-as";
+import {ManagedBuffer, ManagedU32, ManagedU8} from "@gfusee/mx-sdk-as";
 
 const SEED_SIZE: u32 = 48
 const SALT_SIZE: u32 = 32
@@ -33,7 +33,7 @@ export class Random {
 
     constructor(
         public data: Uint8Array,
-        public currentIndex: ElrondU32
+        public currentIndex: ManagedU32
     ) {
         if (data.length != SEED_SIZE) {
             throw new Error("Random's data property should have SEED_SIZE length")
@@ -41,8 +41,8 @@ export class Random {
     }
 
     static new(
-        seed: ElrondString, //TODO : implement something like ManagedArgBuffer?
-        salt: ElrondString
+        seed: ManagedBuffer, //TODO : implement something like ManagedArgBuffer?
+        salt: ManagedBuffer
     ): Random {
 
         const seedBytes = seed.utils.toBytes()
@@ -71,31 +71,31 @@ export class Random {
 
         return new Random(
             randSource,
-            ElrondU32.zero()
+            ManagedU32.zero()
         )
     }
 
-    nextU8(): ElrondU8 {
+    nextU8(): ManagedU8 {
         const val = this.data[this.currentIndex.value]
 
-        this.currentIndex += ElrondU32.fromValue(1)
+        this.currentIndex += ManagedU32.fromValue(1)
 
-        if (this.currentIndex == ElrondU32.fromValue(SEED_SIZE)) {
+        if (this.currentIndex == ManagedU32.fromValue(SEED_SIZE)) {
             this.shuffle()
-            this.currentIndex = ElrondU32.zero()
+            this.currentIndex = ManagedU32.zero()
         }
 
-        return ElrondU8.fromValue(val)
+        return ManagedU8.fromValue(val)
     }
 
-    nextU32(): ElrondU32 {
+    nextU32(): ManagedU32 {
         const firstByte = this.nextU8().value as u32
         const secondByte = this.nextU8().value as u32
         const thirdByte = this.nextU8().value as u32
         const fourthByte = this.nextU8().value as u32
 
-        // TODO: Fix, this only generates in u8 range (see elrond-wasm-rs)
-        return ElrondU32.fromValue(
+        // TODO: Fix, this only generates in u8 range (see mx-sdk-rs)
+        return ManagedU32.fromValue(
             firstByte | secondByte | thirdByte | fourthByte
         )
     }

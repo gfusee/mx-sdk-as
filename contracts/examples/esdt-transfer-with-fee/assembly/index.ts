@@ -2,18 +2,18 @@
 
 import {
     BigUint, ContractBase,
-    ElrondArray, ElrondU32,
-    ElrondU64, ManagedAddress, MapMapping,
+    ManagedArray, ManagedU32,
+    ManagedU64, ManagedAddress, MapMapping,
     Mapping,
     MultiValue2, MultiValueEncoded, OptionalValue,
     TokenIdentifier,
     TokenPayment
-} from "@gfusee/elrond-wasm-as"
+} from "@gfusee/mx-sdk-as"
 import {
     getRetainedClosureValue,
     releaseRetainedClosureValue,
     retainClosureValue
-} from "@gfusee/elrond-wasm-as"
+} from "@gfusee/mx-sdk-as"
 import {AbstractFee, FeeExactValue, FeePercentage, FeeType, FeeUnset, PERCENTAGE_DIVISOR} from "./fee"
 
 @contract
@@ -31,17 +31,17 @@ abstract class EsdtTransferWithFee extends ContractBase {
             OptionalValue.withValue(
                 TokenPayment.new(
                     feeToken,
-                    ElrondU64.zero(),
+                    ManagedU64.zero(),
                     feeAmount
                 )
             ),
-            OptionalValue.null<ElrondU32>()
+            OptionalValue.null<ManagedU32>()
         )
     }
 
     @onlyOwner
     setPercentageFee(
-        fee: ElrondU32,
+        fee: ManagedU32,
         token: TokenIdentifier
     ): void {
         this.storeTokenFee(
@@ -63,10 +63,10 @@ abstract class EsdtTransferWithFee extends ContractBase {
             "There is nothing to claim"
         )
 
-        const fees = new ElrondArray<TokenPayment>()
+        const fees = new ManagedArray<TokenPayment>()
         retainClosureValue(fees)
         paidFees.forEach((key, item) => {
-            const feesRef = getRetainedClosureValue<ElrondArray<TokenPayment>>()
+            const feesRef = getRetainedClosureValue<ManagedArray<TokenPayment>>()
             feesRef.push(
                 TokenPayment.new(
                     key.a,
@@ -94,9 +94,9 @@ abstract class EsdtTransferWithFee extends ContractBase {
         )
 
         const payments = this.callValue.allEsdtPayments
-        let newPayments = new ElrondArray<TokenPayment>()
+        let newPayments = new ManagedArray<TokenPayment>()
 
-        let i = ElrondU32.zero()
+        let i = ManagedU32.zero()
         const paymentLength = payments.getLength()
         while (i < paymentLength) {
             const payment = payments.get(i)
@@ -137,8 +137,8 @@ abstract class EsdtTransferWithFee extends ContractBase {
     }
 
     @view
-    getPaidFees(): MultiValueEncoded<MultiValue2<MultiValue2<TokenIdentifier, ElrondU64>, BigUint>> {
-        const result = new MultiValueEncoded<MultiValue2<MultiValue2<TokenIdentifier, ElrondU64>, BigUint>>()
+    getPaidFees(): MultiValueEncoded<MultiValue2<MultiValue2<TokenIdentifier, ManagedU64>, BigUint>> {
+        const result = new MultiValueEncoded<MultiValue2<MultiValue2<TokenIdentifier, ManagedU64>, BigUint>>()
 
         const paidFeeIterator = this.paidFees().getIterator()
 
@@ -178,7 +178,7 @@ abstract class EsdtTransferWithFee extends ContractBase {
     }
 
     private calculateFeePecentage(
-        percentage: ElrondU32,
+        percentage: ManagedU32,
         providedPayment: TokenPayment
     ): TokenPayment {
         const calculatedFeeAmount = providedPayment.amount * BigUint.fromU64(percentage.value as u64) / BigUint.fromU64(PERCENTAGE_DIVISOR as u64) //TODO : no .value
@@ -195,7 +195,7 @@ abstract class EsdtTransferWithFee extends ContractBase {
         token: TokenIdentifier,
         type: FeeType,
         exactValue: OptionalValue<TokenPayment>,
-        percentage: OptionalValue<ElrondU32>
+        percentage: OptionalValue<ManagedU32>
     ): void {
         if (type == FeeType.Unset) {
             FeeUnset.new().utils.storeAtBuffer(this.tokenFee(token).key.buffer)
@@ -217,6 +217,6 @@ abstract class EsdtTransferWithFee extends ContractBase {
 
     abstract tokenFee(token: TokenIdentifier): Mapping<AbstractFee>
 
-    abstract paidFees(): MapMapping<MultiValue2<TokenIdentifier, ElrondU64>, BigUint>
+    abstract paidFees(): MapMapping<MultiValue2<TokenIdentifier, ManagedU64>, BigUint>
 
 }
