@@ -1,6 +1,6 @@
 {
   "name": "@gfusee/mx-sdk-as",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "AssemblyScript smart contract library designed for MultiversX's VM.",
   "types": "index.ts",
   "type": "module",
