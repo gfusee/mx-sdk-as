@@ -18,6 +18,7 @@ export class StructExporter extends TransformVisitor {
 
     static classSeen: string[] = []
 
+    className: string = ""
     newImports: string[] = []
     fields: FieldDeclaration[] = []
     abiStructTypes: { [key: string]: AbiStructType }[] = []
@@ -29,12 +30,20 @@ export class StructExporter extends TransformVisitor {
     }
 
     visitMethodDeclaration(node: MethodDeclaration): MethodDeclaration {
+        const name = ASTBuilder.build(node.name)
+        const isConstructor = name === 'constructor'
+
+        if (isConstructor) {
+            throw new Error(`Constructors are not allowed in classes annotated with @struct. Please remove the constructor from the class ${this.className}.\nIf you want to create constructor-like functions, consider using static methods.`)
+        }
+
         return node
     }
 
     visitClassDeclaration(node: ClassDeclaration): ClassDeclaration {
         if (StructExporter.hasStructDecorator(node)) {
             const className = ASTBuilder.build(node.name)
+            this.className = className
 
             if (StructExporter.classSeen.includes(className)) {
                 return node
@@ -73,8 +82,8 @@ export class StructExporter extends TransformVisitor {
 
             this.visit(node.members)
 
-            if (this.fields.length == 0) {
-                throw `no field in class ${className}`
+            if (this.fields.length === 0) {
+                throw new Error(`A class annotated @struct should have at least one field. Please change ${className} accordingly.`)
             }
 
             let payloadSizeSum = 'let size: u32 = 0'
