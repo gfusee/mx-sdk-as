@@ -81,27 +81,29 @@ export class ContractExporter extends TransformVisitor {
 
         if (node.is(CommonFlags.PRIVATE) || node.is(CommonFlags.PROTECTED)) {
             if (isView) {
-                throw 'TODO : non public method cannot be annotated as view'
+                throw new Error(`All methods annotated with @view should be public. Please make ${ASTBuilder.build(node.name)} public.`)
             }
 
             return node
         }
 
+        let name = ASTBuilder.build(node.name)
+
         if (node.is(CommonFlags.ABSTRACT)) {
-            if (ASTBuilder.build(node.signature.returnType).includes('Mapping')) {
+            const mappingType = ASTBuilder.build(node.signature.returnType)
+            if (mappingType.includes('Mapping')) {
                 this.parseStorageMethod(node, this.classSeen)
                 return node
             } else {
-                throw new Error('TODO : unknown abstract method type')
+                throw new Error(`Unknown mapping type ${mappingType} for storage ${name}`)
             }
         }
 
-        let name = ASTBuilder.build(node.name)
         const isConstructor = name === 'constructor'
 
         if (isConstructor) {
             if (isView) {
-                throw 'TODO : constructor cannot be annotated as view'
+                throw new Error("@view is forbidden for the contract's constructor. Please remove the annotation.")
             }
 
             const initName = 'init'
@@ -156,11 +158,11 @@ export class ContractExporter extends TransformVisitor {
                             const ${paramName} = BaseManagedType.dummy<${paramType}>().utils.fromArgumentIndex(${index})
                             `
                         } else {
-                            throw new Error('TODO : MultiValueEncoded should be the last argument')
+                            throw new Error(`MultiValueEncoded should be the last argument of an @endpoint or a @view. Please fix the ${name} endpoint/view.`)
                         }
                     } else {
                         if (argHasOptionalValue) {
-                            throw new Error('TODO : error OptionalValue required')
+                            throw new Error('In an @endpoint or a @view, after an OptionalValue parameter only another OptionalValue or MultiValueEncoded are allowed. Please fix the ${name} endpoint/view')
                         } else {
                             this.newImports.push(paramType)
 
@@ -237,7 +239,7 @@ export class ContractExporter extends TransformVisitor {
             }
 
             if (node.extendsType === null) {
-                throw new Error('TODO : contract class should extends something')
+                throw new Error(`Contract's class should extend ContractBase or another class annotated with @module.`)
             }
 
             if (ASTBuilder.build(node.extendsType) !== "ContractBase") {
@@ -418,13 +420,13 @@ export class ContractExporter extends TransformVisitor {
         }
 
         if (decorator.args.length !== 1) {
-            throw new Error("The storage decorator only accepts one argument")
+            throw new Error(`@storage only accepts one argument, which represents the storage's name. Please change the ${ASTBuilder.build(node.name)} @storage annotation.`)
         }
 
         const storageName = ASTBuilder.build(decorator.args[0])
 
         if (!ContractExporter.isStorageNameValid(storageName)) {
-            throw new Error("Invalid characters in the storage's name")
+            throw new Error(`Invalid characters in the storage's name. Found ${storageName} for the method ${ASTBuilder.build(node.name)}`)
         }
 
         return storageName

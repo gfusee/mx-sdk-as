@@ -3,7 +3,7 @@
 import {
     BigUint,
     ContractBase
-} from "@gfusee/mx-sdk-as";
+} from "@gfusee/mx-sdk-as"
 
 @contract
 abstract class Adder extends ContractBase {

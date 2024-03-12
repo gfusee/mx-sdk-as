@@ -16,18 +16,18 @@ export class CallableExporter extends TransformVisitor {
   newImports: string[] = []
 
   visitFieldDeclaration(node: FieldDeclaration): FieldDeclaration {
-    throw 'TODO : no field allowed'
+    throw new Error(`Only abstract methods are allowed in a class annotated @callable. Please remove the field ${ASTBuilder.build(node.name)}`)
   }
 
   visitMethodDeclaration(node: MethodDeclaration): MethodDeclaration {
     if (!node.is(CommonFlags.ABSTRACT)) {
-      throw 'TODO : method should be abstract'
+      throw new Error(`Only abstract methods are allowed in a class annotated @callable. Please make ${ASTBuilder.build(node.name)} abstract.`)
     }
 
     const returnType = ASTBuilder.build(node.signature.returnType)
 
     if (!returnType.startsWith("ContractCall")) {
-      throw 'TODO : wrong return type'
+      throw new Error(`All methods from a class annotated @callable should return a ContractCall object. Please modify ${node.name} accordingly.`)
     }
 
     let body = `{
@@ -58,7 +58,7 @@ export class CallableExporter extends TransformVisitor {
 
     if (isCallableContract) {
       if (ASTBuilder.build(node.extendsType) !== "CallableContract") {
-        throw 'TODO : class should extends ContractCall'
+        throw new Error(`A class annotated @callable should extend CallableContract. Please make ${ASTBuilder.build(node.name)} a child of CallableContract.`)
       }
 
       this.newImports.push(
